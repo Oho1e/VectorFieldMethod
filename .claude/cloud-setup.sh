@@ -9,8 +9,9 @@
 #   2. installs elan and the toolchain named by the clone's lean-toolchain,
 #   3. puts lean, lake and elan on PATH via wrappers in /usr/local/bin,
 #   4. fetches the Lake dependencies (shallow) and the Mathlib olean cache,
-#   5. builds this repository's own modules if Mathlib is complete and time
-#      remains (Mathlib itself is never compiled),
+#   5. checks that Mathlib is complete (marker .lake/lean-warm-manifest.json)
+#      and, if time remains, builds this repository's own modules (Mathlib
+#      itself is never compiled),
 #
 # and logs every step with a timestamp to /opt/warm/SETUP-REPORT.txt.
 #
@@ -30,6 +31,7 @@ export ELAN_HOME="${ELAN_HOME:-$HOME/.elan}"
 
 REPO_DIR="$WARM_DIR/VectorFieldMethod"
 REPORT="$WARM_DIR/SETUP-REPORT.txt"
+MARKER="$REPO_DIR/.lake/lean-warm-manifest.json"
 STAMP="$WARM_DIR/SETUP-STAMP"
 START=$(date +%s)
 export PATH="$ELAN_HOME/bin:$PATH"
@@ -199,6 +201,7 @@ step_cache() {
   local probe order host
   probe=$(probe_cache_host)
   CACHE_PROBE=$probe
+  rm -f "$MARKER"
   log "STEP cache: cache.mathlib.org probe answered ${probe:-nothing} (404 = reachable)"
   if [ "$probe" = "404" ]; then order="default legacy"; else order="legacy default"; fi
   for host in $order; do
@@ -212,14 +215,24 @@ step_cache() {
   log "  Mathlib oleans in place: $(mathlib_oleans)"
 }
 
+# Mark the warm tree complete only once Lake confirms that every Mathlib module
+# is up to date: `--no-build` fails instead of building anything. The marker is
+# a copy of the manifest; the SessionStart hook links to the warm tree only if
+# it equals the session checkout's manifest.
+step_verify() {
+  log "STEP verify: Mathlib complete without compiling anything"
+  if (cd "$REPO_DIR" && run "$(remaining)" lake build --no-build Mathlib); then
+    cp "$REPO_DIR/lake-manifest.json" "$MARKER" && MATHLIB_OK=yes
+    log "  complete; wrote $MARKER"
+  else
+    log "  Mathlib oleans incomplete; the warm tree is not marked complete"
+  fi
+}
+
 step_build() {
   log "STEP build: this repository's modules (never Mathlib)"
   if [ "$BUILD" != 1 ]; then log "  disabled (BUILD=$BUILD)"; return 0; fi
-  # --no-build fails instead of building, so Mathlib is only ever replayed.
-  if ! (cd "$REPO_DIR" && run "$(remaining)" lake build --no-build Mathlib); then
-    log "  Mathlib oleans incomplete; not building (that would compile Mathlib)"
-    return 0
-  fi
+  if [ "${MATHLIB_OK:-}" != yes ]; then log "  skipped: Mathlib incomplete (building would compile it)"; return 0; fi
   (cd "$REPO_DIR" && run "$(remaining)" lake build) && BUILT=yes
 }
 
@@ -233,6 +246,7 @@ write_stamp() {
     echo "default-cache-probe: ${CACHE_PROBE:-}"
     echo "cache-host-used: ${CACHE_HOST:-none}"
     echo "mathlib-oleans: $(mathlib_oleans)"
+    echo "mathlib-complete: ${MATHLIB_OK:-no}"
     echo "project-built: ${BUILT:-no}"
     echo "script-sha256: $(sha256sum "$0" 2>/dev/null | cut -d' ' -f1)"
     echo "seconds: $(elapsed)"
@@ -251,6 +265,7 @@ main() {
   step_path
   step_deps
   step_cache
+  step_verify
   step_build
 }
 

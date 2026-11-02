@@ -4,9 +4,11 @@
 #
 # Runs only in Claude Code cloud sessions (CLAUDE_CODE_REMOTE=true).
 #
-# * If the checkout's lake-manifest.json and lean-toolchain are identical to
-#   the warm clone's, the checkout's .lake becomes a symlink to the warm .lake
-#   (Mathlib oleans included), so nothing is downloaded or compiled.
+# * If the checkout's lake-manifest.json is identical to the one the warm tree
+#   was verified complete for (/opt/warm/VectorFieldMethod/.lake/
+#   lean-warm-manifest.json) and lean-toolchain matches too, the checkout's
+#   .lake becomes a symlink to the warm .lake (Mathlib oleans included), so
+#   nothing is downloaded or compiled.
 # * Otherwise (the Mathlib pin moved since the snapshot was built), the warm
 #   tree is not touched and `lake exe cache get` runs in the background in the
 #   checkout; its log path is printed.
@@ -22,7 +24,8 @@ WARM_DIR="${WARM_DIR:-/opt/warm}"
 WARM_REPO="$WARM_DIR/VectorFieldMethod"
 LOG="${TMPDIR:-/tmp}/lean-warm-cache-get.log"
 PIDFILE="${TMPDIR:-/tmp}/lean-warm-cache-get.pid"
-MARKER=".lake/packages/mathlib/.lake/build/lib/lean/Mathlib.olean"
+# Written (a copy of lake-manifest.json) once Mathlib is verified complete.
+MARKER=".lake/lean-warm-manifest.json"
 
 say() { echo "lean-warm: $*"; }
 note() { echo "lean-warm note: $*"; }
@@ -54,8 +57,7 @@ cache_get_in_background() {
 }
 
 consistent=0
-if [ -f "$WARM_REPO/lake-manifest.json" ] && [ -f "$WARM_REPO/$MARKER" ] &&
-   cmp -s lake-manifest.json "$WARM_REPO/lake-manifest.json" &&
+if cmp -s lake-manifest.json "$WARM_REPO/$MARKER" &&
    cmp -s lean-toolchain "$WARM_REPO/lean-toolchain"; then
   consistent=1
 fi
@@ -75,7 +77,7 @@ if [ "$consistent" = 1 ] && [ ! -e .lake ]; then
   exit 0
 fi
 
-if [ -f "$MARKER" ] && cmp -s lake-manifest.json .lake/lean-warm-manifest.json; then
+if cmp -s lake-manifest.json "$MARKER"; then
   say "$(lean --version 2>/dev/null | head -n1); the checkout's own .lake has the Mathlib oleans for this manifest"
   exit 0
 fi

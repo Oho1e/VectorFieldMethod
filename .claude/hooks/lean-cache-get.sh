@@ -6,7 +6,8 @@
 #    commit (Lake accepts such clones and skips its full-history clone).
 # 2. Run `lake exe cache get`, trying the legacy Azure cache host first when
 #    LEGACY_FIRST=1 (cache.mathlib.org refused) and the default host otherwise.
-# 3. On success, record the manifest in .lake/lean-warm-manifest.json.
+# 3. If `lake build --no-build Mathlib` then succeeds (Mathlib complete),
+#    record the manifest in .lake/lean-warm-manifest.json.
 
 cd "$1" || exit 0
 legacy_first="${2:-1}"
@@ -35,6 +36,8 @@ else
   lake exe cache get || MATHLIB_CACHE_DEBUG_USE_LEGACY=1 lake exe cache get
 fi
 rc=$?
-[ "$rc" = 0 ] && cp lake-manifest.json .lake/lean-warm-manifest.json
+# Mark complete only if Lake confirms Mathlib needs no compiling.
+[ "$rc" = 0 ] && lake build --no-build Mathlib >/dev/null 2>&1 &&
+  cp lake-manifest.json .lake/lean-warm-manifest.json || rc=1
 echo "lean-warm: cache get finished with exit $rc"
 exit 0
