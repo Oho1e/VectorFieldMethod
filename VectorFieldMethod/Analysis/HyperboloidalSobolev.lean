@@ -18,12 +18,13 @@ public import Mathlib.MeasureTheory.Function.LpSeminorm.TriangleInequality
 
 For `s > 0` let `φ_s x = √(s ^ 2 + ‖x‖ ^ 2)`, and for `a : Fin 3` let `Λ_a w = φ_s ∂_a w`
 (`hyperboloidalWeightedDeriv s a w`), where `∂_a w x = fderiv ℝ w x (EuclideanSpace.single a 1)`.
-This file proves that the local Sobolev bound `LocalSobolevBound` on balls of `ℝ³` implies the
-weighted inequality
+This file proves the weighted inequality
 `φ_s(x₀) ^ (3/2) |w x₀| ≤ C (‖w‖ + ∑ a, ‖Λ_a w‖ + ∑ a, ∑ b, ‖Λ_a Λ_b w‖)`
 for every `C²` function `w : ℝ³ → ℝ` and every `x₀`, with `L²` norms over `ℝ³`, and with an absolute
 constant `C` (independent of `s`, `w` and `x₀`). This is the `ℝ³` form of the Klainerman–Sobolev
-inequality on the hyperboloid `t = √(s ^ 2 + ‖x‖ ^ 2)`; see `docs/hyperboloidal-sobolev.md`.
+inequality on the hyperboloid `t = √(s ^ 2 + ‖x‖ ^ 2)`; see `docs/hyperboloidal-sobolev.md`. It is
+first derived from the local Sobolev bound `LocalSobolevBound` on balls of `ℝ³`, as an implication,
+and then combined with `localSobolevBound_holds`.
 
 ## Proof
 
@@ -51,6 +52,11 @@ follows by monotonicity of `eLpNorm` in the measure.
   inequality with `L²` norms on `ball x₀ (φ_s(x₀) / 3)`.
 * `exists_hyperboloidalSobolev_of_localSobolevBound`: the local bound implies the weighted
   inequality with `L²` norms on `ℝ³`.
+* `exists_hyperboloidalSobolev_ball`: the weighted inequality with `L²` norms on
+  `ball x₀ (φ_s(x₀) / 3)` (local version of Theorem 2).
+* `exists_hyperboloidalSobolev`: the weighted inequality with `L²` norms on `ℝ³` (Theorem 2).
+
+Both unconditional statements combine the reductions with `localSobolevBound_holds`.
 
 ## Notation
 
@@ -359,17 +365,17 @@ theorem exists_hyperboloidalSobolev_ball_of_localSobolevBound (h : LocalSobolevB
       Metric.isOpen_ball.measurableSet hct
   have key := hC₁ x₀ ρ w hρpos hw.contDiffOn
   have c1 : φ₀ ^ (3 / 2 : ℝ) * ρ ^ (-(3 / 2 : ℝ)) ≤ 9 := by
-    rw [hφ₀ρ, three_mul_rpow_mul_rpow hρpos]
-    norm_num
+    rw [hφ₀ρ, three_mul_rpow_mul_rpow hρpos, show (3 / 2 : ℝ) + -(3 / 2) = 0 by norm_num,
+      Real.rpow_zero, mul_one]
     exact three_rpow_le_nine
   have c2 : φ₀ ^ (3 / 2 : ℝ) * ρ ^ (-(1 / 2 : ℝ)) ≤ 3 * φ₀ := by
-    rw [hφ₀ρ, three_mul_rpow_mul_rpow hρpos]
-    norm_num
+    rw [hφ₀ρ, three_mul_rpow_mul_rpow hρpos, show (3 / 2 : ℝ) + -(1 / 2) = 1 by norm_num,
+      Real.rpow_one]
     nlinarith [three_rpow_le_nine]
   have c3 : φ₀ ^ (3 / 2 : ℝ) * ρ ^ (1 / 2 : ℝ) ≤ φ₀ ^ 2 := by
-    rw [hφ₀ρ, three_mul_rpow_mul_rpow hρpos]
-    norm_num
-    nlinarith [three_rpow_le_nine]
+    rw [hφ₀ρ, three_mul_rpow_mul_rpow hρpos, show (3 / 2 : ℝ) + 1 / 2 = 2 by norm_num,
+      Real.rpow_two]
+    nlinarith [three_rpow_le_nine, sq_nonneg ρ]
   have hpow : 0 ≤ φ₀ ^ (3 / 2 : ℝ) := by positivity
   calc ENNReal.ofReal (φ₀ ^ (3 / 2 : ℝ) * |w x₀|)
       = ENNReal.ofReal (φ₀ ^ (3 / 2 : ℝ)) * ENNReal.ofReal |w x₀| := ENNReal.ofReal_mul hpow
@@ -410,5 +416,34 @@ theorem exists_hyperboloidalSobolev_of_localSobolevBound (h : LocalSobolevBound)
   have hle : volume.restrict (Metric.ball x₀ (√(s ^ 2 + ‖x₀‖ ^ 2) / 3)) ≤ volume :=
     Measure.restrict_le_self
   gcongr
+
+/-! ### The hyperboloidal Sobolev inequality -/
+
+/-- **Theorem 2, local version.** There is an absolute constant `C` such that for all `s > 0`, all
+`C²` functions `w : ℝ³ → ℝ` and all `x₀`, with `φ₀ = √(s ^ 2 + ‖x₀‖ ^ 2)` and `L²` norms on
+`ball x₀ (φ₀ / 3)`,
+`φ₀ ^ (3/2) |w x₀| ≤ C (‖w‖ + ∑ a, ‖Λ_a w‖ + ∑ a, ∑ b, ‖Λ_a Λ_b w‖)`. -/
+theorem exists_hyperboloidalSobolev_ball :
+    ∃ C : NNReal, ∀ s : ℝ, 0 < s → ∀ w : EuclideanSpace ℝ (Fin 3) → ℝ, ContDiff ℝ 2 w →
+      ∀ x₀ : EuclideanSpace ℝ (Fin 3),
+      ENNReal.ofReal (√(s ^ 2 + ‖x₀‖ ^ 2) ^ (3 / 2 : ℝ) * |w x₀|) ≤ (C : ENNReal) *
+        (eLpNorm w 2 (volume.restrict (Metric.ball x₀ (√(s ^ 2 + ‖x₀‖ ^ 2) / 3))) +
+          ∑ a, eLpNorm (hyperboloidalWeightedDeriv s a w) 2
+            (volume.restrict (Metric.ball x₀ (√(s ^ 2 + ‖x₀‖ ^ 2) / 3))) +
+          ∑ a, ∑ b, eLpNorm (hyperboloidalWeightedDeriv s a (hyperboloidalWeightedDeriv s b w)) 2
+            (volume.restrict (Metric.ball x₀ (√(s ^ 2 + ‖x₀‖ ^ 2) / 3)))) :=
+  exists_hyperboloidalSobolev_ball_of_localSobolevBound localSobolevBound_holds
+
+/-- **Theorem 2 (hyperboloidal Sobolev inequality on `ℝ³`).** There is an absolute constant `C`
+such that for all `s > 0`, all `C²` functions `w : ℝ³ → ℝ` and all `x₀`, with `L²` norms on `ℝ³`,
+`√(s ^ 2 + ‖x₀‖ ^ 2) ^ (3/2) |w x₀| ≤ C (‖w‖ + ∑ a, ‖Λ_a w‖ + ∑ a, ∑ b, ‖Λ_a Λ_b w‖)`. -/
+theorem exists_hyperboloidalSobolev :
+    ∃ C : NNReal, ∀ s : ℝ, 0 < s → ∀ w : EuclideanSpace ℝ (Fin 3) → ℝ, ContDiff ℝ 2 w →
+      ∀ x₀ : EuclideanSpace ℝ (Fin 3),
+      ENNReal.ofReal (√(s ^ 2 + ‖x₀‖ ^ 2) ^ (3 / 2 : ℝ) * |w x₀|) ≤ (C : ENNReal) *
+        (eLpNorm w 2 volume + ∑ a, eLpNorm (hyperboloidalWeightedDeriv s a w) 2 volume +
+          ∑ a, ∑ b, eLpNorm (hyperboloidalWeightedDeriv s a (hyperboloidalWeightedDeriv s b w))
+            2 volume) :=
+  exists_hyperboloidalSobolev_of_localSobolevBound localSobolevBound_holds
 
 end VectorFieldMethod.EuclideanSobolev
