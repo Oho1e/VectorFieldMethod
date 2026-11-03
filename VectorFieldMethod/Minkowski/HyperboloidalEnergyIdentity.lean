@@ -37,6 +37,8 @@ The divergence theorems use the coordinates `(x, t)` of `E × ℝ` (time second)
 * `integrable_hyperboloidalEnergyDensity`, `integrableOn_inner_kleinGordon_timeDeriv`: under the
   same hypotheses, the integrands of both sides are integrable, so that the identity is not an
   identity between junk values `0` of integrals of non-integrable functions.
+* `hyperboloidalEnergy_eq_of_kleinGordon_eq_zero`: conservation of the energy,
+  `E_m(s₁, u) = E_m(s₂, u)`, if moreover `□u - m² u = 0` on `D ∩ K`.
 
 ## Sign conventions
 
@@ -134,6 +136,16 @@ theorem continuousAt_kleinGordon (m : ℝ) {p : Spacetime} (hu : ContDiffAt ℝ 
   change ContinuousAt (fun q ↦ ∑ α, ∑ β, η α β • ∂[α] (∂[β] u) q - m ^ 2 • u q) p
   exact (tendsto_finsetSum _ fun α _ ↦ tendsto_finsetSum _ fun β _ ↦ (h2 α β).const_smul _).sub
     (hu.continuousAt.const_smul _)
+
+/-- The Klein–Gordon operator of `u` vanishes outside the closed support of `u`. -/
+theorem kleinGordon_of_notMem_tsupport (m : ℝ) {p : Spacetime} (hp : p ∉ tsupport u) :
+    kleinGordon m u p = 0 := by
+  have hD (β : Fin 4) : tsupport (∂[β] u) ⊆ tsupport u :=
+    closure_minimal (fun q hq ↦ by_contra fun h ↦ hq (derivAlong_of_notMem_tsupport _ h))
+      (isClosed_tsupport u)
+  have h2 (α β : Fin 4) : ∂[α] (∂[β] u) p = 0 :=
+    derivAlong_of_notMem_tsupport _ fun h ↦ hp (hD β h)
+  simp [kleinGordon_apply, dAlembertian_apply, h2, image_eq_zero_of_notMem_tsupport hp]
 
 /-- The part of the closed region between the hyperboloids `t = √(s₁ ^ 2 + ‖x‖ ^ 2)` and
 `t = √(s₂ ^ 2 + ‖x‖ ^ 2)` of `Spacetime` which lies in the cone `‖x‖ ≤ t - 1` is compact. -/
@@ -333,6 +345,30 @@ theorem hyperboloidalEnergy_sub_hyperboloidalEnergy {m s₁ s₂ : ℝ} (hs₁ :
   have key := hlhs.trans (hdiv.trans (congrArg₂ (· - ·) (hflux s₂) (hflux s₁)))
   linarith
 
+/-- **Conservation of the hyperboloidal energy.** Under the hypotheses of
+`hyperboloidalEnergy_sub_hyperboloidalEnergy`, if moreover `u` solves the Klein–Gordon equation
+`□u - m² u = 0` on `D ∩ K`, then `E_m(s₁, u) = E_m(s₂, u)`. -/
+theorem hyperboloidalEnergy_eq_of_kleinGordon_eq_zero {m s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
+    (hs₁₂ : s₁ < s₂) {U : Set Spacetime} (hU : IsOpen U)
+    (hDU : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
+      {p | ‖p.2‖ ≤ p.1 - 1} ⊆ U)
+    (hu : ContDiffOn ℝ 2 u U)
+    (hsupp : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
+      tsupport u ⊆ {p | ‖p.2‖ ≤ p.1 - 1})
+    (hKG : ∀ p ∈ {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
+      {p | ‖p.2‖ ≤ p.1 - 1}, kleinGordon m u p = 0) :
+    hyperboloidalEnergy m s₁ u = hyperboloidalEnergy m s₂ u := by
+  have h := hyperboloidalEnergy_sub_hyperboloidalEnergy (m := m) hs₁ hs₁₂ hU hDU hu hsupp
+  have h0 : ∫ p in {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)},
+      ⟪kleinGordon m u p, ∂ₜ u p⟫ = 0 := by
+    refine setIntegral_eq_zero_of_forall_eq_zero fun p hp ↦ ?_
+    by_cases hK : p ∈ {p : Spacetime | ‖p.2‖ ≤ p.1 - 1}
+    · rw [hKG p ⟨hp, hK⟩, inner_zero_left]
+    · have ht : ∂ₜ u p = 0 := derivAlong_of_notMem_tsupport _ fun h ↦ hK (hsupp ⟨hp, h⟩)
+      rw [ht, inner_zero_right]
+  rw [h0, mul_zero, sub_eq_zero] at h
+  exact h.symm
+
 /-! ### Sanity checks
 
 The hypotheses of the energy identity `hyperboloidalEnergy_sub_hyperboloidalEnergy` hold for the
@@ -373,6 +409,29 @@ example (m : ℝ) :
   hyperboloidalEnergy_sub_hyperboloidalEnergy (by norm_num) (by norm_num) isOpen_univ
     (subset_univ _) sanityBump.contDiff.contDiffOn
     (inter_subset_right.trans tsupport_sanityBump_subset)
+
+/-- The hypotheses of the conservation law `hyperboloidalEnergy_eq_of_kleinGordon_eq_zero` hold for
+the same bump function between the hyperboloids `s₁ = 5` and `s₂ = 6`: the region between them
+lies in `{t ≥ 5}` and does not meet the closed support of `u` (where `t ≤ 9 / 2`), so `u` and
+`□u - m² u` vanish on it. (Both energies are `0` here.) -/
+example (m : ℝ) :
+    hyperboloidalEnergy m 5 (sanityBump : Spacetime → ℝ) =
+      hyperboloidalEnergy m 6 (sanityBump : Spacetime → ℝ) := by
+  have hD (p : Spacetime)
+      (hp : p ∈ {p : Spacetime | p.1 ∈ Icc √(5 ^ 2 + ‖p.2‖ ^ 2) √(6 ^ 2 + ‖p.2‖ ^ 2)}) :
+      p ∉ tsupport (sanityBump : Spacetime → ℝ) := by
+    intro h
+    rw [ContDiffBump.tsupport_eq, Metric.mem_closedBall, Prod.dist_eq, max_le_iff,
+      Real.dist_eq] at h
+    have hr : sanityBump.rOut = 1 / 2 := rfl
+    rw [hr, abs_le] at h
+    have h₅ : (5 : ℝ) ≤ √(5 ^ 2 + ‖p.2‖ ^ 2) :=
+      Real.le_sqrt_of_sq_le (by nlinarith [norm_nonneg p.2])
+    have h₁ : √(5 ^ 2 + ‖p.2‖ ^ 2) ≤ p.1 := hp.1
+    linarith [h.1.2]
+  exact hyperboloidalEnergy_eq_of_kleinGordon_eq_zero (by norm_num) (by norm_num) isOpen_univ
+    (subset_univ _) sanityBump.contDiff.contDiffOn (fun p hp ↦ absurd hp.2 (hD p hp.1))
+    fun p hp ↦ kleinGordon_of_notMem_tsupport m (hD p hp.1)
 
 end SanityChecks
 
