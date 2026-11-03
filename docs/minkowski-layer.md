@@ -11,6 +11,12 @@ fields (`F = ℝ`), complex fields (`F = ℂ`) and, later, spinor fields. The
 coordinate functions, the metric and the component fields are real and do not
 depend on `F`.
 
+`F` is inferred from the function argument. Two cases need a type ascription:
+an equation between operators without a function argument (such as
+`partialDeriv_zero`, stated as `(∂[0] : (Spacetime → F) → Spacetime → F) = ∂ₜ`),
+and a function whose values are only numerals, such as `∂ₜ (fun _ ↦ 1)`, which
+has to be written `∂ₜ (fun _ ↦ (1 : ℝ))`.
+
 ## Public interface
 
 | Lean name | Type signature | Mathematical meaning |
@@ -141,9 +147,15 @@ component functions `E → E` is also Mathlib's convention in
 *Linearity.* `fderiv` is `0` at points where `u` is not differentiable, so
 `derivAlong V (u + v) p = derivAlong V u p + derivAlong V v p` is false in
 general; `derivAlong_add` assumes `DifferentiableAt ℝ u p` and
-`DifferentiableAt ℝ v p`. Homogeneity `derivAlong_smul` holds for `c : ℝ` without
-hypotheses (`fderiv_const_smul_field`: for `c ≠ 0` the map `u ↦ c • u` preserves
-differentiability, and `c = 0` is trivial). `derivAlong_const_mul` is the same
+`DifferentiableAt ℝ v p`. Homogeneity `derivAlong_smul` holds for a real
+scalar `c : ℝ` without hypotheses (`fderiv_const_smul_field`: for `c ≠ 0` the
+map `u ↦ c • u` preserves differentiability, and `c = 0` is trivial). The same
+argument works for any scalar `c : R` acting on `F` with
+`[DivisionSemiring R] [Module R F] [SMulCommClass ℝ R F] [ContinuousConstSMul R F]`
+(the conditions of `fderiv_const_smul_field`), which gives
+`derivAlong_const_smul_field`, again without hypotheses; for `F = ℂ` it gives
+for instance `∂ₜ (Complex.I • u) = Complex.I • ∂ₜ u`. The real version is kept
+under the name `*_smul` since it needs no scalar type `R`. `derivAlong_const_mul` is the same
 statement with the product written pointwise, `fun q ↦ c * u q`; it is about
 `*` and is stated for real-valued `u` only.
 
@@ -154,13 +166,25 @@ viewed as real normed spaces. Statements that need more structure on `F` will
 assume it where they are made.
 
 *Commutation with continuous linear maps.* For `T : F →L[ℝ] G`,
-`derivAlong_clm_comp : derivAlong V (T ∘ u) p = T (derivAlong V u p)` at a point
+`derivAlong_comp_left : derivAlong V (T ∘ u) p = T (derivAlong V u p)` at a point
 where `u` is differentiable (chain rule, `T` being its own derivative). The same
-holds for `timeDeriv`, `spaceDeriv`, `partialDeriv` (`*_clm_comp` in
+holds for `timeDeriv`, `spaceDeriv`, `partialDeriv` (`*_comp_left` in
 `Derivative.lean`) and `rotation`, `boost`, `scaling` (`VectorFields.lean`).
 These lemmas reduce statements about `F`-valued fields to their components (real
 and imaginary parts, spinor components) and embed real computations into `F`
-(`Complex.ofRealCLM`, `ContinuousLinearMap.toSpanSingleton ℝ w`).
+(`Complex.ofRealCLM`, `ContinuousLinearMap.toSpanSingleton ℝ w`). The name
+follows Mathlib, where "applying a fixed continuous linear map on the left" is
+`comp_left` (`clm_comp` would mean the composition of two CLM-valued functions).
+Each `*_comp_left` lemma carries `@[to_fun]`, which generates `fun_*_comp_left`
+with `T ∘ u` eta-expanded to `fun q ↦ T (u q)`, the form that appears after
+`simp` or in hand-written statements.
+
+For a continuous linear equivalence `e : F ≃L[ℝ] G` the differentiability
+hypothesis is not needed: `e ∘ u` is differentiable exactly where `u` is, so the
+junk values agree (`ContinuousLinearEquiv.comp_fderiv`), and
+`derivAlong_comp_left_equiv : derivAlong V (e ∘ u) = e ∘ derivAlong V u` holds
+as an equality of functions, for every `u`. The same holds for all first-order
+operators, `□` and Klein–Gordon (`*_comp_left_equiv`, also with `@[to_fun]`).
 
 *Alternatives considered.*
 * `lineDeriv ℝ u p v` (Gateaux derivative): it agrees with
@@ -170,7 +194,7 @@ and imaginary parts, spinor components) and embed real computations into `F`
 * The notation class `LineDeriv` with `∂_{v}`
   (`Mathlib.Analysis.Distribution.DerivNotation`): its instances are for
   Schwartz functions, test functions and distributions, not for plain functions
-  `Spacetime → ℝ`; it fits a later distributional layer, not this one.
+  `Spacetime → F`; it fits a later distributional layer, not this one.
 * Vector fields as derivations, or as sections of the tangent bundle
   (manifold API): much heavier, and nothing in the vector field method needs a
   manifold structure on `ℝ^{1+3}`.
@@ -188,7 +212,10 @@ etc. Hence, by `rfl`,
 * `partialDeriv_zero : ∂[0] = ∂ₜ`, `partialDeriv_succ : ∂[a.succ] = ∂ₓ[a]`.
 
 Since `simp` rewrites `Fin.succ 0` to `1`, there are also `partialDeriv_one`,
-`partialDeriv_two`, `partialDeriv_three`.
+`partialDeriv_two`, `partialDeriv_three`. These five lemmas have no function
+argument from which `F` could be inferred, so their statements carry a type
+ascription, for instance
+`partialDeriv_zero : (∂[0] : (Spacetime → F) → Spacetime → F) = ∂ₜ`.
 
 *Reasons.* Most formulas use `∂_t` and `∂_a` separately; `∂_α` is needed for
 index sums such as `η^{αβ} ∂_α ∂_β`. Defining all three as `derivAlong` of
@@ -224,7 +251,10 @@ of the vector field method, and `dAlembertian_eq` gives the explicit form. Secon
 derivatives are iterated first-order operators, so every lemma about `∂_α`
 applies to them.
 
-*Lemmas.* `dAlembertian_smul`, `kleinGordon_smul` (no hypothesis); `dAlembertian_add`,
+*Lemmas.* `dAlembertian_smul`, `kleinGordon_smul` (real scalars, no hypothesis) and
+`dAlembertian_const_smul_field`, `kleinGordon_const_smul_field` (scalars `c : R`
+as above, no hypothesis; `SMulCommClass ℝ R F` moves `c` past the real
+coefficients `η α β` and `m ^ 2`); `dAlembertian_add`,
 `kleinGordon_add` for `u`, `v` that are `C²` at the point (via
 `partialDeriv_partialDeriv_add`, which uses that the first derivatives agree
 near the point); the function-level corollaries
@@ -233,11 +263,15 @@ near the point); the function-level corollaries
 for `u`, `v` of class `C²`;
 `contDiff_dAlembertian : ContDiff ℝ (n + 2) u → ContDiff ℝ n (□ u)` and
 `contDiff_kleinGordon`, with `C^∞` corollaries; `dAlembertian_const`, `dAlembertian_timeCoord`,
-`dAlembertian_spaceCoord` (all `0`); and the commutation with continuous linear
-maps `dAlembertian_clm_comp : □ (T ∘ u) p = T (□ u p)` and
-`kleinGordon_clm_comp` for `u` that is `C²` at `p` (via
-`partialDeriv_partialDeriv_clm_comp`, again using that the first derivatives
-agree near the point).
+`dAlembertian_spaceCoord` (all `0`) and
+`kleinGordon_const : kleinGordon m (fun _ ↦ c) = fun _ ↦ -(m ^ 2 • c)` (the
+Klein–Gordon operator does not vanish on constants); the commutation with
+continuous linear maps `dAlembertian_comp_left : □ (T ∘ u) p = T (□ u p)` and
+`kleinGordon_comp_left` for `u` that is `C²` at `p` (via
+`partialDeriv_partialDeriv_comp_left`, again using that the first derivatives
+agree near the point), with eta-expanded forms `fun_*`; and, for continuous
+linear equivalences, `dAlembertian_comp_left_equiv : □ (e ∘ u) = e ∘ □ u` and
+`kleinGordon_comp_left_equiv`, without hypotheses.
 
 *Alternatives considered.*
 * Defining `□` directly as `-∂_t² + ∑ ∂_a²`: loses the index form; it is the
@@ -286,7 +320,7 @@ fields.
 * values of the operators on the coordinate functions and on constants
   (`timeDeriv_timeCoord`, `spaceDeriv_spaceCoord`, `boost_timeCoord`,
   `rotation_spaceCoord`, `scaling_spaceCoord`, `dAlembertian_const`,
-  `derivAlong_timeCoord`, ...);
+  `kleinGordon_const`, `derivAlong_timeCoord`, ...);
 * `partialDeriv_zero`, `partialDeriv_succ`, `partialDeriv_one`,
   `partialDeriv_two`, `partialDeriv_three`.
 
@@ -319,10 +353,15 @@ The section "Sanity checks" at the end of `Computations.lean` contains
 `example`s (not named theorems) that check the generalization to `F`:
 `□ (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ)) = fun _ ↦ -2` and the corresponding
 Klein–Gordon value for a complex-valued function (via `Complex.ofRealCLM` and
-`dAlembertian_clm_comp`, `kleinGordon_clm_comp`);
+`dAlembertian_comp_left`, `kleinGordon_comp_left`);
 `□ (fun p ↦ timeCoord p ^ 2 • w) = fun _ ↦ (-2 : ℝ) • w` for `w` in any real
-normed space; and, for `F = ℝ`, that `□`, `kleinGordon`, `rotation_eq`,
-`boost_eq`, `scaling_eq` reduce to the forms with `*`.
+normed space; a genuinely complex-valued function,
+`□ (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ) + Complex.I * ((spaceCoord 0 p ^ 2 : ℝ) : ℂ)) = fun _ ↦ -2 + 2 * Complex.I`,
+proved by reduction to the real and imaginary parts (`Complex.reCLM`,
+`Complex.imCLM` with `dAlembertian_comp_left`); homogeneity under
+`Complex.I` without hypotheses (`timeDeriv_const_smul_field`,
+`dAlembertian_const_smul_field`); and, for `F = ℝ`, that `□`, `kleinGordon`,
+`rotation_eq`, `boost_eq`, `scaling_eq` reduce to the forms with `*`.
 
 ## Notation and tokens
 

@@ -99,9 +99,21 @@ notes are in `docs/minkowski-layer.md`.
   [NormedSpace ℝ F]`, always an implicit argument, inferred from `u`); the
   coordinate functions `timeCoord`, `spaceCoord`, `radius` are real-valued. Real
   coefficients act on values by `•` (for `F = ℝ` this is `*`). No inner product
-  or complex structure on `F` is assumed. For `T : F →L[ℝ] G` the `*_clm_comp`
-  lemmas give `op (T ∘ u) p = T (op u p)` (first-order operators: `u`
-  differentiable at `p`; `□`, Klein–Gordon: `u` of class `C²` at `p`).
+  or complex structure on `F` is assumed. `F` cannot be inferred in an equation
+  between operators without a function argument (write a type ascription, as in
+  `partialDeriv_zero : (∂[0] : (Spacetime → F) → Spacetime → F) = ∂ₜ`) or when
+  the values of `u` are only numerals (write `∂ₜ (fun _ ↦ (1 : ℝ))`).
+- **Values: commutation lemmas.** For `T : F →L[ℝ] G` the `*_comp_left` lemmas
+  give `op (T ∘ u) p = T (op u p)` (first-order operators: `u` differentiable at
+  `p`; `□`, Klein–Gordon: `u` of class `C²` at `p`); `@[to_fun]` generates the
+  forms `fun_*_comp_left` about `fun q ↦ T (u q)`. For `e : F ≃L[ℝ] G` the
+  `*_comp_left_equiv` lemmas give `op (e ∘ u) = e ∘ op u` without hypotheses.
+- **Values: extra structure on `F`.** When a statement needs an inner product on
+  `F`, declare `variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]`
+  on its own; do not add `[InnerProductSpace ℝ F]` on top of an existing
+  `[NormedSpace ℝ F]`, which would give two unrelated `NormedSpace ℝ F`
+  instances. A future Bochner integral of `F`-valued functions needs
+  `[CompleteSpace F]`; without it the integral is identically `0`.
 - **Operators.** `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u`; the
   Klein–Gordon operator is `□u - m² u`. LeFloch–Ma's `□ = ∂_t² - Δ` is `-□`
   here, and their Klein–Gordon operator `□u + m²u` is `-(□u - m²u)`.
@@ -117,7 +129,10 @@ notes are in `docs/minkowski-layer.md`.
   `fderiv ℝ u p (0, EuclideanSpace.single a 1)`.
 - **Hypotheses.** `fderiv` is `0` where `u` is not differentiable, so additivity
   needs hypotheses (`DifferentiableAt` for first-order operators, `ContDiffAt ℝ 2`
-  for `□` and Klein–Gordon); homogeneity `c • u` needs none. Smoothness is stated
+  for `□` and Klein–Gordon); homogeneity `c • u` needs none, both for a real
+  scalar `c : ℝ` (`*_smul`) and for a scalar `c : R` acting on `F` with
+  `[DivisionSemiring R] [Module R F] [SMulCommClass ℝ R F] [ContinuousConstSMul R F]`
+  (`*_const_smul_field`, e.g. `c = Complex.I` for `F = ℂ`). Smoothness is stated
   for a general order `n : ℕ∞ω` (`open scoped ContDiff`): `C^{n+1} → C^n` for
   first-order operators and `C^{n+2} → C^n` for `□`; `∞` means `C^∞`. Do not
   write `⊤`, which means analytic.
