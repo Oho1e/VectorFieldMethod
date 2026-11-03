@@ -43,6 +43,8 @@ and `C` is an absolute constant. See `docs/hyperboloidal-sobolev.md`.
   absolute constant `C` (independent of `s`, `u` and the point) and `L²` norms on `H_s` for the
   flat measure `dx`. It is `EuclideanSobolev.exists_hyperboloidalSobolev` applied to
   `w = u|_{H_s}`, whose weighted derivatives are rewritten with the two restriction formulas.
+* `continuous_restrictHyperboloid_boosts`: under the hypotheses of the inequality, the thirteen
+  functions `(L^J u)|_{H_s}` on its right-hand side are continuous, hence measurable.
 * `eLpNorm_restrictHyperboloid_lt_top`: the restriction to `H_s` of a continuous function with
   compact support is square integrable. The sanity checks use it to show that the right-hand side
   of the inequality is finite for a smooth bump function.
@@ -210,12 +212,46 @@ theorem exists_klainermanSobolev_hyperboloid :
     (hu.differentiableOn two_ne_zero)] at h
   exact h
 
-/-! ### Restrictions of compactly supported functions -/
+/-! ### Continuity and square integrability of restrictions -/
+
+/-- The map `x ↦ (√(s ^ 2 + ‖x‖ ^ 2), x)` is continuous, for every `s`. -/
+theorem continuous_hyperboloidPoint (s : ℝ) : Continuous (hyperboloidPoint s) :=
+  (continuous_const.add (continuous_norm.pow 2)).sqrt.prodMk continuous_id
 
 /-- The restriction of a continuous function to `H_s` is continuous. -/
 theorem continuous_restrictHyperboloid (s : ℝ) {v : Spacetime → ℝ} (hv : Continuous v) :
     Continuous (restrictHyperboloid s v) :=
-  hv.comp ((continuous_const.add (continuous_norm.pow 2)).sqrt.prodMk continuous_id)
+  hv.comp (continuous_hyperboloidPoint s)
+
+/-- The restriction to `H_s` of a function that is continuous on a set containing `H_s` is
+continuous. -/
+theorem continuous_restrictHyperboloid_of_continuousOn (s : ℝ) {v : Spacetime → ℝ}
+    {U : Set Spacetime} (hHU : {p : Spacetime | p.1 = √(s ^ 2 + ‖p.2‖ ^ 2)} ⊆ U)
+    (hv : ContinuousOn v U) : Continuous (restrictHyperboloid s v) :=
+  hv.comp_continuous (continuous_hyperboloidPoint s) fun x ↦ hHU (hyperboloidPoint_mem s x)
+
+/-- If `u` is `C^{n+1}` on an open set `U`, then `L_a u` is `C^n` on `U`. -/
+theorem contDiffOn_boost {n : ℕ∞ω} {u : Spacetime → ℝ} {U : Set Spacetime} (hU : IsOpen U)
+    (hu : ContDiffOn ℝ (n + 1) u U) (a : Fin 3) : ContDiffOn ℝ n (boost a u) U :=
+  (hu.fderiv_of_isOpen hU le_rfl).clm_apply (contDiff_boostField a).contDiffOn
+
+/-- Under the hypotheses of `exists_klainermanSobolev_hyperboloid`, the thirteen functions
+`(L^J u)|_{H_s}` (`|J| ≤ 2`) of its right-hand side are continuous on `ℝ³`. In particular they
+are measurable, so an `L²` norm equal to `∞` on that side means that the function is not square
+integrable. -/
+theorem continuous_restrictHyperboloid_boosts {s : ℝ} {u : Spacetime → ℝ} {U : Set Spacetime}
+    (hU : IsOpen U) (hHU : {p : Spacetime | p.1 = √(s ^ 2 + ‖p.2‖ ^ 2)} ⊆ U)
+    (hu : ContDiffOn ℝ 2 u U) :
+    Continuous (restrictHyperboloid s u) ∧
+      (∀ a, Continuous (restrictHyperboloid s (boost a u))) ∧
+      ∀ a b, Continuous (restrictHyperboloid s (boost a (boost b u))) := by
+  have h1 (b : Fin 3) : ContDiffOn ℝ 1 (boost b u) U := contDiffOn_boost (n := 1) hU hu b
+  refine ⟨continuous_restrictHyperboloid_of_continuousOn s hHU hu.continuousOn,
+    fun a ↦ continuous_restrictHyperboloid_of_continuousOn s hHU (h1 a).continuousOn,
+    fun a b ↦ continuous_restrictHyperboloid_of_continuousOn s hHU ?_⟩
+  exact (contDiffOn_boost (n := 0) hU (h1 b) a).continuousOn
+
+/-! ### Restrictions of compactly supported functions -/
 
 /-- The restriction to `H_s` of a function with compact support has compact support. -/
 theorem hasCompactSupport_restrictHyperboloid (s : ℝ) {v : Spacetime → ℝ}
