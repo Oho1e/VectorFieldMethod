@@ -1,3 +1,7 @@
 module
 
-public import VectorFieldMethod.Placeholder
+public import VectorFieldMethod.Minkowski.Spacetime
+public import VectorFieldMethod.Minkowski.Derivative
+public import VectorFieldMethod.Minkowski.WaveOperator
+public import VectorFieldMethod.Minkowski.VectorFields
+public import VectorFieldMethod.Minkowski.Computations
