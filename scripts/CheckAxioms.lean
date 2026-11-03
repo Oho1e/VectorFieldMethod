@@ -10,20 +10,27 @@ import Lean.Util.CollectAxioms
 /-!
 # Axiom check
 
-This script fails unless every declaration of the library depends only on the axioms `propext`,
-`Classical.choice` and `Quot.sound`. CI runs it from the repository root after `lake build`:
+This script fails unless every Lean file of the library is imported by the root module, and every
+declaration of the library depends only on the axioms `propext`, `Classical.choice` and
+`Quot.sound`. CI runs it from the repository root after `lake build`:
 
 ```bash
 lake env lean scripts/CheckAxioms.lean
 ```
 
-On failure, the error lists each offending declaration with the disallowed axioms it depends on.
-Typical causes are `sorry` (axiom `sorryAx`), `native_decide` (which adds an auxiliary axiom such
-as `<declaration>._native.native_decide.ax_1_1`) and `axiom` declarations. On success, the script
-prints a one-line summary with the number of declarations checked.
+On failure, the error lists each Lean file that is not imported, and each offending declaration
+with the disallowed axioms it depends on. Typical causes of the latter are `sorry` (axiom
+`sorryAx`), `native_decide` (which adds an auxiliary axiom such as
+`<declaration>._native.native_decide.ax_1_1`) and `axiom` declarations. On success, the script
+prints a one-line summary with the numbers of files and declarations checked.
 
 ## What is checked
 
+* `VectorFieldMethod.lean` and every `.lean` file under `VectorFieldMethod/` must be a module of
+  the environment, that is, be imported directly or indirectly by the root module
+  `VectorFieldMethod`, which this file imports. A file that is not imported is neither built by
+  `lake build` nor seen by the checks below. The files are located from the path of this file,
+  which must therefore stay in `scripts/`.
 * The declarations checked are all constants of the environment whose defining module is
   `VectorFieldMethod` or a module under it, including private declarations and declarations
   generated automatically (auxiliary proofs, matchers, equation lemmas, instances, ...).
@@ -52,6 +59,21 @@ def allowedAxioms : List Name := [``propext, ``Classical.choice, ``Quot.sound]
 /-- The root of the module names of the library. -/
 def libraryRoot : Name := `VectorFieldMethod
 
+/-- The `.lean` files under the directory `repoDir / dir`, as paths relative to `repoDir`. -/
+partial def leanFilesUnder (repoDir dir : System.FilePath) : IO (Array System.FilePath) := do
+  let mut files := #[]
+  for entry in (← (repoDir / dir).readDir) do
+    let path := dir / entry.fileName
+    if (← (repoDir / path).isDir) then
+      files := files ++ (← leanFilesUnder repoDir path)
+    else if path.extension == some "lean" then
+      files := files.push path
+  return files
+
+/-- The name of the module whose source file is `path`, relative to the repository root. -/
+def moduleNameOfPath (path : System.FilePath) : Name :=
+  (path.withExtension "").components.foldl Name.mkStr .anonymous
+
 /-- A declaration of the library that breaks the axiom policy. -/
 structure Violation where
   /-- The declaration. -/
@@ -79,12 +101,23 @@ def Violation.describe (v : Violation) : MessageData :=
   let visibility := if isPrivateName v.declName then "private, " else ""
   m!"{privateToUserName v.declName} ({visibility}module {v.moduleName}) {problem}"
 
-/-- Checks every declaration of the library, as described in the module docstring. -/
+/-- Runs the import check and the axiom check, as described in the module docstring. -/
 def run : CommandElabM Unit := do
   let env ← getEnv
   if env.header.isModule then
     throwError "scripts/CheckAxioms.lean must not be a `module`: it has to import the library at \
       the private level, where the proofs of its theorems are visible"
+  -- Import check: every Lean file of the library is a module of the environment.
+  let some repoDir := (← IO.FS.realPath (← getFileName)).parent.bind (·.parent)
+    | throwError "cannot locate the repository root from the path of this file"
+  let rootFile : System.FilePath := s!"{libraryRoot}.lean"
+  unless (← (repoDir / rootFile).pathExists) do
+    throwError "{rootFile} not found in {repoDir}: this file must stay in scripts/"
+  let files := #[rootFile] ++
+    (← leanFilesUnder repoDir libraryRoot.toString).qsort (·.toString < ·.toString)
+  let unimported := files.filter fun file =>
+    !env.header.moduleNames.contains (moduleNameOfPath file)
+  -- Axiom check: every declaration of the library depends only on the allowed axioms.
   let mut numModules := 0
   let mut numDecls := 0
   let mut violations : Array Violation := #[]
@@ -106,15 +139,28 @@ def run : CommandElabM Unit := do
         violations := violations.push { declName, moduleName, isAxiom, axioms := bad }
   if numDecls == 0 then
     throwError "no declarations found in modules under {libraryRoot}"
+  -- Report all problems of both checks together.
+  let mut problems : Array MessageData := #[]
+  unless unimported.isEmpty do
+    let lines := unimported.toList.map fun file =>
+      m!"\n  {file} (module {moduleNameOfPath file})"
+    let verb := if unimported.size == 1 then "is" else "are"
+    problems := problems.push m!"Import check failed: {unimported.size} of {files.size} Lean \
+      files of the library {verb} not imported, directly or indirectly, by the root module \
+      {libraryRoot}:{MessageData.joinSep lines ""}"
   unless violations.isEmpty do
     let sorted := violations.qsort fun v w =>
       (v.moduleName.cmp w.moduleName).then (v.declName.cmp w.declName) == .lt
     let lines := sorted.toList.map fun v => m!"\n  " ++ v.describe
-    throwError m!"Axiom check failed: {violations.size} of {numDecls} declarations in \
-      {numModules} modules under {libraryRoot} break the axiom policy (allowed axioms: propext, \
-      Classical.choice, Quot.sound):{MessageData.joinSep lines ""}"
-  logInfo m!"Axiom check passed: {numDecls} declarations in {numModules} modules under \
-    {libraryRoot} depend only on propext, Classical.choice and Quot.sound."
+    let verb := if violations.size == 1 then "breaks" else "break"
+    problems := problems.push m!"Axiom check failed: {violations.size} of {numDecls} \
+      declarations in {numModules} modules under {libraryRoot} {verb} the axiom policy (allowed \
+      axioms: propext, Classical.choice, Quot.sound):{MessageData.joinSep lines ""}"
+  unless problems.isEmpty do
+    throwError (MessageData.joinSep problems.toList "\n")
+  logInfo m!"Axiom check passed: all {files.size} Lean files of the library are imported by the \
+    root module {libraryRoot}, and its {numDecls} declarations in {numModules} modules depend \
+    only on propext, Classical.choice and Quot.sound."
 
 end CheckAxioms
 
