@@ -376,7 +376,12 @@ following real field `u : Spacetime → ℝ` (`F = ℝ`), with `s₁ = 2`, `s₂
 spacetime: `u` is a smooth bump function centered at `(t, x) = (4, 0)`, equal to `1` on the closed
 ball of radius `1 / 4` and vanishing outside the open ball of radius `1 / 2`, for the max norm
 `max |t - 4| ‖x‖` of `Spacetime`. Its closed support `{|t - 4| ≤ 1 / 2, ‖x‖ ≤ 1 / 2}` lies in the
-cone `‖x‖ ≤ t - 1`, since `t ≥ 7 / 2` there; it meets the upper hyperboloid `H_4` near `(4, 0)`. -/
+cone `‖x‖ ≤ t - 1`, since `t ≥ 7 / 2` there; it meets the upper hyperboloid `H_4` near `(4, 0)`.
+
+The examples below apply the energy identity and the two integrability statements to these data,
+prove that both sides of the energy identity are nonzero for `m ≠ 0` (the energy on `H_2` is `0`,
+the energy on `H_4` is positive), and apply the conservation law between `s₁ = 5` and `s₂ = 6`,
+where the region between the hyperboloids does not meet the support of `u`. -/
 
 section SanityChecks
 
@@ -428,7 +433,26 @@ example (m : ℝ) :
     (subset_univ _) sanityBump.contDiff.contDiffOn
     (inter_subset_right.trans tsupport_sanityBump_subset)
 
-/-- Both sides of the identity of the previous example are nonzero for `m ≠ 0`. The lower energy
+/-- The integrability statements apply to the same data: `⟪KG_m u, ∂_t u⟫` is integrable on the
+region between `H_2` and `H_4`, and the energy densities on `H_2` and on `H_4` are integrable. -/
+example (m : ℝ) :
+    IntegrableOn (fun p ↦ ⟪kleinGordon m (sanityBump : Spacetime → ℝ) p,
+        ∂ₜ (sanityBump : Spacetime → ℝ) p⟫)
+      {p : Spacetime | p.1 ∈ Icc √(2 ^ 2 + ‖p.2‖ ^ 2) √(4 ^ 2 + ‖p.2‖ ^ 2)} ∧
+    Integrable (fun x : EuclideanSpace ℝ (Fin 3) ↦
+      hyperboloidalEnergyDensity m (sanityBump : Spacetime → ℝ) (√(2 ^ 2 + ‖x‖ ^ 2), x)) ∧
+    Integrable (fun x : EuclideanSpace ℝ (Fin 3) ↦
+      hyperboloidalEnergyDensity m (sanityBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x)) :=
+  ⟨integrableOn_inner_kleinGordon_timeDeriv isOpen_univ (subset_univ _)
+      sanityBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_sanityBump_subset),
+    integrable_hyperboloidalEnergyDensity (s₂ := 4) (by norm_num) ⟨le_rfl, by norm_num⟩
+      isOpen_univ (subset_univ _) sanityBump.contDiff.contDiffOn
+      (inter_subset_right.trans tsupport_sanityBump_subset),
+    integrable_hyperboloidalEnergyDensity (s₁ := 2) (by norm_num) ⟨by norm_num, le_rfl⟩
+      isOpen_univ (subset_univ _) sanityBump.contDiff.contDiffOn
+      (inter_subset_right.trans tsupport_sanityBump_subset)⟩
+
+/-- Both sides of the identity of the first example are nonzero for `m ≠ 0`. The lower energy
 vanishes, since the closed support of `u` does not meet `H_2`. The upper energy is positive: on
 `H_4` the energy density is nonnegative (`hyperboloidalEnergyDensity_nonneg`), and it is at least
 `m² > 0` where `u = 1`, which is the case at the points of `H_4` with `‖x‖ < 1 / 4`; and it is

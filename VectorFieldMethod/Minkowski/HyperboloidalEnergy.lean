@@ -44,10 +44,11 @@ energy density `e_m[u]` at the point `(√(s ^ 2 + ‖x‖ ^ 2), x)` of `H_s`.
 
 ## Normalization
 
-The energy density and the energy carry no factor `½`, as in LeFloch–Ma: for `m = 0` and on the
-slice `t = const` (formally `x / t → 0`), `e_m[u]` would be `‖∂_t u‖² + ∑ a, ‖∂_a u‖²`. The energy
-current `P` of `EnergyMomentum.lean` carries the factor `½`, which is why
-`e_m[u] = 2 (P⁰ - ∑ a, (x_a / t) P^a)`.
+The energy density and the energy carry no factor `½`, as in LeFloch–Ma: apart from the cross
+terms `2 ∑ a, (x_a / t) ⟪∂_a u, ∂_t u⟫`, the energy density is
+`‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²`, twice the energy density `P⁰` of `EnergyMomentum.lean`,
+whose energy-momentum tensor carries the factor `½`. Precisely,
+`e_m[u] = 2 (P⁰ - ∑ a, (x_a / t) P^a)` (`hyperboloidalEnergyDensity_eq_energyCurrent`).
 -/
 
 @[expose] public noncomputable section
