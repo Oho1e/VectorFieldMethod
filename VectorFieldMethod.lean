@@ -15,6 +15,7 @@ public import VectorFieldMethod.Minkowski.Computations
 public import VectorFieldMethod.Minkowski.Derivative
 public import VectorFieldMethod.Minkowski.EnergyMomentum
 public import VectorFieldMethod.Minkowski.HyperboloidalEnergy
+public import VectorFieldMethod.Minkowski.HyperboloidalEnergyIdentity
 public import VectorFieldMethod.Minkowski.Spacetime
 public import VectorFieldMethod.Minkowski.VectorFields
 public import VectorFieldMethod.Minkowski.WaveCommutators
