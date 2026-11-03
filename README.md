@@ -13,8 +13,11 @@ unproved ingredient stated as an explicit hypothesis.
 
 ## Status
 
-Early stage: only the project infrastructure exists (Lake project, CI, cloud
-setup). The library contains a placeholder module and no mathematics yet.
+Early stage: the library contains the Minkowski coordinate layer
+(`VectorFieldMethod/Minkowski/`): coordinates and metric, coordinate
+derivatives, the wave and Klein–Gordon operators, and the rotation, boost and
+scaling vector fields, with their basic lemmas (see
+[docs/minkowski-layer.md](docs/minkowski-layer.md)).
 
 ## Building
 
