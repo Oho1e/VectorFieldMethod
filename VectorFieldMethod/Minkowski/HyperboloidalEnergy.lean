@@ -39,6 +39,8 @@ energy density `e_m[u]` at the point `(√(s ^ 2 + ‖x‖ ^ 2), x)` of `H_s`.
   `hyperboloidalEnergy_nonneg`: `E_m(s, u) ≥ 0` for `s ≠ 0`.
 * `hyperboloidalEnergyDensity_eq_energyCurrent`: `e_m[u] = 2 (P⁰ - ∑ a, (x_a / t) P^a)` for the
   energy current `P` of `EnergyMomentum.lean`.
+* `contDiffOn_energyCurrent`, `tsupport_energyCurrent_subset`: if `u` is `C²` on an open set `U`,
+  the components of the energy current are `C¹` on `U`; their closed supports lie in that of `u`.
 
 ## Normalization
 
@@ -175,6 +177,63 @@ theorem hyperboloidalEnergyDensity_eq_energyCurrent (m : ℝ) (u : Spacetime →
   simp only [hyperboloidalEnergyDensity_apply, energyCurrent_zero, energyCurrent_succ, mul_neg,
     Finset.sum_neg_distrib, sub_neg_eq_add]
   ring
+
+/-! ### Regularity and support of the energy current -/
+
+/-- If `u` is `C²` at `p`, every component of the energy current is `C¹` at `p`. -/
+theorem contDiffAt_energyCurrent (m : ℝ) (α : Fin 4) (hu : ContDiffAt ℝ 2 u p) :
+    ContDiffAt ℝ 1 (energyCurrent m u α) p := by
+  have hu' : ContDiffAt ℝ (1 + 1) u p := by rwa [one_add_one_eq_two]
+  have hD (β : Fin 4) : ContDiffAt ℝ 1 (∂[β] u) p := contDiffAt_partialDeriv β hu'
+  have hu1 : ContDiffAt ℝ 1 u p := hu.of_le one_le_two
+  simp only [energyCurrent_eq, energyMomentum_eq]
+  exact contDiffAt_const.mul (((hD α).inner ℝ (hD 0)).sub (contDiffAt_const.mul
+    ((ContDiffAt.sum fun γ _ ↦ contDiffAt_const.mul ((hD γ).norm_sq ℝ)).add
+      (contDiffAt_const.mul (hu1.norm_sq ℝ)))))
+
+/-- If `u` is `C²` on an open set `U`, every component of the energy current is `C¹` on `U`. -/
+theorem contDiffOn_energyCurrent (m : ℝ) {U : Set Spacetime} (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) (α : Fin 4) : ContDiffOn ℝ 1 (energyCurrent m u α) U :=
+  fun _ hq ↦ (contDiffAt_energyCurrent m α (hu.contDiffAt (hU.mem_nhds hq))).contDiffWithinAt
+
+/-- The derivatives of `u` vanish outside the closed support of `u`. -/
+theorem derivAlong_of_notMem_tsupport (V : Spacetime → Spacetime) (hp : p ∉ tsupport u) :
+    derivAlong V u p = 0 := by
+  have h : fderiv ℝ u p = 0 := by
+    by_contra h'
+    exact hp (support_fderiv_subset ℝ h')
+  rw [derivAlong_apply, h]
+  rfl
+
+/-- The closed support of each component of the energy current lies in the closed support of
+`u`. -/
+theorem tsupport_energyCurrent_subset (m : ℝ) (u : Spacetime → F) (α : Fin 4) :
+    tsupport (energyCurrent m u α) ⊆ tsupport u := by
+  refine closure_minimal (fun q hq ↦ by_contra fun h ↦ hq ?_) (isClosed_tsupport u)
+  have hD (β : Fin 4) : ∂[β] u q = 0 := derivAlong_of_notMem_tsupport _ h
+  simp [energyCurrent_apply, energyMomentum_apply, hD, image_eq_zero_of_notMem_tsupport h]
+
+/-- The energy density vanishes outside the closed support of `u`. -/
+theorem support_hyperboloidalEnergyDensity_subset (m : ℝ) (u : Spacetime → F) :
+    support (hyperboloidalEnergyDensity m u) ⊆ tsupport u := fun q hq ↦ by
+  by_contra h
+  have ht : ∂ₜ u q = 0 := derivAlong_of_notMem_tsupport _ h
+  have hs (a : Fin 3) : ∂ₓ[a] u q = 0 := derivAlong_of_notMem_tsupport _ h
+  exact hq (by simp [hyperboloidalEnergyDensity_apply, ht, hs, image_eq_zero_of_notMem_tsupport h])
+
+/-- The energy density is continuous at a point where `t ≠ 0` and `u` is `C¹`. -/
+theorem continuousAt_hyperboloidalEnergyDensity (m : ℝ) (hu : ContDiffAt ℝ 1 u p)
+    (hp : timeCoord p ≠ 0) : ContinuousAt (hyperboloidalEnergyDensity m u) p := by
+  have hu' : ContDiffAt ℝ (0 + 1) u p := by rwa [zero_add]
+  have hD (β : Fin 4) : ContinuousAt (∂[β] u) p := (contDiffAt_partialDeriv β hu').continuousAt
+  have ht : ContinuousAt (∂ₜ u) p := hD 0
+  have hs (a : Fin 3) : ContinuousAt (∂ₓ[a] u) p := hD a.succ
+  have hx (a : Fin 3) : ContinuousAt (fun q ↦ spaceCoord a q / timeCoord q) p :=
+    ((differentiable_spaceCoord a).continuous.continuousAt).div
+      differentiable_timeCoord.continuous.continuousAt hp
+  exact (((ht.norm.pow 2).add (tendsto_finsetSum _ fun a _ ↦ (hs a).norm.pow 2)).add
+    (continuousAt_const.mul (tendsto_finsetSum _ fun a _ ↦ (hx a).mul
+      ((hs a).inner ht)))).add (continuousAt_const.mul (hu.continuousAt.norm.pow 2))
 
 /-! ### Sanity checks -/
 
