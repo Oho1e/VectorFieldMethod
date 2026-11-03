@@ -43,6 +43,9 @@ and `C` is an absolute constant. See `docs/hyperboloidal-sobolev.md`.
   absolute constant `C` (independent of `s`, `u` and the point) and `L²` norms on `H_s` for the
   flat measure `dx`. It is `EuclideanSobolev.exists_hyperboloidalSobolev` applied to
   `w = u|_{H_s}`, whose weighted derivatives are rewritten with the two restriction formulas.
+* `eLpNorm_restrictHyperboloid_lt_top`: the restriction to `H_s` of a continuous function with
+  compact support is square integrable. The sanity checks use it to show that the right-hand side
+  of the inequality is finite for a smooth bump function.
 -/
 
 @[expose] public noncomputable section
@@ -207,6 +210,34 @@ theorem exists_klainermanSobolev_hyperboloid :
     (hu.differentiableOn two_ne_zero)] at h
   exact h
 
+/-! ### Restrictions of compactly supported functions -/
+
+/-- The restriction of a continuous function to `H_s` is continuous. -/
+theorem continuous_restrictHyperboloid (s : ℝ) {v : Spacetime → ℝ} (hv : Continuous v) :
+    Continuous (restrictHyperboloid s v) :=
+  hv.comp ((continuous_const.add (continuous_norm.pow 2)).sqrt.prodMk continuous_id)
+
+/-- The restriction to `H_s` of a function with compact support has compact support. -/
+theorem hasCompactSupport_restrictHyperboloid (s : ℝ) {v : Spacetime → ℝ}
+    (hv : HasCompactSupport v) : HasCompactSupport (restrictHyperboloid s v) :=
+  HasCompactSupport.intro (hv.isCompact.image continuous_snd) fun x hx ↦
+    image_eq_zero_of_notMem_tsupport (f := v) (x := (√(s ^ 2 + ‖x‖ ^ 2), x)) fun h ↦
+      hx ⟨_, h, rfl⟩
+
+/-- The restriction to `H_s` of a continuous function with compact support is square
+integrable on `ℝ³`. -/
+theorem eLpNorm_restrictHyperboloid_lt_top (s : ℝ) {v : Spacetime → ℝ} (hv : Continuous v)
+    (hvs : HasCompactSupport v) : eLpNorm (restrictHyperboloid s v) 2 volume < ⊤ :=
+  ((continuous_restrictHyperboloid s hv).memLp_of_hasCompactSupport
+    (hasCompactSupport_restrictHyperboloid s hvs)).eLpNorm_lt_top
+
+/-- The derivative along a vector field of a function with compact support has compact
+support. -/
+theorem hasCompactSupport_derivAlong {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
+    (V : Spacetime → Spacetime) {u : Spacetime → F} (hu : HasCompactSupport u) :
+    HasCompactSupport (derivAlong V u) :=
+  (hu.fderiv (𝕜 := ℝ)).mono fun p hp h ↦ hp (by rw [derivAlong_apply, h]; rfl)
+
 /-! ### Sanity checks -/
 
 /-- The hypotheses of `exists_klainermanSobolev_hyperboloid` hold for `u = t`, which is smooth on
@@ -222,6 +253,54 @@ example : ∃ C : NNReal, ∀ s : ℝ, 0 < s → ∀ x₀ : EuclideanSpace ℝ (
   obtain ⟨C, hC⟩ := exists_klainermanSobolev_hyperboloid
   exact ⟨C, fun s hs x₀ ↦ hC s hs timeCoord Set.univ isOpen_univ (Set.subset_univ _)
     contDiff_timeCoord.contDiffOn x₀⟩
+
+/-- The hypotheses of `exists_klainermanSobolev_hyperboloid` with an open set `U` smaller than the
+whole spacetime: `u = 1/t` is smooth on the half-space `U = {t > 0}`, which contains `H_s` for
+every `s > 0`, and is singular at `t = 0`. -/
+example : ∃ C : NNReal, ∀ s : ℝ, 0 < s → ∀ x₀ : EuclideanSpace ℝ (Fin 3),
+    ENNReal.ofReal (√(s ^ 2 + ‖x₀‖ ^ 2) ^ (3 / 2 : ℝ) * |(√(s ^ 2 + ‖x₀‖ ^ 2))⁻¹|) ≤
+      (C : ENNReal) *
+        (eLpNorm (restrictHyperboloid s fun p ↦ (timeCoord p)⁻¹) 2 volume +
+          ∑ a, eLpNorm (restrictHyperboloid s (boost a fun p ↦ (timeCoord p)⁻¹)) 2 volume +
+          ∑ a, ∑ b, eLpNorm
+            (restrictHyperboloid s (boost a (boost b fun p ↦ (timeCoord p)⁻¹))) 2 volume) := by
+  obtain ⟨C, hC⟩ := exists_klainermanSobolev_hyperboloid
+  refine ⟨C, fun s hs x₀ ↦ hC s hs (fun p ↦ (timeCoord p)⁻¹) {p | 0 < timeCoord p}
+    (isOpen_lt continuous_const differentiable_timeCoord.continuous) (fun p hp ↦ ?_)
+    (contDiff_timeCoord.contDiffOn.inv fun p hp ↦ hp.ne') x₀⟩
+  have hp' : p.1 = √(s ^ 2 + ‖p.2‖ ^ 2) := hp
+  change 0 < p.1
+  rw [hp']
+  positivity
+
+/-- A case where the inequality of `exists_klainermanSobolev_hyperboloid` is not trivial: for a
+smooth bump function `u` on spacetime, equal to `1` on the closed unit ball (for the max norm) and
+with compact support, the left side at the point `(1, 0)` of `H_1` (`s = 1`, `x₀ = 0`) is `1`,
+and the right side is finite, since the thirteen functions `(L^J u)|_{H_1}` are continuous with
+compact support. -/
+example : ∃ u : Spacetime → ℝ, ContDiff ℝ ∞ u ∧
+    ENNReal.ofReal (√(1 ^ 2 + ‖(0 : EuclideanSpace ℝ (Fin 3))‖ ^ 2) ^ (3 / 2 : ℝ) *
+      |u (√(1 ^ 2 + ‖(0 : EuclideanSpace ℝ (Fin 3))‖ ^ 2), 0)|) = 1 ∧
+    eLpNorm (restrictHyperboloid 1 u) 2 volume +
+        ∑ a, eLpNorm (restrictHyperboloid 1 (boost a u)) 2 volume +
+        ∑ a, ∑ b, eLpNorm (restrictHyperboloid 1 (boost a (boost b u))) 2 volume < ⊤ := by
+  let f : ContDiffBump (0 : Spacetime) := ⟨1, 2, one_pos, one_lt_two⟩
+  have hf : ContDiff ℝ ∞ f := f.contDiff
+  have hcs : HasCompactSupport f := f.hasCompactSupport
+  have h1 : ∀ b, ContDiff ℝ ∞ (boost b f) := fun b ↦ contDiff_infty_boost b hf
+  have h2 : ∀ a b, ContDiff ℝ ∞ (boost a (boost b f)) := fun a b ↦ contDiff_infty_boost a (h1 b)
+  have hφ : √(1 ^ 2 + ‖(0 : EuclideanSpace ℝ (Fin 3))‖ ^ 2) = 1 := by simp
+  refine ⟨f, hf, ?_, ?_⟩
+  · have hmem : ((1 : ℝ), (0 : EuclideanSpace ℝ (Fin 3))) ∈ Metric.closedBall 0 f.rIn := by
+      change dist _ _ ≤ 1
+      simp [Prod.norm_def]
+    rw [hφ, f.one_of_mem_closedBall hmem]
+    simp
+  · simp only [ENNReal.add_lt_top, ENNReal.sum_lt_top, Finset.mem_univ, forall_const]
+    exact ⟨⟨eLpNorm_restrictHyperboloid_lt_top 1 hf.continuous hcs, fun a ↦
+      eLpNorm_restrictHyperboloid_lt_top 1 (h1 a).continuous (hasCompactSupport_derivAlong _ hcs)⟩,
+      fun a b ↦ eLpNorm_restrictHyperboloid_lt_top 1 (h2 a b).continuous
+        (hasCompactSupport_derivAlong _ (hasCompactSupport_derivAlong _ hcs))⟩
 
 /-- The two sides of the restriction formula for `v = t`, computed independently of it. Since
 `t|_{H_s} = φ_s`, the left side is `Λ_a φ_s = φ_s ∂_a φ_s = x_a`; since `L_a t = x_a`, the right
@@ -243,5 +322,28 @@ example {s : ℝ} (hs : s ≠ 0) (a : Fin 3) (x : EuclideanSpace ℝ (Fin 3)) :
     hyperboloidalWeightedDeriv_restrictHyperboloid_apply hs a (differentiable_timeCoord _),
     boost_timeCoord]
   rfl
+
+/-- The two sides of the second-order formula for `u = t`, computed independently of it:
+`Λ_a Λ_b φ_s = Λ_a x_b = φ_s δ_ab`, and `L_a L_b t = L_a x_b = t δ_ab`, whose restriction to `H_s`
+is `φ_s δ_ab`. -/
+example {s : ℝ} (hs : s ≠ 0) (a b : Fin 3) :
+    hyperboloidalWeightedDeriv s a
+        (hyperboloidalWeightedDeriv s b fun x ↦ √(s ^ 2 + ‖x‖ ^ 2)) =
+        (fun x ↦ √(s ^ 2 + ‖x‖ ^ 2) * if a = b then 1 else 0) ∧
+      restrictHyperboloid s (boost a (boost b timeCoord)) =
+        (fun x ↦ √(s ^ 2 + ‖x‖ ^ 2) * if a = b then 1 else 0) := by
+  refine ⟨?_, by rw [boost_timeCoord, boost_spaceCoord]; rfl⟩
+  have h1 : hyperboloidalWeightedDeriv s b (fun x ↦ √(s ^ 2 + ‖x‖ ^ 2)) = fun x ↦ x b := by
+    funext x
+    have hφ : √(s ^ 2 + ‖x‖ ^ 2) ≠ 0 := (Real.sqrt_pos.mpr (by positivity)).ne'
+    rw [hyperboloidalWeightedDeriv, fderiv_sqrt_sq_add_norm_sq_apply hs,
+      EuclideanSpace.inner_single_right, conj_trivial, one_mul, mul_div_cancel₀ _ hφ]
+  funext x
+  rw [h1, hyperboloidalWeightedDeriv, (PiLp.hasFDerivAt_apply (𝕜 := ℝ) 2 x b).fderiv,
+    PiLp.proj_apply, PiLp.ofLp_single]
+  by_cases hab : a = b
+  · subst hab
+    simp
+  · simp [hab, Ne.symm hab]
 
 end VectorFieldMethod.Minkowski
