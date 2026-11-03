@@ -104,6 +104,7 @@ theorem derivAlong_zero_left (u : Spacetime → F) :
 
 /-! ### Linear and constant component fields -/
 
+/-- The component field of `Ω_ab` is linear. -/
 theorem isLinearMap_rotationField (a b : Fin 3) : IsLinearMap ℝ (rotationField a b) where
   map_add x y := by
     refine Prod.ext (by simp [rotationField]) ?_
@@ -114,6 +115,7 @@ theorem isLinearMap_rotationField (a b : Fin 3) : IsLinearMap ℝ (rotationField
     simp only [rotationField, spaceCoord, Prod.smul_snd, PiLp.smul_apply, smul_eq_mul, smul_sub,
       smul_smul]
 
+/-- The component field of `L_a` is linear. -/
 theorem isLinearMap_boostField (a : Fin 3) : IsLinearMap ℝ (boostField a) where
   map_add x y := by
     refine Prod.ext ?_ ?_
@@ -124,25 +126,36 @@ theorem isLinearMap_boostField (a : Fin 3) : IsLinearMap ℝ (boostField a) wher
     · simp [boostField, spaceCoord]
     · simp only [boostField, timeCoord, Prod.smul_fst, Prod.smul_snd, smul_eq_mul, smul_smul]
 
+/-- The component field of `S` (the identity) is linear. -/
 theorem isLinearMap_scalingField : IsLinearMap ℝ scalingField :=
   ⟨fun _ _ ↦ rfl, fun _ _ ↦ rfl⟩
+
+/-- A linear component field `V` is its own derivative at every point. -/
+theorem hasFDerivAt_of_isLinearMap (hV : IsLinearMap ℝ V) (p : Spacetime) :
+    HasFDerivAt V (LinearMap.toContinuousLinearMap (IsLinearMap.mk' V hV)) p :=
+  (LinearMap.toContinuousLinearMap (IsLinearMap.mk' V hV)).hasFDerivAt
 
 /-- The derivative of a linear component field `V` at any point is `V` itself. -/
 theorem fderiv_apply_of_isLinearMap (hV : IsLinearMap ℝ V) (p v : Spacetime) :
     fderiv ℝ V p v = V v := by
-  have h : V = ⇑(LinearMap.toContinuousLinearMap (IsLinearMap.mk' V hV)) := rfl
-  rw [h, ContinuousLinearMap.fderiv]
+  rw [(hasFDerivAt_of_isLinearMap hV p).fderiv]
+  rfl
+
+/-- The coordinate fields are constant: their derivative is `0`. -/
+theorem hasFDerivAt_coordField (α : Fin 4) (p : Spacetime) :
+    HasFDerivAt (coordField α) (0 : Spacetime →L[ℝ] Spacetime) p := by
+  cases α using Fin.cases
+  · exact hasFDerivAt_const _ p
+  · exact hasFDerivAt_const _ p
 
 theorem fderiv_timeField (p : Spacetime) : fderiv ℝ timeField p = 0 :=
-  fderiv_const_apply _
+  (hasFDerivAt_coordField 0 p).fderiv
 
 theorem fderiv_spaceField (a : Fin 3) (p : Spacetime) : fderiv ℝ (spaceField a) p = 0 :=
-  fderiv_const_apply _
+  (hasFDerivAt_coordField a.succ p).fderiv
 
-theorem fderiv_coordField (α : Fin 4) (p : Spacetime) : fderiv ℝ (coordField α) p = 0 := by
-  cases α using Fin.cases
-  · exact fderiv_timeField p
-  · exact fderiv_spaceField _ p
+theorem fderiv_coordField (α : Fin 4) (p : Spacetime) : fderiv ℝ (coordField α) p = 0 :=
+  (hasFDerivAt_coordField α p).fderiv
 
 theorem differentiable_timeField : Differentiable ℝ timeField :=
   (contDiff_timeField (n := 1)).differentiable one_ne_zero

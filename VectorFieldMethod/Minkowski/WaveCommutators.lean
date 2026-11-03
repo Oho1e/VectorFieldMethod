@@ -101,18 +101,6 @@ theorem sum_minkowskiMetric_smul (X : Fin 4 → Fin 4 → F) :
     add_zero, zero_add, ite_smul, one_smul, Finset.sum_ite_eq, Finset.mem_univ, ite_true,
     neg_one_smul]
 
-/-- A linear component field has itself as derivative at every point. -/
-theorem hasFDerivAt_of_isLinearMap (hV : IsLinearMap ℝ V) (q : Spacetime) :
-    HasFDerivAt V (LinearMap.toContinuousLinearMap (IsLinearMap.mk' V hV)) q :=
-  (LinearMap.toContinuousLinearMap (IsLinearMap.mk' V hV)).hasFDerivAt
-
-/-- The coordinate fields are constant, with derivative `0`. -/
-theorem hasFDerivAt_coordField (α : Fin 4) (q : Spacetime) :
-    HasFDerivAt (coordField α) (0 : Spacetime →L[ℝ] Spacetime) q := by
-  cases α using Fin.cases
-  · exact hasFDerivAt_const _ q
-  · exact hasFDerivAt_const _ q
-
 /-! ### The commutator of `□` with the derivative along an affine component field -/
 
 /-- The commutator of `□` with the derivative along a component field `V` with constant derivative
