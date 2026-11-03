@@ -39,11 +39,11 @@ def hyperboloidalWeightedDeriv (s : ℝ) (a : Fin 3) (w : EuclideanSpace ℝ (Fi
 ### The local Sobolev bound on balls (proposition)
 
 - **Math.** The proposition: there is a constant $`C \ge 0`$ such that for all
-  $`x_0 \in \mathbb{R}^3`$, all $`\rho > 0`$ and all
+  $`x_0 \in \mathbb{R}^3`$, all $`\rho \gt 0`$ and all
   $`f : \mathbb{R}^3 \to \mathbb{R}`$ of class $`C^2`$ on
   $`B = B(x_0, \rho)`$,
   $$|f(x_0)| \le C \Big( \rho^{-3/2} \|f\|_{L^2(B)} + \rho^{-1/2} \|Df\|_{L^2(B)} + \rho^{1/2} \|D^2 f\|_{L^2(B)} \Big).$$
-- **Hypotheses.** Inside the proposition: $`\rho > 0`$ and $`f`$ is $`C^2`$ on
+- **Hypotheses.** Inside the proposition: $`\rho \gt 0`$ and $`f`$ is $`C^2`$ on
   the open ball $`B(x_0, \rho)`$.
 - **Lean.** `VectorFieldMethod.EuclideanSobolev.LocalSobolevBound`
   (https://github.com/Oho1e/VectorFieldMethod/blob/7658e1e26e9bbfa68fa176c10a6c972a656aeec0/VectorFieldMethod/Analysis/LocalSobolev.lean#L76)
@@ -72,11 +72,11 @@ def LocalSobolevBound : Prop :=
 ### Theorem 1: the local embedding $`H^2 \subset L^\infty`$ on balls of $`\mathbb{R}^3`$
 
 - **Math.** There is an absolute constant $`C \ge 0`$ such that for all
-  $`x_0 \in \mathbb{R}^3`$, all $`\rho > 0`$ and every
+  $`x_0 \in \mathbb{R}^3`$, all $`\rho \gt 0`$ and every
   $`f : \mathbb{R}^3 \to \mathbb{R}`$ of class $`C^2`$ on the open ball
   $`B = B(x_0, \rho)`$,
   $$|f(x_0)| \le C \Big( \rho^{-3/2} \|f\|_{L^2(B)} + \rho^{-1/2} \|Df\|_{L^2(B)} + \rho^{1/2} \|D^2 f\|_{L^2(B)} \Big).$$
-- **Hypotheses.** $`\rho > 0`$ and $`f`$ is $`C^2`$ on the open ball
+- **Hypotheses.** $`\rho \gt 0`$ and $`f`$ is $`C^2`$ on the open ball
   $`B(x_0, \rho)`$; there is no integrability, boundedness or support
   assumption.
 - **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_abs_le_eLpNorm_ball`
@@ -109,11 +109,11 @@ theorem exists_abs_le_eLpNorm_ball :
 ### Theorem 2, local version
 
 - **Math.** There is an absolute constant $`C \ge 0`$ such that for all
-  $`s > 0`$, all $`w \in C^2(\mathbb{R}^3)`$ and all
+  $`s \gt 0`$, all $`w \in C^2(\mathbb{R}^3)`$ and all
   $`x_0 \in \mathbb{R}^3`$, with $`\varphi_0 = \sqrt{s^2 + |x_0|^2}`$ and
   $`B = B(x_0, \varphi_0 / 3)`$,
   $$\varphi_0^{3/2}\, |w(x_0)| \le C \Big( \|w\|_{L^2(B)} + \sum_{a=1}^{3} \|\Lambda_a w\|_{L^2(B)} + \sum_{a=1}^{3} \sum_{b=1}^{3} \|\Lambda_a \Lambda_b w\|_{L^2(B)} \Big).$$
-- **Hypotheses.** $`s > 0`$ and $`w`$ is $`C^2`$ on all of
+- **Hypotheses.** $`s \gt 0`$ and $`w`$ is $`C^2`$ on all of
   $`\mathbb{R}^3`$.
 - **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev_ball`
   (https://github.com/Oho1e/VectorFieldMethod/blob/7658e1e26e9bbfa68fa176c10a6c972a656aeec0/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L426)
@@ -143,11 +143,11 @@ theorem exists_hyperboloidalSobolev_ball :
 ### Theorem 2: the hyperboloidal Sobolev inequality on $`\mathbb{R}^3`$
 
 - **Math.** There is an absolute constant $`C \ge 0`$ such that for all
-  $`s > 0`$, all $`w \in C^2(\mathbb{R}^3)`$ and all
+  $`s \gt 0`$, all $`w \in C^2(\mathbb{R}^3)`$ and all
   $`x_0 \in \mathbb{R}^3`$,
   $$\Big(\sqrt{s^2 + |x_0|^2}\Big)^{3/2} |w(x_0)| \le C \Big( \|w\|_{L^2} + \sum_{a=1}^{3} \|\Lambda_a w\|_{L^2} + \sum_{a=1}^{3} \sum_{b=1}^{3} \|\Lambda_a \Lambda_b w\|_{L^2} \Big),$$
   where $`L^2 = L^2(\mathbb{R}^3)`$.
-- **Hypotheses.** $`s > 0`$ and $`w`$ is $`C^2`$ on all of
+- **Hypotheses.** $`s \gt 0`$ and $`w`$ is $`C^2`$ on all of
   $`\mathbb{R}^3`$; there is no integrability, decay or support assumption.
 - **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev`
   (https://github.com/Oho1e/VectorFieldMethod/blob/7658e1e26e9bbfa68fa176c10a6c972a656aeec0/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L440)
