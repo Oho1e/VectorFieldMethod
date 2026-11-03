@@ -128,4 +128,71 @@ theorem energyMomentum_swap (m : ℝ) (u : Spacetime → F) (α β : Fin 4) :
   rw [energyMomentum_apply, energyMomentum_apply, real_inner_comm (∂[α] u p),
     Matrix.IsSymm.apply transpose_minkowskiMetric α β]
 
+/-! ### Sums against the diagonal metric -/
+
+theorem minkowskiMetric_apply_of_ne {α β : Fin 4} (h : α ≠ β) : η α β = 0 :=
+  Matrix.diagonal_apply_ne _ h
+
+/-- `η_{αα}² = 1`. -/
+theorem minkowskiMetric_mul_minkowskiMetric_self (α : Fin 4) : η α α * η α α = 1 := by
+  cases α using Fin.cases <;> simp [minkowskiMetric_zero_zero, minkowskiMetric_succ_succ]
+
+/-- `η` is diagonal: `∑ γ, η_{αγ} f_γ = η_{αα} f_α`, for `f` with values in a real vector space. -/
+theorem sum_minkowskiMetric_smul {M : Type*} [AddCommMonoid M] [Module ℝ M] (α : Fin 4)
+    (f : Fin 4 → M) : ∑ γ, η α γ • f γ = η α α • f α :=
+  Fintype.sum_eq_single α fun γ hγ ↦ by rw [minkowskiMetric_apply_of_ne hγ.symm, zero_smul]
+
+/-- `η` is diagonal: `∑ γ, η_{αγ} f_γ = η_{αα} f_α`. -/
+theorem sum_minkowskiMetric_mul (α : Fin 4) (f : Fin 4 → ℝ) :
+    ∑ γ, η α γ * f γ = η α α * f α :=
+  sum_minkowskiMetric_smul α f
+
+/-- Since `η` is diagonal, the energy-momentum tensor is
+`T_{αβ} = ⟪∂_α u, ∂_β u⟫ - ½ η_{αβ} (∑ γ, η_{γγ} ‖∂_γ u‖² + m² ‖u‖²)`. -/
+theorem energyMomentum_eq (m : ℝ) (u : Spacetime → F) (α β : Fin 4) :
+    energyMomentum m u α β = fun q ↦ ⟪∂[α] u q, ∂[β] u q⟫ -
+      1 / 2 * η α β * (∑ γ, η γ γ * ‖∂[γ] u q‖ ^ 2 + m ^ 2 * ‖u q‖ ^ 2) := by
+  funext q
+  simp only [energyMomentum_apply, sum_minkowskiMetric_mul, real_inner_self_eq_norm_sq]
+
+/-! ### The divergence identity -/
+
+/-- The derivative `∂_γ T_{αβ}` at a point where `u` is `C²`. -/
+theorem partialDeriv_energyMomentum (m : ℝ) (α β γ : Fin 4) (hu : ContDiffAt ℝ 2 u p) :
+    ∂[γ] (energyMomentum m u α β) p =
+      ⟪∂[γ] (∂[α] u) p, ∂[β] u p⟫ + ⟪∂[α] u p, ∂[γ] (∂[β] u) p⟫ -
+        η α β * (∑ δ, η δ δ * ⟪∂[δ] u p, ∂[γ] (∂[δ] u) p⟫ + m ^ 2 * ⟪u p, ∂[γ] u p⟫) := by
+  have hu' : ContDiffAt ℝ (1 + 1) u p := by rwa [one_add_one_eq_two]
+  have hD (δ : Fin 4) : DifferentiableAt ℝ (∂[δ] u) p :=
+    (contDiffAt_partialDeriv δ hu').differentiableAt one_ne_zero
+  have hu1 : DifferentiableAt ℝ u p := hu.differentiableAt two_ne_zero
+  have h := ((hD α).hasFDerivAt.inner ℝ (hD β).hasFDerivAt).fun_sub
+    (((HasFDerivAt.fun_sum (u := Finset.univ) fun δ _ ↦
+      (hD δ).hasFDerivAt.norm_sq.const_mul (η δ δ)).fun_add
+      (hu1.hasFDerivAt.norm_sq.const_mul (m ^ 2))).const_mul (1 / 2 * η α β))
+  rw [partialDeriv, energyMomentum_eq, derivAlong_eq_of_hasFDerivAt h]
+  simp only [sub_apply, smul_apply, add_apply, sum_apply, ContinuousLinearMap.comp_apply,
+    ContinuousLinearMap.prod_apply, fderivInnerCLM_apply, innerSL_apply_apply, smul_eq_mul,
+    ← partialDeriv_apply]
+  simp only [nsmul_eq_mul, Nat.cast_ofNat, mul_left_comm _ (2 : ℝ), ← Finset.mul_sum]
+  ring
+
+/-- The divergence identity `η^{αγ} ∂_γ T_{αβ} = ⟪□u - m² u, ∂_β u⟫` at a point where `u` is
+`C²`. -/
+theorem sum_minkowskiMetric_mul_partialDeriv_energyMomentum (m : ℝ) (β : Fin 4)
+    (hu : ContDiffAt ℝ 2 u p) :
+    ∑ α, ∑ γ, η α γ * ∂[γ] (energyMomentum m u α β) p = ⟪kleinGordon m u p, ∂[β] u p⟫ := by
+  have hdiag (f : Fin 4 → ℝ) : ∑ α, η α α * (η α β * f α) = f β := by
+    rw [Fintype.sum_eq_single β fun α hα ↦ by
+        rw [minkowskiMetric_apply_of_ne hα, zero_mul, mul_zero],
+      ← mul_assoc, minkowskiMetric_mul_minkowskiMetric_self, one_mul]
+  have hsymm : ∑ α, η α α * ⟪∂[α] u p, ∂[α] (∂[β] u) p⟫ =
+      ∑ α, η α α * ⟪∂[α] u p, ∂[β] (∂[α] u) p⟫ :=
+    Finset.sum_congr rfl fun α _ ↦ by rw [partialDeriv_comm_apply α β hu]
+  simp only [sum_minkowskiMetric_mul, partialDeriv_energyMomentum m _ _ _ hu, mul_sub,
+    Finset.sum_sub_distrib, hdiag]
+  simp only [mul_add, Finset.sum_add_distrib, hsymm, kleinGordon_apply, dAlembertian_apply,
+    sum_minkowskiMetric_smul, inner_sub_left, sum_inner, real_inner_smul_left]
+  ring
+
 end VectorFieldMethod.Minkowski
