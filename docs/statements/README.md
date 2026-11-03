@@ -8,6 +8,7 @@ definition and theorem of the project says.
 - **One file per layer.** Every `.md` file in this directory other than this README documents one
   layer of the library. At present:
   - [`minkowski.md`](minkowski.md): the Minkowski coordinate layer, `VectorFieldMethod/Minkowski/`;
+  - [`euclidean-sobolev.md`](euclidean-sobolev.md): the Sobolev inequality layer;
   - [`divergence.md`](divergence.md): the divergence theorem on regions bounded by graphs,
     `VectorFieldMethod/ForMathlib/`.
 - **Only main results.** Each file contains the main definitions and the main theorems of its
@@ -79,7 +80,7 @@ argument is a hypothesis or a quantified variable:
 | `Fin.cases x f α` | definition by cases on `α : Fin (n + 1)`: the value `x` if $`\alpha = 0`$, and `f a` if `α = Fin.succ a` |
 | `Fin.cons (-1) fun _ ↦ 1` | the 4-tuple $`(-1, 1, 1, 1)`$ |
 | `Matrix.diagonal d` | the diagonal matrix with diagonal $`d`$ |
-| `EuclideanSpace ℝ (Fin 3)` | $`\mathbb{R}^3`$ with the Euclidean inner product and norm. A point `x` is a function on `Fin 3`, and `x a` is its coordinate $`x^{a+1}`$ |
+| `EuclideanSpace ℝ (Fin 3)` | $`\mathbb{R}^3`$ with the Euclidean inner product and norm. In this Mathlib version a point `x` is a `WithLp` structure wrapping a function on `Fin 3`; `x a` is its coordinate $`x^{a+1}`$, obtained through a `CoeFun` instance as `x.ofLp a`. So `ofLp` and `toLp` (the wrapping and unwrapping maps) appearing in goals and statements is normal and has no mathematical content |
 | `EuclideanSpace.single a 1` | the standard basis vector $`e_{a+1}`$ of $`\mathbb{R}^3`$ |
 
 ### Integrals and measures
@@ -123,8 +124,8 @@ they change how statements must be written and read.
   `inv_minkowskiMetric : η⁻¹ = η` is about the genuine inverse because `η * η = 1`.
 - **`ENNReal.toReal` sends `∞` to `0`.** Measures take values in $`[0, \infty]`$ (`ENNReal`), and
   `(μ s).toReal` is $`0`$ when $`\mu(s) = \infty`$. A statement that uses `(μ s).toReal` therefore
-  needs $`\mu(s) \lt \infty`$ to mean what it seems to. (No main statement of the project uses
-  `toReal` at present.)
+  needs $`\mu(s) \lt \infty`$ to mean what it seems to. (The main statements of the Minkowski and
+  divergence layers do not use `toReal`.)
 - **The Bochner integral of a non-integrable function is `0`.** An identity
   `∫ f ∂μ = ∫ g ∂ν` could hold for the trivial reason that both sides are junk zeros. When
   reading an integral identity, check that its hypotheses make every integrand integrable: in
@@ -133,11 +134,19 @@ they change how statements must be written and read.
   the compactness hypothesis on `D ∩ (tsupport X₀ ∪ tsupport X)` plays this role; in
   `integral_divergence_between_hyperboloids` it is the support condition `‖x‖ ≤ t - 1`. Likewise,
   `∫ t in a..b, f t` is $`0`$ if $`f`$ is not integrable on the interval.
+- **`eLpNorm` is `∞` for functions that are not a.e. strongly measurable.** `eLpNorm f p μ` is the
+  $`L^p`$ norm $`\lVert f\rVert_{L^p(\mu)} \in [0, \infty]`$ when `f` is `AEStronglyMeasurable f μ`
+  (measurable up to a null set, for the functions of this project), and `∞` otherwise
+  (`MeasureTheory.eLpNorm_of_not_aestronglyMeasurable`). An inequality
+  `eLpNorm f p μ ≤ C * eLpNorm g q μ` is therefore vacuous (its right-hand side is `∞`) when `g`
+  is not measurable. When reading an inequality with `eLpNorm`, check that the functions in it
+  are measurable, either by a hypothesis or because they are continuous.
 - **Natural-number division truncates: `(3 / 2 : ℕ) = 1`.** In `x ^ (3 / 2)` the exponent is
   elaborated as a natural number when nothing forces otherwise, so `x ^ (3 / 2)` is `x ^ 1`.
   Fractional powers must be written with a real exponent, `x ^ (3 / 2 : ℝ)` (`Real.rpow`), and
   then `Real.rpow` has its own junk values for negative bases. Natural-number subtraction also
-  truncates (`2 - 3 = 0` in `ℕ`). (All powers in the current statements are squares `^ 2`.)
+  truncates (`2 - 3 = 0` in `ℕ`). The Minkowski and divergence layers only use squares `^ 2`; the
+  Sobolev inequality layer uses real exponents such as `^ (3 / 2 : ℝ)`.
 - **Order of quantifiers: `∃ C, ∀ x, ...` versus `∀ x, ∃ C, ...`.** The first gives one constant
   for all `x` (a uniform estimate), the second lets the constant depend on `x`, which is usually
   much weaker. Check the order in every estimate. In the current files the same distinction

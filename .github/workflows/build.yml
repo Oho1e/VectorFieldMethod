@@ -28,3 +28,6 @@ jobs:
         with:
           use-mathlib-cache: true
           build-args: "--wfail"
+
+      - name: Reject axioms other than propext, Classical.choice, Quot.sound
+        run: lake env lean scripts/CheckAxioms.lean
