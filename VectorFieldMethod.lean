@@ -1,7 +1,15 @@
 module
 
-public import VectorFieldMethod.Minkowski.Spacetime
-public import VectorFieldMethod.Minkowski.Derivative
-public import VectorFieldMethod.Minkowski.WaveOperator
-public import VectorFieldMethod.Minkowski.VectorFields
+public import VectorFieldMethod.ForMathlib.Analysis.Calculus.LineDeriv.IntegrationByParts
+public import VectorFieldMethod.ForMathlib.Analysis.Calculus.SpatialDivergence
+public import VectorFieldMethod.ForMathlib.Geometry.Manifold.PartitionOfUnity
+public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHyperboloid
+public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHypograph
+public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremLocal
+public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.Prod
+public import VectorFieldMethod.ForMathlib.Topology.Algebra.Support
 public import VectorFieldMethod.Minkowski.Computations
+public import VectorFieldMethod.Minkowski.Derivative
+public import VectorFieldMethod.Minkowski.Spacetime
+public import VectorFieldMethod.Minkowski.VectorFields
+public import VectorFieldMethod.Minkowski.WaveOperator
