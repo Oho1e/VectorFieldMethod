@@ -63,6 +63,14 @@ either a hypothesis of the theorem that uses it, or a field of a `structure`
 bundling the assumptions. Never introduce it with `axiom` or `sorry`. This
 keeps every dependency on unproved mathematics visible in the statements.
 
+## Statement documentation
+
+`docs/statements/` explains, for readers who do not know Lean, what each main
+definition and theorem says. A session that adds a main definition or theorem
+adds an entry for it to `docs/statements/<layer>.md`, in the format of
+`docs/statements/README.md`. A new layer gets a new file. Each session edits only
+the file of its own layer.
+
 ## Mathematical conventions
 
 The Minkowski coordinate layer lives in `VectorFieldMethod/Minkowski/`; design
