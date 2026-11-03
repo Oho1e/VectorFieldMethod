@@ -17,7 +17,11 @@ Early stage: the library contains the Minkowski coordinate layer
 (`VectorFieldMethod/Minkowski/`): coordinates and metric, coordinate
 derivatives, the wave and Klein–Gordon operators, and the rotation, boost and
 scaling vector fields, with their basic lemmas (see
-[docs/minkowski-layer.md](docs/minkowski-layer.md)).
+[docs/minkowski-layer.md](docs/minkowski-layer.md)). It also contains the
+divergence theorem layer (`VectorFieldMethod/ForMathlib/`): the divergence
+theorem on the region below a graph of a `C¹` function, between two graphs and
+between two hyperboloids. The mathematical statements of the main definitions
+and theorems are listed in [docs/statements/](docs/statements/).
 
 ## Building
 

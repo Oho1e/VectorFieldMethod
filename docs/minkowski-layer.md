@@ -204,7 +204,8 @@ coordinates (`timeDeriv_timeCoord : ∂ₜ timeCoord = fun _ ↦ 1`,
 (`partialDeriv_comm_apply` for `u` that is `C²` at `p`, from
 `ContDiffAt.isSymmSndFDerivAt`, and `partialDeriv_comm` for `u` that is `C²`).
 `partialDeriv_partialDeriv_apply` identifies `∂_α ∂_β u (p)` with the second
-Fréchet derivative `D²u(p) e_α e_β`.
+Fréchet derivative `D²u(p) e_α e_β`, assuming
+`DifferentiableAt ℝ (fderiv ℝ u) p`.
 
 ### `dAlembertian` (`□`) and `kleinGordon`
 
