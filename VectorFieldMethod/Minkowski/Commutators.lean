@@ -34,6 +34,11 @@ those of the translations are constant, so their Lie brackets are computed by li
   identities of functions for `u` of class `C²` (`boost_boost_sub_boost_boost`, ...). The vanishing
   commutators are stated as commutation relations (`timeDeriv_rotation_comm_apply`,
   `scaling_boost_comm_apply`, `scaling_rotation_comm_apply`, ...).
+* The brackets in the reverse order, such as `[L_a, ∂_t] = -∂_a` and `[S, ∂_α] = -∂_α`
+  (`lieBracket_boostField_timeField`, ..., `lieBracket_scalingField_coordField`), from the
+  antisymmetry of the Lie bracket.
+* The same relations on an open set `U` on which `u` is `C²`, as equalities `Set.EqOn f g U`
+  (names ending in `_of_contDiffOn`, for instance `boost_boost_sub_boost_boost_of_contDiffOn`).
 
 ## Implementation notes
 
@@ -55,7 +60,7 @@ open scoped ContDiff
 namespace VectorFieldMethod.Minkowski
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
-variable {V W : Spacetime → Spacetime} {u : Spacetime → F} {p : Spacetime}
+variable {V W : Spacetime → Spacetime} {u : Spacetime → F} {p : Spacetime} {U : Set Spacetime}
 
 /-! ### The commutator of two derivatives along vector fields -/
 
@@ -309,6 +314,66 @@ theorem lieBracket_scalingField_rotationField (a b : Fin 3) :
   rw [lieBracket_apply_of_isLinearMap isLinearMap_scalingField (isLinearMap_rotationField a b)]
   exact sub_self _
 
+/-! ### Lie brackets in the reverse order
+
+These follow from the brackets above by the antisymmetry `[V, W] = -[W, V]`
+(Mathlib's `lieBracket_swap`). The brackets `[L_b, L_a]` and `[Ω_cd, Ω_ab]` are already covered by
+`lieBracket_boostField_boostField` and `lieBracket_rotationField_rotationField` with the indices
+exchanged. -/
+
+/-- `[L_a, ∂_t] = -∂_a`. -/
+theorem lieBracket_boostField_timeField (a : Fin 3) :
+    lieBracket ℝ (boostField a) timeField = -spaceField a :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_timeField_boostField]; rfl
+
+/-- `[L_a, ∂_b] = -δ_ab ∂_t`. -/
+theorem lieBracket_boostField_spaceField (a b : Fin 3) :
+    lieBracket ℝ (boostField a) (spaceField b) = -((if a = b then (1 : ℝ) else 0) • timeField) :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_spaceField_boostField]; rfl
+
+/-- `[Ω_ab, ∂_t] = 0`. -/
+theorem lieBracket_rotationField_timeField (a b : Fin 3) :
+    lieBracket ℝ (rotationField a b) timeField = fun _ ↦ 0 :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_timeField_rotationField]; exact neg_zero
+
+/-- `[Ω_ab, ∂_c] = -(δ_ca ∂_b - δ_cb ∂_a)`. -/
+theorem lieBracket_rotationField_spaceField (a b c : Fin 3) :
+    lieBracket ℝ (rotationField a b) (spaceField c) =
+      -((if c = a then (1 : ℝ) else 0) • spaceField b -
+        (if c = b then (1 : ℝ) else 0) • spaceField a) :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_spaceField_rotationField]; rfl
+
+/-- `[S, ∂_t] = -∂_t`. -/
+theorem lieBracket_scalingField_timeField : lieBracket ℝ scalingField timeField = -timeField :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_timeField_scalingField]; rfl
+
+/-- `[S, ∂_a] = -∂_a`. -/
+theorem lieBracket_scalingField_spaceField (a : Fin 3) :
+    lieBracket ℝ scalingField (spaceField a) = -spaceField a :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_spaceField_scalingField]; rfl
+
+/-- `[S, ∂_α] = -∂_α`. -/
+theorem lieBracket_scalingField_coordField (α : Fin 4) :
+    lieBracket ℝ scalingField (coordField α) = -coordField α :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_coordField_scalingField]; rfl
+
+/-- `[Ω_bc, L_a] = -(δ_ab L_c - δ_ac L_b)`. -/
+theorem lieBracket_rotationField_boostField (a b c : Fin 3) :
+    lieBracket ℝ (rotationField b c) (boostField a) =
+      -((if a = b then (1 : ℝ) else 0) • boostField c -
+        (if a = c then (1 : ℝ) else 0) • boostField b) :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_boostField_rotationField]; rfl
+
+/-- `[L_a, S] = 0`. -/
+theorem lieBracket_boostField_scalingField (a : Fin 3) :
+    lieBracket ℝ (boostField a) scalingField = fun _ ↦ 0 :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_scalingField_boostField]; exact neg_zero
+
+/-- `[Ω_ab, S] = 0`. -/
+theorem lieBracket_rotationField_scalingField (a b : Fin 3) :
+    lieBracket ℝ (rotationField a b) scalingField = fun _ ↦ 0 :=
+  funext fun _ ↦ by rw [lieBracket_swap, lieBracket_scalingField_rotationField]; exact neg_zero
+
 /-! ### Commutators with the translations -/
 
 /-- `[∂_t, L_a] u = ∂_a u` at a point where `u` is `C²`. -/
@@ -475,6 +540,92 @@ theorem scaling_rotation_comm_apply (a b : Fin 3) (hu : ContDiffAt ℝ 2 u p) :
 theorem scaling_rotation_comm (a b : Fin 3) (hu : ContDiff ℝ 2 u) :
     scaling (rotation a b u) = rotation a b (scaling u) :=
   funext fun _ ↦ scaling_rotation_comm_apply a b hu.contDiffAt
+
+/-! ### Commutation relations on open sets
+
+If `u` is `C²` on an open set `U`, the commutation relations hold at every point of `U`: they are
+stated as `Set.EqOn f g U`, that is, `f p = g p` for every `p ∈ U`. -/
+
+/-- `V (W u) - W (V u) = [V, W] u` on an open set `U` on which the component fields `V`, `W` are
+differentiable and `u` is `C²`. -/
+theorem derivAlong_derivAlong_sub_derivAlong_derivAlong_of_contDiffOn (hU : IsOpen U)
+    (hV : DifferentiableOn ℝ V U) (hW : DifferentiableOn ℝ W U) (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (derivAlong V (derivAlong W u) - derivAlong W (derivAlong V u))
+      (derivAlong (lieBracket ℝ V W) u) U := fun _ hp ↦
+  derivAlong_derivAlong_sub_derivAlong_derivAlong_apply (hV.differentiableAt (hU.mem_nhds hp))
+    (hW.differentiableAt (hU.mem_nhds hp)) (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[∂_t, L_a] = ∂_a` on an open set `U` on which `u` is `C²`. -/
+theorem timeDeriv_boost_sub_boost_timeDeriv_of_contDiffOn (a : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) : Set.EqOn (∂ₜ (boost a u) - boost a (∂ₜ u)) (∂ₓ[a] u) U :=
+  fun _ hp ↦ timeDeriv_boost_sub_boost_timeDeriv_apply a (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[∂_b, L_a] = δ_ab ∂_t` on an open set `U` on which `u` is `C²`. -/
+theorem spaceDeriv_boost_sub_boost_spaceDeriv_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (∂ₓ[b] (boost a u) - boost a (∂ₓ[b] u))
+      ((if a = b then (1 : ℝ) else 0) • ∂ₜ u) U :=
+  fun _ hp ↦ spaceDeriv_boost_sub_boost_spaceDeriv_apply a b (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[∂_t, Ω_ab] = 0` on an open set `U` on which `u` is `C²`. -/
+theorem timeDeriv_rotation_comm_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) : Set.EqOn (∂ₜ (rotation a b u)) (rotation a b (∂ₜ u)) U :=
+  fun _ hp ↦ timeDeriv_rotation_comm_apply a b (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[∂_c, Ω_ab] = δ_ca ∂_b - δ_cb ∂_a` on an open set `U` on which `u` is `C²`. -/
+theorem spaceDeriv_rotation_sub_rotation_spaceDeriv_of_contDiffOn (a b c : Fin 3)
+    (hU : IsOpen U) (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (∂ₓ[c] (rotation a b u) - rotation a b (∂ₓ[c] u))
+      ((if c = a then (1 : ℝ) else 0) • ∂ₓ[b] u - (if c = b then (1 : ℝ) else 0) • ∂ₓ[a] u) U :=
+  fun _ hp ↦
+    spaceDeriv_rotation_sub_rotation_spaceDeriv_apply a b c (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[∂_t, S] = ∂_t` on an open set `U` on which `u` is `C²`. -/
+theorem timeDeriv_scaling_sub_scaling_timeDeriv_of_contDiffOn (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) : Set.EqOn (∂ₜ (scaling u) - scaling (∂ₜ u)) (∂ₜ u) U :=
+  fun _ hp ↦ timeDeriv_scaling_sub_scaling_timeDeriv_apply (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[∂_a, S] = ∂_a` on an open set `U` on which `u` is `C²`. -/
+theorem spaceDeriv_scaling_sub_scaling_spaceDeriv_of_contDiffOn (a : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (∂ₓ[a] (scaling u) - scaling (∂ₓ[a] u)) (∂ₓ[a] u) U :=
+  fun _ hp ↦ spaceDeriv_scaling_sub_scaling_spaceDeriv_apply a (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[L_a, L_b] = Ω_ab` on an open set `U` on which `u` is `C²`. -/
+theorem boost_boost_sub_boost_boost_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (boost a (boost b u) - boost b (boost a u)) (rotation a b u) U :=
+  fun _ hp ↦ boost_boost_sub_boost_boost_apply a b (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[L_a, Ω_bc] = δ_ab L_c - δ_ac L_b` on an open set `U` on which `u` is `C²`. -/
+theorem boost_rotation_sub_rotation_boost_of_contDiffOn (a b c : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (boost a (rotation b c u) - rotation b c (boost a u))
+      ((if a = b then (1 : ℝ) else 0) • boost c u -
+        (if a = c then (1 : ℝ) else 0) • boost b u) U :=
+  fun _ hp ↦ boost_rotation_sub_rotation_boost_apply a b c (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[Ω_ab, Ω_cd] = δ_bc Ω_ad - δ_ac Ω_bd - δ_bd Ω_ac + δ_ad Ω_bc` on an open set `U` on which `u`
+is `C²`. -/
+theorem rotation_rotation_sub_rotation_rotation_of_contDiffOn (a b c d : Fin 3)
+    (hU : IsOpen U) (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (rotation a b (rotation c d u) - rotation c d (rotation a b u))
+      ((if b = c then (1 : ℝ) else 0) • rotation a d u -
+        (if a = c then (1 : ℝ) else 0) • rotation b d u -
+        (if b = d then (1 : ℝ) else 0) • rotation a c u +
+        (if a = d then (1 : ℝ) else 0) • rotation b c u) U :=
+  fun _ hp ↦
+    rotation_rotation_sub_rotation_rotation_apply a b c d (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[S, L_a] = 0` on an open set `U` on which `u` is `C²`. -/
+theorem scaling_boost_comm_of_contDiffOn (a : Fin 3) (hU : IsOpen U) (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (scaling (boost a u)) (boost a (scaling u)) U :=
+  fun _ hp ↦ scaling_boost_comm_apply a (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[S, Ω_ab] = 0` on an open set `U` on which `u` is `C²`. -/
+theorem scaling_rotation_comm_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) : Set.EqOn (scaling (rotation a b u)) (rotation a b (scaling u)) U :=
+  fun _ hp ↦ scaling_rotation_comm_apply a b (hu.contDiffAt (hU.mem_nhds hp))
 
 /-! ### Sanity checks
 
