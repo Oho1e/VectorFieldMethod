@@ -141,13 +141,7 @@ theorem derivAlong_derivAlong_sub_derivAlong_derivAlong (hV : Differentiable ℝ
 theorem derivAlong_derivAlong_sub_derivAlong_derivAlong_of_contDiffOn (hU : IsOpen U)
     (hV : DifferentiableOn ℝ V U) (hW : DifferentiableOn ℝ W U) (hu : ContDiffOn ℝ 2 u U) :
     Set.EqOn (derivAlong V (derivAlong W u) - derivAlong W (derivAlong V u))
-      (derivAlong (lieBracket ℝ V W) u) U := fun _ hp ↦
-  derivAlong_derivAlong_sub_derivAlong_derivAlong_apply (hV.differentiableAt (hU.mem_nhds hp))
-    (hW.differentiableAt (hU.mem_nhds hp)) (hu.contDiffAt (hU.mem_nhds hp))
-
-/-- `[∂_t, L_a] = ∂_a` on an open set `U` on which `u` is `C²`. -/
-theorem timeDeriv_boost_sub_boost_timeDeriv_of_contDiffOn (a : Fin 3) (hU : IsOpen U)
-    (hu : ContDiffOn ℝ 2 u U) : Set.EqOn (∂ₜ (boost a u) - boost a (∂ₜ u)) (∂ₓ[a] u) U
+      (derivAlong (lieBracket ℝ V W) u) U
 ```
 
 ## Main theorems: commutation relations of the Minkowski vector fields
