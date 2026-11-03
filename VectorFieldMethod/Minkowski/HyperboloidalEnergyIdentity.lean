@@ -388,16 +388,34 @@ private def sanityBump : ContDiffBump ((4 : ℝ), (0 : EuclideanSpace ℝ (Fin 3
   rIn_pos := by norm_num
   rIn_lt_rOut := by norm_num
 
+/-- The points `(t, x)` of the closed support of the bump function satisfy `|t - 4| ≤ 1 / 2` and
+`‖x‖ ≤ 1 / 2`. -/
+private theorem mem_tsupport_sanityBump {t : ℝ} {x : EuclideanSpace ℝ (Fin 3)}
+    (h : ((t, x) : Spacetime) ∈ tsupport (sanityBump : Spacetime → ℝ)) :
+    -(1 / 2) ≤ t - 4 ∧ t - 4 ≤ 1 / 2 ∧ ‖x‖ ≤ 1 / 2 := by
+  rw [ContDiffBump.tsupport_eq, Metric.mem_closedBall, Prod.dist_eq, max_le_iff, Real.dist_eq,
+    dist_zero_right] at h
+  have hr : sanityBump.rOut = 1 / 2 := rfl
+  rw [hr, abs_le] at h
+  exact ⟨h.1.1, h.1.2, h.2⟩
+
+/-- The bump function equals `1` at the points `(t, x)` with `|t - 4| ≤ 1 / 4` and
+`‖x‖ ≤ 1 / 4`. -/
+private theorem sanityBump_eq_one {t : ℝ} {x : EuclideanSpace ℝ (Fin 3)} (h₁ : -(1 / 4) ≤ t - 4)
+    (h₂ : t - 4 ≤ 1 / 4) (h₃ : ‖x‖ ≤ 1 / 4) : (sanityBump : Spacetime → ℝ) (t, x) = 1 := by
+  refine sanityBump.one_of_mem_closedBall ?_
+  rw [Metric.mem_closedBall, Prod.dist_eq, max_le_iff, Real.dist_eq, dist_zero_right]
+  have hr : sanityBump.rIn = 1 / 4 := rfl
+  rw [hr, abs_le]
+  exact ⟨⟨h₁, h₂⟩, h₃⟩
+
 /-- The closed support of the bump function lies in the cone `‖x‖ ≤ t - 1`. -/
 private theorem tsupport_sanityBump_subset :
     tsupport (sanityBump : Spacetime → ℝ) ⊆ {p : Spacetime | ‖p.2‖ ≤ p.1 - 1} := by
   intro p hp
-  rw [ContDiffBump.tsupport_eq, Metric.mem_closedBall, Prod.dist_eq, max_le_iff, Real.dist_eq,
-    dist_zero_right] at hp
-  have hr : sanityBump.rOut = 1 / 2 := rfl
-  rw [hr, abs_le] at hp
+  obtain ⟨h₁, -, h₃⟩ := mem_tsupport_sanityBump (t := p.1) (x := p.2) hp
   change ‖p.2‖ ≤ p.1 - 1
-  linarith [hp.1.1, hp.2]
+  linarith
 
 /-- The hyperboloidal energy identity for the bump function `u = sanityBump` (`F = ℝ`, any mass
 `m`) between the hyperboloids `s₁ = 2` and `s₂ = 4`, with `U` the whole spacetime. -/
@@ -410,6 +428,57 @@ example (m : ℝ) :
     (subset_univ _) sanityBump.contDiff.contDiffOn
     (inter_subset_right.trans tsupport_sanityBump_subset)
 
+/-- Both sides of the identity of the previous example are nonzero for `m ≠ 0`. The lower energy
+vanishes, since the closed support of `u` does not meet `H_2`. The upper energy is positive: on
+`H_4` the energy density is nonnegative (`hyperboloidalEnergyDensity_nonneg`), and it is at least
+`m² > 0` where `u = 1`, which is the case at the points of `H_4` with `‖x‖ < 1 / 4`; and it is
+integrable (`integrable_hyperboloidalEnergyDensity`). -/
+example {m : ℝ} (hm : m ≠ 0) :
+    hyperboloidalEnergy m 2 (sanityBump : Spacetime → ℝ) = 0 ∧
+      0 < hyperboloidalEnergy m 4 (sanityBump : Spacetime → ℝ) := by
+  constructor
+  · -- the hyperboloid `H_2` does not meet the closed support of `u`
+    have h0 (x : EuclideanSpace ℝ (Fin 3)) :
+        hyperboloidalEnergyDensity m (sanityBump : Spacetime → ℝ) (√(2 ^ 2 + ‖x‖ ^ 2), x) = 0 := by
+      by_contra hne
+      obtain ⟨h₁, -, h₃⟩ :=
+        mem_tsupport_sanityBump (support_hyperboloidalEnergyDensity_subset m _ hne)
+      have h₂ := Real.mul_self_sqrt (by positivity : (0 : ℝ) ≤ 2 ^ 2 + ‖x‖ ^ 2)
+      have hx0 : (0 : ℝ) ≤ ‖x‖ := norm_nonneg x
+      -- `linarith` would normalize the radicand of the square root in some hypotheses only
+      generalize √(2 ^ 2 + ‖x‖ ^ 2) = S at h₁ h₂
+      nlinarith [mul_self_le_mul_self (by norm_num : (0 : ℝ) ≤ 7 / 2)
+        (by linarith : (7 : ℝ) / 2 ≤ S), mul_self_le_mul_self hx0 h₃]
+    simp only [hyperboloidalEnergy_apply, h0, integral_zero]
+  · -- the energy density on `H_4` is nonnegative, integrable, and positive near `x = 0`
+    have hnonneg : 0 ≤ fun x : EuclideanSpace ℝ (Fin 3) ↦
+        hyperboloidalEnergyDensity m (sanityBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x) :=
+      fun x ↦ hyperboloidalEnergyDensity_nonneg m _
+        ((Real.le_sqrt_of_sq_le (le_add_of_nonneg_left (sq_nonneg 4))).trans (le_abs_self _))
+        (Real.sqrt_pos.2 (by positivity)).ne'
+    have hint := integrable_hyperboloidalEnergyDensity (m := m) (s₁ := 2) (s₂ := 4) (s := 4)
+      (by norm_num) ⟨by norm_num, le_rfl⟩ isOpen_univ (subset_univ _)
+      sanityBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_sanityBump_subset)
+    have hball : Metric.ball (0 : EuclideanSpace ℝ (Fin 3)) (1 / 4) ⊆ support fun x ↦
+        hyperboloidalEnergyDensity m (sanityBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x) := by
+      intro x hx
+      rw [Metric.mem_ball, dist_zero_right] at hx
+      have h₄ : (4 : ℝ) ≤ √(4 ^ 2 + ‖x‖ ^ 2) :=
+        Real.le_sqrt_of_sq_le (by nlinarith [norm_nonneg x])
+      have h₄' : √(4 ^ 2 + ‖x‖ ^ 2) ≤ 4 + 1 / 4 := by
+        calc √(4 ^ 2 + ‖x‖ ^ 2) ≤ √((4 + 1 / 4) ^ 2) :=
+              Real.sqrt_le_sqrt (by nlinarith [norm_nonneg x])
+          _ = 4 + 1 / 4 := Real.sqrt_sq (by norm_num)
+      have hu1 : (sanityBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x) = 1 := by
+        generalize √(4 ^ 2 + ‖x‖ ^ 2) = S at h₄ h₄' ⊢
+        exact sanityBump_eq_one (by linarith) (by linarith) hx.le
+      rw [Function.mem_support,
+        hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid m _
+          (by norm_num : (4 : ℝ) ≠ 0), hu1, norm_one, one_pow, mul_one]
+      positivity
+    rw [hyperboloidalEnergy_apply, integral_pos_iff_support_of_nonneg hnonneg hint]
+    exact (Metric.measure_ball_pos volume 0 (by norm_num)).trans_le (measure_mono hball)
+
 /-- The hypotheses of the conservation law `hyperboloidalEnergy_eq_of_kleinGordon_eq_zero` hold for
 the same bump function between the hyperboloids `s₁ = 5` and `s₂ = 6`: the region between them
 lies in `{t ≥ 5}` and does not meet the closed support of `u` (where `t ≤ 9 / 2`), so `u` and
@@ -421,14 +490,11 @@ example (m : ℝ) :
       (hp : p ∈ {p : Spacetime | p.1 ∈ Icc √(5 ^ 2 + ‖p.2‖ ^ 2) √(6 ^ 2 + ‖p.2‖ ^ 2)}) :
       p ∉ tsupport (sanityBump : Spacetime → ℝ) := by
     intro h
-    rw [ContDiffBump.tsupport_eq, Metric.mem_closedBall, Prod.dist_eq, max_le_iff,
-      Real.dist_eq] at h
-    have hr : sanityBump.rOut = 1 / 2 := rfl
-    rw [hr, abs_le] at h
+    obtain ⟨-, h₂, -⟩ := mem_tsupport_sanityBump (t := p.1) (x := p.2) h
     have h₅ : (5 : ℝ) ≤ √(5 ^ 2 + ‖p.2‖ ^ 2) :=
       Real.le_sqrt_of_sq_le (by nlinarith [norm_nonneg p.2])
     have h₁ : √(5 ^ 2 + ‖p.2‖ ^ 2) ≤ p.1 := hp.1
-    linarith [h.1.2]
+    linarith
   exact hyperboloidalEnergy_eq_of_kleinGordon_eq_zero (by norm_num) (by norm_num) isOpen_univ
     (subset_univ _) sanityBump.contDiff.contDiffOn (fun p hp ↦ absurd hp.2 (hD p hp.1))
     fun p hp ↦ kleinGordon_of_notMem_tsupport m (hD p hp.1)
