@@ -37,6 +37,15 @@ energy density `e_m[u]` at the point `(√(s ^ 2 + ‖x‖ ^ 2), x)` of `H_s`.
   `s² / t²` (`hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid`).
 * `hyperboloidalEnergyDensity_nonneg`: `e_m[u] ≥ 0` where `r ≤ |t|` and `t ≠ 0`; hence
   `hyperboloidalEnergy_nonneg`: `E_m(s, u) ≥ 0` for `s ≠ 0`.
+* `hyperboloidalEnergyDensity_eq_energyCurrent`: `e_m[u] = 2 (P⁰ - ∑ a, (x_a / t) P^a)` for the
+  energy current `P` of `EnergyMomentum.lean`.
+
+## Normalization
+
+The energy density and the energy carry no factor `½`, as in LeFloch–Ma: for `m = 0` and on the
+slice `t = const` (formally `x / t → 0`), `e_m[u]` would be `‖∂_t u‖² + ∑ a, ‖∂_a u‖²`. The energy
+current `P` of `EnergyMomentum.lean` carries the factor `½`, which is why
+`e_m[u] = 2 (P⁰ - ∑ a, (x_a / t) P^a)`.
 -/
 
 @[expose] public noncomputable section
@@ -152,6 +161,20 @@ theorem hyperboloidalEnergy_nonneg (m : ℝ) (u : Spacetime → F) {s : ℝ} (hs
       Real.le_sqrt_of_sq_le (le_add_of_nonneg_left (sq_nonneg s))
     exact hx.trans (le_abs_self _)
   · exact (Real.sqrt_pos.2 (by positivity)).ne'
+
+/-! ### The energy density and the energy current -/
+
+/-- The energy density is twice the flux density of the energy current through the hyperboloids:
+`e_m[u] = 2 (P⁰ - ∑ a, (x_a / t) P^a)`, where `P` is the energy current `energyCurrent m u`
+(which carries the factor `½`). No hypothesis is needed: both sides are the same algebraic
+expression in `u(p)` and its derivatives at `p`, with the same coefficients `x_a / t` (junk value
+`0` at `t = 0`). -/
+theorem hyperboloidalEnergyDensity_eq_energyCurrent (m : ℝ) (u : Spacetime → F) (p : Spacetime) :
+    hyperboloidalEnergyDensity m u p = 2 * (energyCurrent m u 0 p -
+      ∑ a, spaceCoord a p / timeCoord p * energyCurrent m u a.succ p) := by
+  simp only [hyperboloidalEnergyDensity_apply, energyCurrent_zero, energyCurrent_succ, mul_neg,
+    Finset.sum_neg_distrib, sub_neg_eq_add]
+  ring
 
 /-! ### Sanity checks -/
 
