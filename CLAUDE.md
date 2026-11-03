@@ -63,6 +63,18 @@ either a hypothesis of the theorem that uses it, or a field of a `structure`
 bundling the assumptions. Never introduce it with `axiom` or `sorry`. This
 keeps every dependency on unproved mathematics visible in the statements.
 
+## Verification
+
+- **Axioms.** CI runs `lake env lean scripts/CheckAxioms.lean` after `lake build`:
+  every declaration, auxiliary ones included, may depend only on `propext`,
+  `Classical.choice` and `Quot.sound` (so no `sorry`, `native_decide` or `axiom`).
+- **Non-vacuity.** Each main theorem whose hypotheses go beyond regularity (`C^k`,
+  differentiability) and signs of numbers (`0 < r`), e.g. support conditions,
+  inequalities between functions or assumptions bundled in a `structure`, gets an
+  `example` in a `/-! ### Sanity checks -/` section at the end of its file: it
+  applies the theorem to concrete objects satisfying all its hypotheses, showing
+  that the hypotheses can hold simultaneously.
+
 ## Statement documentation
 
 `docs/statements/` explains, for readers who do not know Lean, what each main
