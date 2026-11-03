@@ -10,7 +10,7 @@ namespace, the integral theorems in `MeasureTheory`. The links below point to co
 [`3fac872`](https://github.com/Oho1e/VectorFieldMethod/tree/3fac872e390477a31fdbf56d88d4cc6989748e1e)
 of `main`. The links for `integral_divergence_between_hyperboloids_of_contDiffOn` (its entry, and
 its `variable` lines in the *Context* section) point instead to commit
-[`3d006ec`](https://github.com/Oho1e/VectorFieldMethod/tree/3d006ec5d8598337ee78877a2473aba52f67299b)
+[`7ca4341`](https://github.com/Oho1e/VectorFieldMethod/tree/7ca43418f81ff26d99e3f5f9801646fa70fd1a74)
 of the pull request that adds it, and are to be replaced by a `main` commit later. How to read the
 entries: [`README.md`](README.md).
 
@@ -23,9 +23,11 @@ the Minkowski layer, where `Spacetime = ℝ × EuclideanSpace ℝ (Fin 3)` has t
 $`\mathbb{R} \times E`$, time first: it only swaps the order of the coordinates. With
 $`E = \mathbb{R}^3`$ (`EuclideanSpace ℝ (Fin 3)`) and $`\mu`$ = Lebesgue measure (`volume`),
 $`\mathbb{R} \times E`$ is `Spacetime` and `volume.prod volume` is Lebesgue measure on it. The other
-theorems of this layer exist only in the time-second form at present; in particular, the versions
-between two graphs, the localized versions (`_of_contDiffOn`) and the hyperboloid versions have no
-time-first form yet.
+divergence theorems of this layer exist only in the time-second form at present: the iterated
+version below a graph, the gradient form, the three versions between two graphs (iterated, on the
+closed region, on the open region), the two localized versions between two graphs
+(`_of_contDiffOn`) and the two hyperboloid versions (global and localized) have no time-first form
+yet.
 
 **Notation in the Math lines below.** $`E`$ is a real normed space ("space"), $`\mu`$ a measure on
 $`E`$, $`\mathcal{L}^1`$ Lebesgue measure on $`\mathbb{R}`$. A vector field on spacetime is given by
@@ -84,8 +86,8 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimension
 [`DivergenceTheoremHyperboloid.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L38)
 (lines 38 and 57–58: $`E`$ a finite-dimensional real inner product space with its Borel
 $`\sigma`$-algebra, $`\mu`$ an additive Haar measure; at commit
-[`3d006ec`](https://github.com/Oho1e/VectorFieldMethod/blob/3d006ec5d8598337ee78877a2473aba52f67299b/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L56),
-used by the localized hyperboloid entry, the same two `variable` lines are lines 56 and 97–98):
+[`7ca4341`](https://github.com/Oho1e/VectorFieldMethod/blob/7ca43418f81ff26d99e3f5f9801646fa70fd1a74/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L62),
+used by the localized hyperboloid entry, the same two `variable` lines are lines 62 and 103–104):
 
 ```lean
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
@@ -315,8 +317,8 @@ theorem integral_divergence_hypograph_swap {X₀ : ℝ × E → ℝ} {X : ℝ ×
   written out (`LinearMap.trace` of the derivative of $`y \mapsto X(t, y)`$), because
   `spatialDivergence` expects time second. The theorem only swaps the order of the coordinates in
   `integral_divergence_hypograph`. With $`E`$ = `EuclideanSpace ℝ (Fin 3)` and $`\mu`$ = `volume`
-  it is a statement on `Spacetime` with its Lebesgue measure. The versions between two graphs, the
-  localized versions and the hyperboloid versions exist only in the time-second form.
+  it is a statement on `Spacetime` with its Lebesgue measure. All other divergence theorems of this
+  layer (listed in the section *Coordinates* above) exist only in the time-second form.
 
 ### Spatial divergence in Euclidean coordinates
 
@@ -412,8 +414,8 @@ theorem integral_divergence_region_between_cc_of_contDiffOn {U : Set (E × ℝ)}
 
 - **Notes.** Generalizes `integral_divergence_region_between_cc` in the same way as the previous
   entry. It is the form used for the hyperboloids below: the localized hyperboloid theorem applies
-  it with its open set $`U`$, and the global one (through the localized one) with
-  $`U = E \times \mathbb{R}`$.
+  it with the open set $`U \cup (\operatorname{supp} X_0 \cup \operatorname{supp} X)^c`$, and hence
+  the global one with $`E \times \mathbb{R}`$.
 
 ### Divergence theorem between two hyperboloids, global version
 
@@ -456,7 +458,9 @@ theorem integral_divergence_between_hyperboloids {s₁ s₂ : ℝ} (hs₁ : 0 < 
   $`X_0`$ and $`X`$ vanish identically for $`t \lt 1`$; for instance, it excludes every solution of a
   wave equation that does not vanish at some time $`t \lt 1`$. A field that satisfies the cone
   condition only on the region between the hyperboloids is covered by the localized version (next
-  entry), from which this version is deduced with $`U = E \times \mathbb{R}`$. The intersection of the
+  entry). Since the pull request that adds the localized version, this version is deduced from it
+  with $`U = E \times \mathbb{R}`$; at the linked commit `3fac872` the statement is the same, but the
+  proof is direct. The intersection of the
   cone with the region between the hyperboloids is compact, so all integrands are integrable and the
   identity is not a junk $`0 = 0`$. A point of this intersection satisfies
   $`(\lvert x\rvert + 1)^2 \le t^2 \le s_2^2 + \lvert x\rvert^2`$, i.e.
@@ -477,11 +481,11 @@ theorem integral_divergence_between_hyperboloids {s₁ s₂ : ℝ} (hs₁ : 0 < 
   ```math
   D = \{ (x, t) : \varphi_1(x) \le t \le \varphi_2(x) \},
   ```
-  and let $`U \subseteq E \times \mathbb{R}`$ be open with $`D \subseteq U`$. Let
-  $`X_0 : E \times \mathbb{R} \to \mathbb{R}`$ and $`X : E \times \mathbb{R} \to E`$ be $`C^1`$ on
-  $`U`$, with
+  and $`C = \{ (x, t) : \lvert x\rvert \le t - 1 \}`$. Let $`U \subseteq E \times \mathbb{R}`$ be open
+  with $`D \cap C \subseteq U`$, and let $`X_0 : E \times \mathbb{R} \to \mathbb{R}`$ and
+  $`X : E \times \mathbb{R} \to E`$ be $`C^1`$ on $`U`$, with
   ```math
-  D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X) \subseteq \{ (x, t) : \lvert x\rvert \le t - 1 \}.
+  D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X) \subseteq C.
   ```
   Then
   ```math
@@ -490,14 +494,15 @@ theorem integral_divergence_between_hyperboloids {s₁ s₂ : ℝ} (hs₁ : 0 < 
   - \int_E \Big( X_0\big(x, \varphi_1(x)\big) - \frac{\langle x, X(x, \varphi_1(x)) \rangle}{\varphi_1(x)} \Big)\, d\mu(x).
   ```
 - **Hypotheses.** $`E`$ finite-dimensional real inner product space, Borel; $`\mu`$ additive Haar;
-  $`0 \lt s_1`$ and $`s_1 \lt s_2`$; $`U`$ open; $`D \subseteq U`$; $`X_0, X`$ are $`C^1`$ on $`U`$;
-  $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X) \subseteq \{\lvert x\rvert \le t - 1\}`$.
-- **Lean.** `MeasureTheory.integral_divergence_between_hyperboloids_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3d006ec5d8598337ee78877a2473aba52f67299b/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L113)
+  $`0 \lt s_1`$ and $`s_1 \lt s_2`$; $`U`$ open; $`D \cap C \subseteq U`$; $`X_0, X`$ are $`C^1`$ on
+  $`U`$; $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X) \subseteq C`$.
+- **Lean.** `MeasureTheory.integral_divergence_between_hyperboloids_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/7ca43418f81ff26d99e3f5f9801646fa70fd1a74/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L120)
 
 ```lean
 theorem integral_divergence_between_hyperboloids_of_contDiffOn {s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
     (hs₁₂ : s₁ < s₂) {U : Set (E × ℝ)} (hU : IsOpen U)
-    (hDU : {p : E × ℝ | p.2 ∈ Icc √(s₁ ^ 2 + ‖p.1‖ ^ 2) √(s₂ ^ 2 + ‖p.1‖ ^ 2)} ⊆ U)
+    (hDU : {p : E × ℝ | p.2 ∈ Icc √(s₁ ^ 2 + ‖p.1‖ ^ 2) √(s₂ ^ 2 + ‖p.1‖ ^ 2)} ∩
+      {p | ‖p.1‖ ≤ p.2 - 1} ⊆ U)
     (hX₀ : ContDiffOn ℝ 1 X₀ U) (hX : ContDiffOn ℝ 1 X U)
     (hsupp : {p : E × ℝ | p.2 ∈ Icc √(s₁ ^ 2 + ‖p.1‖ ^ 2) √(s₂ ^ 2 + ‖p.1‖ ^ 2)} ∩
       (tsupport X₀ ∪ tsupport X) ⊆ {p | ‖p.1‖ ≤ p.2 - 1}) :
@@ -509,18 +514,35 @@ theorem integral_divergence_between_hyperboloids_of_contDiffOn {s₁ s₂ : ℝ}
           ⟪x, X (x, √(s₁ ^ 2 + ‖x‖ ^ 2))⟫ / √(s₁ ^ 2 + ‖x‖ ^ 2)) ∂μ
 ```
 
-- **Notes.** Only the values of $`X_0, X`$ on $`U`$ and the part of their supports in $`D`$ enter:
-  nothing is assumed outside $`U`$, the cone condition is only required on $`D`$, and the field is not
-  assumed to have compact support. The supports are the closed supports `tsupport`. The intersection
-  of $`D`$ with the cone is compact (`isCompact_region_between_hyperboloids_inter_cone`), hence so is
-  $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X)`$, and the theorem follows from
-  `integral_divergence_region_between_cc_of_contDiffOn`; in particular all integrands are integrable
-  and the identity is not a junk $`0 = 0`$. As in the global version, the cone meets $`D`$ only if
-  $`s_2 \ge 1`$ (and only at $`(0, 1)`$ if $`s_2 = 1`$), so the theorem has content only for
-  $`s_2 \gt 1`$. The global version is deduced from this one with $`U = E \times \mathbb{R}`$. The file
-  ends with a sanity check (`example`) applying the theorem to a nonzero field: $`E = \mathbb{R}^3`$
-  (`EuclideanSpace ℝ (Fin 3)`), $`\mu`$ = `volume`, $`s_1 = 2`$, $`s_2 = 4`$, $`U = \{t \gt 0\}`$,
-  $`X = 0`$, and $`X_0`$ a smooth bump function (`ContDiffBump`) centered at $`(0, 3)`$, equal to
-  $`1`$ near the center and vanishing outside the ball of radius $`1/2`$ for the max norm of
-  $`E \times \mathbb{R}`$, so that its support lies in
-  $`\{\lvert x\rvert \le 1/2,\ t \ge 5/2\}`$, inside the cone.
+- **Notes.** Only the behaviour of $`X_0, X`$ near $`D`$ enters: the support condition says that
+  the field vanishes near every point of $`D`$ outside the cone, and the field only has to be $`C^1`$
+  on an open set $`U`$ containing the part $`D \cap C`$ of $`D`$ in the cone; it is not assumed to have
+  compact support, and its values elsewhere play no role. For instance, a field that is defined and
+  $`C^1`$ only on an open time slab containing $`D \cap C`$, supported in $`C`$ there and extended by
+  zero, satisfies the hypotheses with $`U`$ the slab. The supports here are the closed supports
+  `tsupport`, and unlike in the global version they cannot be replaced by `support`: since $`D`$ is
+  not open, the condition $`D \cap (\{X_0 \neq 0\} \cup \{X \neq 0\}) \subseteq C`$ is weaker (the
+  closed support may contain points of $`D`$ outside $`C`$ that are limits of points of
+  $`\{X_0 \neq 0\} \cup \{X \neq 0\}`$ outside $`D`$), whereas in the global version the cone is closed
+  and the two conditions are equivalent. $`D \cap C`$ is compact
+  (`isCompact_region_between_hyperboloids_inter_cone`), hence so is
+  $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X)`$; the proof enlarges $`U`$ to the open
+  set $`U \cup (\operatorname{supp} X_0 \cup \operatorname{supp} X)^c`$, which contains $`D`$ and on which
+  the field is $`C^1`$, and applies `integral_divergence_region_between_cc_of_contDiffOn`. In
+  particular all integrands are integrable and the identity is not a junk $`0 = 0`$. As in the
+  global version, the cone meets $`D`$ only if $`s_2 \ge 1`$ (and only at $`(0, 1)`$ if $`s_2 = 1`$),
+  so the theorem has content only for $`s_2 \gt 1`$. The global version is deduced from this one with
+  $`U = E \times \mathbb{R}`$.
+
+  The file ends with three sanity checks (`example`s) about one vector field, with
+  $`E = \mathbb{R}^3`$ (`EuclideanSpace ℝ (Fin 3)`), $`\mu`$ = `volume`, $`s_1 = 2`$, $`s_2 = 4`$,
+  $`U = E \times \mathbb{R}`$ and $`X = 0`$. Its time component $`X_0`$ is the sum of two smooth bump
+  functions (`ContDiffBump`) equal to $`1`$ on the closed ball of radius $`1/4`$ and vanishing outside
+  the open ball of radius $`1/2`$ (balls for the max norm of $`E \times \mathbb{R}`$): one centered at
+  $`(0, 4)`$, which straddles the upper hyperboloid and is supported in the cone, and one centered at
+  $`(0, 0)`$, which is not supported in the cone but does not meet $`D \subseteq \{t \ge 2\}`$. The
+  first example proves that $`X_0`$ is not supported in the cone, so the global version does not
+  apply; the second applies the localized version; the third proves that the right-hand side of its
+  conclusion is positive. Indeed, the lower flux is $`0`$, and for $`\lvert x\rvert \lt 1/4`$ one has
+  $`4 \le \varphi_2(x) \le 4 + 1/4`$, so the integrand of the upper flux equals $`1`$ there; being
+  nonnegative, the upper flux is at least the volume of the ball of radius $`1/4`$.
