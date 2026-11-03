@@ -63,13 +63,10 @@ theorem exists_contDiff_hasCompactSupport_eventuallyEq_of_contDiffOn {U D : Set 
   have hKU : D ∩ (tsupport X₀ ∪ tsupport X) ⊆ U := inter_subset_left.trans hDU
   obtain ⟨Y₀, hY₀, hY₀c, hY₀e⟩ := hX₀.exists_contDiff_hasCompactSupport_eventuallyEq hU hK hKU
   obtain ⟨Y, hY, hYc, hYe⟩ := hX.exists_contDiff_hasCompactSupport_eventuallyEq hU hK hKU
-  refine ⟨Y₀, Y, hY₀, hY₀c, hY, hYc, fun p hp ↦ ⟨hY₀e p ?_, hYe p ?_⟩⟩
-  · by_cases h : p ∈ tsupport X₀ ∪ tsupport X
-    · exact Or.inl ⟨hp, h⟩
-    · exact Or.inr fun h' ↦ h (Or.inl h')
-  · by_cases h : p ∈ tsupport X₀ ∪ tsupport X
-    · exact Or.inl ⟨hp, h⟩
-    · exact Or.inr fun h' ↦ h (Or.inr h')
+  refine ⟨Y₀, Y, hY₀, hY₀c, hY, hYc, fun p hp ↦ ?_⟩
+  by_cases h : p ∈ tsupport X₀ ∪ tsupport X
+  · exact ⟨hY₀e p (.inl ⟨hp, h⟩), hYe p (.inl ⟨hp, h⟩)⟩
+  · exact ⟨hY₀e p (.inr fun h' ↦ h (.inl h')), hYe p (.inr fun h' ↦ h (.inr h'))⟩
 
 end Localization
 
