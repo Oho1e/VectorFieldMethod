@@ -34,6 +34,11 @@ and `C` is an absolute constant. See `docs/hyperboloidal-sobolev.md`.
 * `hyperboloidalWeightedDeriv_restrictHyperboloid_apply`: the restriction formula
   `Λ_a (v|_{H_s}) x = (L_a v)|_{H_s} x`, for `s ≠ 0` and `v` differentiable at the point
   `(√(s ^ 2 + ‖x‖ ^ 2), x)`.
+* `hyperboloidalWeightedDeriv_hyperboloidalWeightedDeriv_restrictHyperboloid`: the second-order
+  formula `Λ_a Λ_b (u|_{H_s}) = (L_a L_b u)|_{H_s}` on `ℝ³`, for `s ≠ 0` and `u` of class `C²` on
+  an open set containing `H_s`.
+* `contDiff_restrictHyperboloid`: under the same hypotheses, `u|_{H_s}` is `C²` on `ℝ³` (more
+  generally `C^n` if `u` is `C^n` near `H_s`).
 -/
 
 @[expose] public noncomputable section
@@ -108,6 +113,69 @@ theorem hyperboloidalWeightedDeriv_restrictHyperboloid_apply {s : ℝ} (hs : s �
   simp only [ContinuousLinearMap.comp_apply, ContinuousLinearMap.prod_apply,
     ContinuousLinearMap.id_apply, fderiv_sqrt_sq_add_norm_sq_apply hs,
     EuclideanSpace.inner_single_right, conj_trivial, one_mul]
+
+/-- **Restriction formula, as functions.** For `s ≠ 0` and `v` differentiable at every point
+`(√(s ^ 2 + ‖x‖ ^ 2), x)` of `H_s`, `Λ_a (v|_{H_s}) = (L_a v)|_{H_s}`. -/
+theorem hyperboloidalWeightedDeriv_restrictHyperboloid {s : ℝ} (hs : s ≠ 0) (a : Fin 3)
+    {v : Spacetime → ℝ}
+    (hv : ∀ x : EuclideanSpace ℝ (Fin 3), DifferentiableAt ℝ v (√(s ^ 2 + ‖x‖ ^ 2), x)) :
+    hyperboloidalWeightedDeriv s a (restrictHyperboloid s v) =
+      restrictHyperboloid s (boost a v) :=
+  funext fun x ↦ hyperboloidalWeightedDeriv_restrictHyperboloid_apply hs a (hv x)
+
+/-- A function of class `C^n` on an open set containing `H_s` is `C^n` at every point
+`(√(s ^ 2 + ‖x‖ ^ 2), x)` of `H_s`. -/
+theorem contDiffAt_of_contDiffOn_of_hyperboloid_subset {s : ℝ} {n : ℕ∞ω} {u : Spacetime → ℝ}
+    {U : Set Spacetime} (hU : IsOpen U)
+    (hHU : {p : Spacetime | p.1 = √(s ^ 2 + ‖p.2‖ ^ 2)} ⊆ U) (hu : ContDiffOn ℝ n u U)
+    (x : EuclideanSpace ℝ (Fin 3)) : ContDiffAt ℝ n u (√(s ^ 2 + ‖x‖ ^ 2), x) :=
+  hu.contDiffAt (hU.mem_nhds (hHU (hyperboloidPoint_mem s x)))
+
+/-- **Restriction formula on `H_s`.** For `s ≠ 0` and `u` differentiable on an open set `U`
+containing `H_s`, `Λ_a (u|_{H_s}) = (L_a u)|_{H_s}` as functions on `ℝ³`. -/
+theorem hyperboloidalWeightedDeriv_restrictHyperboloid_of_differentiableOn {s : ℝ}
+    (hs : s ≠ 0) {u : Spacetime → ℝ} {U : Set Spacetime} (hU : IsOpen U)
+    (hHU : {p : Spacetime | p.1 = √(s ^ 2 + ‖p.2‖ ^ 2)} ⊆ U) (hu : DifferentiableOn ℝ u U)
+    (a : Fin 3) :
+    hyperboloidalWeightedDeriv s a (restrictHyperboloid s u) =
+      restrictHyperboloid s (boost a u) :=
+  hyperboloidalWeightedDeriv_restrictHyperboloid hs a fun x ↦
+    hu.differentiableAt (hU.mem_nhds (hHU (hyperboloidPoint_mem s x)))
+
+/-- **Second-order restriction formula.** For `s ≠ 0` and `u` of class `C²` on an open set `U`
+containing `H_s`, `Λ_a Λ_b (u|_{H_s}) = (L_a L_b u)|_{H_s}` as functions on `ℝ³`, with the indices
+in the same order. -/
+theorem hyperboloidalWeightedDeriv_hyperboloidalWeightedDeriv_restrictHyperboloid {s : ℝ}
+    (hs : s ≠ 0) {u : Spacetime → ℝ} {U : Set Spacetime} (hU : IsOpen U)
+    (hHU : {p : Spacetime | p.1 = √(s ^ 2 + ‖p.2‖ ^ 2)} ⊆ U) (hu : ContDiffOn ℝ 2 u U)
+    (a b : Fin 3) :
+    hyperboloidalWeightedDeriv s a (hyperboloidalWeightedDeriv s b (restrictHyperboloid s u)) =
+      restrictHyperboloid s (boost a (boost b u)) := by
+  have hP := contDiffAt_of_contDiffOn_of_hyperboloid_subset hU hHU hu
+  rw [hyperboloidalWeightedDeriv_restrictHyperboloid_of_differentiableOn hs hU hHU
+      (hu.differentiableOn two_ne_zero) b,
+    hyperboloidalWeightedDeriv_restrictHyperboloid (v := boost b u) hs a fun x ↦
+      (contDiffAt_derivAlong (n := 1) (contDiff_boostField b).contDiffAt
+        (hP x)).differentiableAt one_ne_zero]
+
+/-! ### Regularity of the restriction -/
+
+/-- The map `x ↦ (√(s ^ 2 + ‖x‖ ^ 2), x)` is smooth for `s ≠ 0`. -/
+theorem contDiff_hyperboloidPoint {s : ℝ} (hs : s ≠ 0) {n : ℕ∞ω} :
+    ContDiff ℝ n (hyperboloidPoint s) :=
+  ((contDiff_const.add (contDiff_norm_sq ℝ)).sqrt fun x ↦ by positivity).prodMk contDiff_id
+
+/-- **Regularity of the restriction.** For `s ≠ 0` and `u` of class `C^n` on an open set `U`
+containing `H_s`, the restriction `u|_{H_s}` is `C^n` on `ℝ³`; in particular it is `C²` if `u` is
+`C²` on `U`. -/
+theorem contDiff_restrictHyperboloid {s : ℝ} (hs : s ≠ 0) {n : ℕ∞ω} {u : Spacetime → ℝ}
+    {U : Set Spacetime} (hU : IsOpen U)
+    (hHU : {p : Spacetime | p.1 = √(s ^ 2 + ‖p.2‖ ^ 2)} ⊆ U) (hu : ContDiffOn ℝ n u U) :
+    ContDiff ℝ n (restrictHyperboloid s u) :=
+  contDiff_iff_contDiffAt.mpr fun x ↦
+    ContDiffAt.comp (f := hyperboloidPoint s) x
+      (contDiffAt_of_contDiffOn_of_hyperboloid_subset hU hHU hu x)
+      (contDiff_hyperboloidPoint hs).contDiffAt
 
 /-! ### Sanity checks -/
 
