@@ -232,7 +232,7 @@ theorem setLIntegral_ball_comp_homothety_le {H : ℝ³ → ℝ≥0∞} (hH : Mea
   set K := (Metric.ball x₀ ρ).indicator H with hKdef
   have hK : Measurable K := hH.indicator measurableSet_ball
   have hdet : ENNReal.ofReal |(t ^ Module.finrank ℝ ℝ³)⁻¹| = ENNReal.ofReal (t ^ (-3 : ℝ)) := by
-    rw [finrank_euclideanSpace_fin, abs_of_pos (by have := ht.1; positivity),
+    rw [finrank_euclideanSpace_fin, abs_of_pos (inv_pos.mpr (pow_pos ht.1 3)),
       Real.rpow_neg ht.1.le]
     norm_num
   calc ∫⁻ y in Metric.ball x₀ ρ, H (x₀ + t • (y - x₀))
@@ -362,7 +362,7 @@ theorem exists_abs_le_eLpNorm_ball :
   have hc₁pos : 0 < c₁ :=
     ENNReal.toReal_pos (Metric.measure_ball_pos volume _ one_pos).ne' measure_ball_lt_top.ne
   refine ⟨Real.toNNReal (2 * c₁ ^ (-(1 / 2 : ℝ))), fun x₀ ρ f hρ hf ↦ ?_⟩
-  set μB := volume.restrict (Metric.ball x₀ ρ) with hμB
+  set μB := volume.restrict (Metric.ball x₀ ρ)
   set A := eLpNorm f 2 μB
   set B := eLpNorm (fderiv ℝ f) 2 μB
   set D := eLpNorm (iteratedFDeriv ℝ 2 f) 2 μB
@@ -404,7 +404,6 @@ theorem exists_abs_le_eLpNorm_ball :
   have hκ : w⁻¹ = c₁ ^ (-(1 / 2 : ℝ)) * ρ ^ (-(3 / 2 : ℝ)) := by
     rw [hw, mul_inv, Real.rpow_neg hρ.le, Real.rpow_neg hc₁pos.le]
     ring
-  have hκ0 : 0 ≤ c₁ ^ (-(1 / 2 : ℝ)) := by positivity
   have e1 : w⁻¹ ≤ 2 * c₁ ^ (-(1 / 2 : ℝ)) * ρ ^ (-(3 / 2 : ℝ)) := by
     have : 0 ≤ c₁ ^ (-(1 / 2 : ℝ)) * ρ ^ (-(3 / 2 : ℝ)) := by positivity
     rw [hκ]

@@ -342,14 +342,14 @@ theorem exists_hyperboloidalSobolev_ball_of_localSobolevBound (h : LocalSobolevB
             (volume.restrict (Metric.ball x₀ (√(s ^ 2 + ‖x₀‖ ^ 2) / 3)))) := by
   obtain ⟨C₁, hC₁⟩ := h
   refine ⟨15 * C₁, fun s hs w hw x₀ ↦ ?_⟩
-  set φ₀ := √(s ^ 2 + ‖x₀‖ ^ 2) with hφ₀
+  set φ₀ := √(s ^ 2 + ‖x₀‖ ^ 2)
   have hφ₀pos : 0 < φ₀ := Real.sqrt_pos.mpr (by positivity)
   set ρ := φ₀ / 3 with hρ
   have hρpos : 0 < ρ := by positivity
   have hφ₀ρ : φ₀ = 3 * ρ := by
     rw [hρ]
     ring
-  set μ := volume.restrict (Metric.ball x₀ ρ) with hμ
+  set μ := volume.restrict (Metric.ball x₀ ρ)
   set P := eLpNorm w 2 μ
   set Y := eLpNorm (fderiv ℝ w) 2 μ
   set Z := eLpNorm (iteratedFDeriv ℝ 2 w) 2 μ
