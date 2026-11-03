@@ -3,3 +3,5 @@ module
 public import VectorFieldMethod.Placeholder
 public import VectorFieldMethod.ForMathlib.Analysis.Calculus.SpatialDivergence
 public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHypograph
+public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremLocal
+public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHyperboloid
