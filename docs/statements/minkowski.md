@@ -378,7 +378,7 @@ def scaling : (Spacetime → ℝ) → Spacetime → ℝ :=
 ```
 
 - **Notes.** The displayed formula is the lemma `scaling_eq` (no hypotheses). With the four
-  translations $`\partial_\alpha`$, the three rotations $`\Omega_{ab}`$ ($`a < b`$) and the three
+  translations $`\partial_\alpha`$, the three rotations $`\Omega_{ab}`$ ($`a \lt b`$) and the three
   boosts, this gives the 11 vector fields.
 
 ## Main theorems

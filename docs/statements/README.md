@@ -71,7 +71,7 @@ argument is a hypothesis or a quantified variable:
 | `{p : E × ℝ \| P p}` | the set $`\{p \in E \times \mathbb{R} : P(p)\}`$ |
 | `Icc a b`, `Ioo a b`, `Iic a` | $`[a, b]`$, $`(a, b)`$, $`(-\infty, a]`$ |
 | `uIcc a b` | $`[\min(a, b), \max(a, b)]`$ |
-| `regionBetween f g s` | $`\{(x, t) : x \in s,\ f(x) < t < g(x)\}`$ (open in the $`t`$ direction) |
+| `regionBetween f g s` | $`\{(x, t) : x \in s,\ f(x) \lt t \lt g(x)\}`$ (open in the $`t`$ direction) |
 | `Fin n` | the index set $`\{0, 1, \dots, n - 1\}`$ |
 | `∑ a, f a` | the sum over all values of the index; for `a : Fin 3`, over $`a = 0, 1, 2`$ |
 | Lean indices `0, 1, 2` of `Fin 3` | the mathematical spatial indices $`1, 2, 3`$: Lean `a` is the mathematical index $`a + 1`$ |
@@ -88,7 +88,7 @@ argument is a hypothesis or a quantified variable:
 | --- | --- |
 | `∫ x, f x ∂μ` | $`\int f\,d\mu`$ over the whole space (Bochner integral; it is $`0`$ if $`f`$ is not integrable, see below) |
 | `∫ x in s, f x ∂μ` | $`\int_s f\,d\mu`$ |
-| `∫ t in a..b, f t` | the oriented integral $`\int_a^b f(t)\,dt`$ for Lebesgue measure: $`\int_{(a, b]} f`$ if $`a \le b`$, and $`-\int_{(b, a]} f`$ if $`b < a`$ |
+| `∫ t in a..b, f t` | the oriented integral $`\int_a^b f(t)\,dt`$ for Lebesgue measure: $`\int_{(a, b]} f`$ if $`a \le b`$, and $`-\int_{(b, a]} f`$ if $`b \lt a`$ |
 | `volume` | the canonical measure of a type: Lebesgue measure on $`\mathbb{R}`$ and on `EuclideanSpace ℝ (Fin n)` ($`= \mathbb{R}^n`$), and the product of these on a product type |
 | `μ.prod volume` | the product measure $`\mu \otimes \mathcal{L}^1`$ on $`E \times \mathbb{R}`$ ($`\mathcal{L}^1`$ = Lebesgue measure on $`\mathbb{R}`$); `volume.prod μ` is $`\mathcal{L}^1 \otimes \mu`$ on $`\mathbb{R} \times E`$ |
 | `[μ.IsAddHaarMeasure]` | $`\mu`$ is an additive Haar measure on $`E`$: translation invariant, finite on compact sets, positive on nonempty open sets. On a finite-dimensional real vector space these are exactly the positive multiples of Lebesgue measure in linear coordinates |
@@ -123,7 +123,7 @@ they change how statements must be written and read.
   `inv_minkowskiMetric : η⁻¹ = η` is about the genuine inverse because `η * η = 1`.
 - **`ENNReal.toReal` sends `∞` to `0`.** Measures take values in $`[0, \infty]`$ (`ENNReal`), and
   `(μ s).toReal` is $`0`$ when $`\mu(s) = \infty`$. A statement that uses `(μ s).toReal` therefore
-  needs $`\mu(s) < \infty`$ to mean what it seems to. (No main statement of the project uses
+  needs $`\mu(s) \lt \infty`$ to mean what it seems to. (No main statement of the project uses
   `toReal` at present.)
 - **The Bochner integral of a non-integrable function is `0`.** An identity
   `∫ f ∂μ = ∫ g ∂ν` could hold for the trivial reason that both sides are junk zeros. When
@@ -181,7 +181,8 @@ Rules for writing entries:
 
 - **Math.** Display formulas go in ` ```math ` blocks (GitHub renders them; they are more robust
   than `$$ … $$`, whose backslashes can be eaten by Markdown). Inline formulas are written
-  ``$`…`$``. Inside table cells, avoid the character `|` (use `\lvert … \rvert`, `\mid`).
+  ``$`…`$``. In inline formulas write `\lt`, `\gt` instead of `<`, `>` (GitHub escapes them
+  twice there). Inside table cells, avoid the character `|` (use `\lvert … \rvert`, `\mid`).
 - **Lean link.** The permalink points to a fixed commit, preferably a commit of `main`; the line
   is the line of the `theorem` / `def` keyword. If the declaration is added in the same pull
   request, use that pull request's head commit and replace it by a `main` commit later.

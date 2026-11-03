@@ -173,7 +173,7 @@ theorem integral_intervalIntegral_divergence (hφ₁ : ContDiff ℝ 1 φ₁) (h�
 ```
 
 - **Notes.** `∫ t in a..b` is the oriented integral for Lebesgue measure (see the README). Where
-  $`\varphi_1(x) > \varphi_2(x)`$ the inner integral counts negatively.
+  $`\varphi_1(x) \gt \varphi_2(x)`$ the inner integral counts negatively.
 
 ### Divergence theorem on the closed region between two graphs
 
@@ -200,7 +200,7 @@ theorem integral_divergence_region_between_cc (hφ₁ : ContDiff ℝ 1 φ₁) (h
 ```
 
 - **Notes.** `hφ : φ₁ ≤ φ₂` is the pointwise order of functions. Without it the region would be
-  empty over the set where $`\varphi_1 > \varphi_2`$ while the right-hand side would still count it.
+  empty over the set where $`\varphi_1 \gt \varphi_2`$ while the right-hand side would still count it.
 
 ### Divergence theorem on the open region between two graphs
 
@@ -225,7 +225,7 @@ theorem integral_divergence_regionBetween (hφ₁ : ContDiff ℝ 1 φ₁) (hφ�
 ```
 
 - **Notes.** Mathlib's `regionBetween φ₁ φ₂ univ` is
-  $`\{(x, t) : x \in E,\ \varphi_1(x) < t < \varphi_2(x)\}`$. The open and closed regions differ by
+  $`\{(x, t) : x \in E,\ \varphi_1(x) \lt t \lt \varphi_2(x)\}`$. The open and closed regions differ by
   the two graphs, which are null sets.
 
 ### Divergence theorem below a graph, gradient form
@@ -382,9 +382,9 @@ theorem integral_divergence_region_between_cc_of_contDiffOn {U : Set (E × ℝ)}
 ### Divergence theorem between two hyperboloids
 
 - **Math.** Let $`E`$ be a finite-dimensional real inner product space with its Borel
-  $`\sigma`$-algebra and $`\mu`$ an additive Haar measure on $`E`$. Let $`0 < s_1 < s_2`$, put
+  $`\sigma`$-algebra and $`\mu`$ an additive Haar measure on $`E`$. Let $`0 \lt s_1 \lt s_2`$, put
   $`\varphi_i(x) = \sqrt{s_i^2 + \lvert x\rvert^2}`$ (so the graph of $`\varphi_i`$ is the
-  hyperboloid $`t^2 - \lvert x\rvert^2 = s_i^2`$, $`t > 0`$), and let
+  hyperboloid $`t^2 - \lvert x\rvert^2 = s_i^2`$, $`t \gt 0`$), and let
   $`X_0 \in C^1(E \times \mathbb{R}; \mathbb{R})`$, $`X \in C^1(E \times \mathbb{R}; E)`$ with
   ```math
   \{X_0 \neq 0\} \cup \{X \neq 0\} \subseteq \{ (x, t) : \lvert x\rvert \le t - 1 \}.
@@ -396,7 +396,7 @@ theorem integral_divergence_region_between_cc_of_contDiffOn {U : Set (E × ℝ)}
   - \int_E \Big( X_0\big(x, \varphi_1(x)\big) - \frac{\langle x, X(x, \varphi_1(x)) \rangle}{\varphi_1(x)} \Big)\, d\mu(x).
   ```
 - **Hypotheses.** $`E`$ finite-dimensional real inner product space, Borel; $`\mu`$ additive Haar;
-  $`0 < s_1`$ and $`s_1 < s_2`$; $`X_0, X`$ are $`C^1`$ on $`E \times \mathbb{R}`$; their supports
+  $`0 \lt s_1`$ and $`s_1 \lt s_2`$; $`X_0, X`$ are $`C^1`$ on $`E \times \mathbb{R}`$; their supports
   are contained in $`\{\lvert x\rvert \le t - 1\}`$.
 - **Lean.** `MeasureTheory.integral_divergence_between_hyperboloids`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L66)
 
@@ -416,10 +416,10 @@ theorem integral_divergence_between_hyperboloids {s₁ s₂ : ℝ} (hs₁ : 0 < 
   coordinate, so `p.1` is $`x`$ and `p.2` is $`t`$). The vector field is not assumed to have compact
   support; the support condition (the closed solid cone $`\lvert x\rvert \le t - 1`$, as for
   solutions of wave equations with initial data at $`t = 2`$ supported in the unit ball; LeFloch–Ma's cone
-  $`\mathcal{K} = \{r < t - 1\}`$ has this closure) makes its intersection with the region between
+  $`\mathcal{K} = \{r \lt t - 1\}`$ has this closure) makes its intersection with the region between
   the hyperboloids compact, so all integrands are integrable and the identity is not a junk
   $`0 = 0`$. The support hypotheses use `support` ($`\{f \neq 0\}`$), which is equivalent to the
   same condition on `tsupport` because the cone is closed. No junk value of `/` or `√` occurs:
-  $`s_i^2 + \lvert x\rvert^2 > 0`$ and $`\varphi_i \ge s_i > 0`$. The flux uses
+  $`s_i^2 + \lvert x\rvert^2 \gt 0`$ and $`\varphi_i \ge s_i \gt 0`$. The flux uses
   $`D\varphi_i(x)\, v = \langle x, v\rangle / \varphi_i(x)`$ (`fderiv_sqrt_sq_add_norm_sq_apply`).
-  The hypothesis $`s_1 < s_2`$ is strict, although the identity is trivial for $`s_1 = s_2`$.
+  The hypothesis $`s_1 \lt s_2`$ is strict, although the identity is trivial for $`s_1 = s_2`$.
