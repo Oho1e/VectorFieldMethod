@@ -9,7 +9,9 @@ between the mathematics and the Lean code is in
 
 This is the part of the Klainerman–Sobolev inequality on hyperboloids that only
 involves `ℝ³`. The passage from `ℝ³` to the hyperboloid is described below; it
-is not formalized yet.
+is formalized in `VectorFieldMethod/Minkowski/KlainermanSobolev.lean` (namespace
+`VectorFieldMethod.Minkowski`; statements in
+`docs/statements/klainerman-sobolev.md`).
 
 ## Notation
 
@@ -50,7 +52,7 @@ The reductions `exists_hyperboloidalSobolev_ball_of_localSobolevBound` and
 The proofs give `C = 2 |B(0, 1)|^{-1/2}` in Theorem 1 and fifteen times that
 constant in Theorem 2; the statements only assert existence.
 
-## From ℝ³ to the hyperboloid (not formalized yet)
+## From ℝ³ to the hyperboloid (formalized in `KlainermanSobolev.lean`)
 
 Work in Minkowski spacetime `ℝ^{1+3}` with coordinates `(t, x)` and the
 conventions of the coordinate layer `VectorFieldMethod.Minkowski`
@@ -97,7 +99,18 @@ where `J` runs over the 13 ordered multi-indices of length at most 2.
   here works on the ball `B(x₀, φ_s(x₀)/3)` whatever the support is.
 * `Λ_a` depends on `s` through the weight `φ_s`, while `L_a` does not.
 
-The lemma and the consequence on `H_s` are left for later formalization.
+The lemma, its iteration for `|J| ≤ 2`, the regularity of `w` and the
+consequence are formalized in `VectorFieldMethod/Minkowski/KlainermanSobolev.lean`,
+where `v|_{H_s}` is `restrictHyperboloid s v` and "`u` is `C²` near `H_s`" means
+that `u` is `C²` on an open set `U` containing `H_s`:
+
+* `hyperboloidalWeightedDeriv_restrictHyperboloid_apply`: the lemma, at a point
+  `x`, for `s ≠ 0` and `v` differentiable at `(φ_s(x), x)`;
+* `hyperboloidalWeightedDeriv_hyperboloidalWeightedDeriv_restrictHyperboloid`:
+  the iteration for `|J| = 2`, `Λ_a Λ_b w = (L_a L_b u)|_{H_s}`;
+* `contDiff_restrictHyperboloid`: `w ∈ C²(ℝ³)`;
+* `exists_klainermanSobolev_hyperboloid`: the consequence, with an absolute
+  constant `C`.
 
 ## Proofs
 
