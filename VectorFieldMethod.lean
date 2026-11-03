@@ -15,4 +15,5 @@ public import VectorFieldMethod.Minkowski.Computations
 public import VectorFieldMethod.Minkowski.Derivative
 public import VectorFieldMethod.Minkowski.Spacetime
 public import VectorFieldMethod.Minkowski.VectorFields
+public import VectorFieldMethod.Minkowski.WaveCommutators
 public import VectorFieldMethod.Minkowski.WaveOperator
