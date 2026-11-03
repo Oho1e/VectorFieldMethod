@@ -27,10 +27,13 @@ operator `derivAlong V u p = Du(p) (V p)`.
 
 ## Main statements
 
-* Linearity: `derivAlong_smul` (no hypothesis) and `derivAlong_add` (differentiability at the
+* Linearity: `derivAlong_smul` (real scalars, no hypothesis), `derivAlong_const_smul_field`
+  (scalars `c : R` acting on `F`, no hypothesis) and `derivAlong_add` (differentiability at the
   point), and the same for `timeDeriv`, `spaceDeriv`, `partialDeriv`.
-* Commutation with continuous linear maps: `derivAlong_clm_comp` (`V (T ∘ u) = T (V u)` at a point
-  where `u` is differentiable), and the same for `timeDeriv`, `spaceDeriv`, `partialDeriv`.
+* Commutation with continuous linear maps: `derivAlong_comp_left` (`V (T ∘ u) = T (V u)` at a point
+  where `u` is differentiable), its eta-expanded form `fun_derivAlong_comp_left`, and
+  `derivAlong_comp_left_equiv` (`V (e ∘ u) = e ∘ V u` for a continuous linear equivalence `e`,
+  without hypotheses); the same for `timeDeriv`, `spaceDeriv`, `partialDeriv`.
 * Smoothness: `contDiff_partialDeriv` (`C^{n+1} → C^n`) and `contDiff_infty_partialDeriv`.
 * Symmetry of second derivatives: `partialDeriv_comm_apply` (for `u` that is `C²` at the point)
   and `partialDeriv_comm`.
@@ -47,7 +50,11 @@ The operators are plain functions `(Spacetime → F) → Spacetime → F` built 
 arbitrary real normed space `F` (the type of values, an implicit argument inferred from `u`): real
 fields have `F = ℝ`, complex fields `F = ℂ`. The coordinate functions are real-valued. Since
 `fderiv` is `0` at points of non-differentiability, additivity needs differentiability
-hypotheses, while homogeneity under constant real scalars does not.
+hypotheses, while homogeneity under constant scalars does not.
+
+`F` is inferred from `u`. A statement without a function argument, such as
+`partialDeriv_zero : ∂[0] = ∂ₜ`, carries a type ascription to fix `F`, and a function whose values
+are only numerals, such as `fun _ ↦ 1`, needs a type ascription `(1 : ℝ)`.
 -/
 
 @[expose] public noncomputable section
@@ -59,6 +66,8 @@ namespace VectorFieldMethod.Minkowski
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
 variable {G : Type*} [NormedAddCommGroup G] [NormedSpace ℝ G]
+variable {R : Type*} [DivisionSemiring R] [Module R F] [SMulCommClass ℝ R F]
+  [ContinuousConstSMul R F]
 variable {V : Spacetime → Spacetime} {u v : Spacetime → F} {p : Spacetime} {n : ℕ∞ω}
 
 /-! ### Smoothness of the coordinate functions -/
@@ -105,8 +114,15 @@ theorem derivAlong_eq_of_hasFDerivAt {L : Spacetime →L[ℝ] F} (h : HasFDerivA
     derivAlong V u p = L (V p) := by
   rw [derivAlong_apply, h.fderiv]
 
-/-- `V (c u) = c (V u)`, without any differentiability assumption. -/
+/-- `V (c u) = c (V u)` for `c : ℝ`, without any differentiability assumption. -/
 theorem derivAlong_smul (V : Spacetime → Spacetime) (c : ℝ) (u : Spacetime → F) :
+    derivAlong V (c • u) = c • derivAlong V u := by
+  funext p
+  simp [derivAlong_apply, fderiv_const_smul_field]
+
+/-- `V (c u) = c (V u)` for a scalar `c : R` acting on `F` (for instance `c : ℂ` when `F = ℂ`),
+without any differentiability assumption. -/
+theorem derivAlong_const_smul_field (V : Spacetime → Spacetime) (c : R) (u : Spacetime → F) :
     derivAlong V (c • u) = c • derivAlong V u := by
   funext p
   simp [derivAlong_apply, fderiv_const_smul_field]
@@ -157,10 +173,21 @@ theorem contDiff_derivAlong (hV : ContDiff ℝ n V) (hu : ContDiff ℝ (n + 1) u
   (hu.fderiv_right le_rfl).clm_apply hV
 
 /-- `V (T ∘ u) = T (V u)` for a continuous linear map `T`, at a point where `u` is
-differentiable. -/
-theorem derivAlong_clm_comp (V : Spacetime → Spacetime) (T : F →L[ℝ] G)
+differentiable. The eta-expanded form `fun_derivAlong_comp_left` is about
+`fun q ↦ T (u q)`. -/
+@[to_fun]
+theorem derivAlong_comp_left (V : Spacetime → Spacetime) (T : F →L[ℝ] G)
     (hu : DifferentiableAt ℝ u p) : derivAlong V (T ∘ u) p = T (derivAlong V u p) := by
   rw [derivAlong_eq_of_hasFDerivAt (T.hasFDerivAt.comp p hu.hasFDerivAt)]
+  rfl
+
+/-- `V (e ∘ u) = e ∘ V u` for a continuous linear equivalence `e`, without any differentiability
+assumption: `e ∘ u` is differentiable exactly where `u` is. -/
+@[to_fun]
+theorem derivAlong_comp_left_equiv (V : Spacetime → Spacetime) (e : F ≃L[ℝ] G)
+    (u : Spacetime → F) : derivAlong V (e ∘ u) = e ∘ derivAlong V u := by
+  funext p
+  rw [derivAlong_apply, e.comp_fderiv]
   rfl
 
 /-- For a constant component field `W ≡ w`, the second derivative `V (W u)` at `p` is the second
@@ -259,6 +286,17 @@ theorem partialDeriv_smul (α : Fin 4) (c : ℝ) (u : Spacetime → F) :
     ∂[α] (c • u) = c • ∂[α] u :=
   derivAlong_smul _ c u
 
+theorem timeDeriv_const_smul_field (c : R) (u : Spacetime → F) : ∂ₜ (c • u) = c • ∂ₜ u :=
+  derivAlong_const_smul_field _ c u
+
+theorem spaceDeriv_const_smul_field (a : Fin 3) (c : R) (u : Spacetime → F) :
+    ∂ₓ[a] (c • u) = c • ∂ₓ[a] u :=
+  derivAlong_const_smul_field _ c u
+
+theorem partialDeriv_const_smul_field (α : Fin 4) (c : R) (u : Spacetime → F) :
+    ∂[α] (c • u) = c • ∂[α] u :=
+  derivAlong_const_smul_field _ c u
+
 theorem timeDeriv_add (hu : DifferentiableAt ℝ u p) (hv : DifferentiableAt ℝ v p) :
     ∂ₜ (u + v) p = ∂ₜ u p + ∂ₜ v p :=
   derivAlong_add _ hu hv
@@ -273,17 +311,35 @@ theorem partialDeriv_add (α : Fin 4) (hu : DifferentiableAt ℝ u p)
 
 /-! #### Commutation with continuous linear maps -/
 
-theorem timeDeriv_clm_comp (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+@[to_fun]
+theorem timeDeriv_comp_left (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
     ∂ₜ (T ∘ u) p = T (∂ₜ u p) :=
-  derivAlong_clm_comp _ T hu
+  derivAlong_comp_left _ T hu
 
-theorem spaceDeriv_clm_comp (a : Fin 3) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+@[to_fun]
+theorem spaceDeriv_comp_left (a : Fin 3) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
     ∂ₓ[a] (T ∘ u) p = T (∂ₓ[a] u p) :=
-  derivAlong_clm_comp _ T hu
+  derivAlong_comp_left _ T hu
 
-theorem partialDeriv_clm_comp (α : Fin 4) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+@[to_fun]
+theorem partialDeriv_comp_left (α : Fin 4) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
     ∂[α] (T ∘ u) p = T (∂[α] u p) :=
-  derivAlong_clm_comp _ T hu
+  derivAlong_comp_left _ T hu
+
+@[to_fun]
+theorem timeDeriv_comp_left_equiv (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    ∂ₜ (e ∘ u) = e ∘ ∂ₜ u :=
+  derivAlong_comp_left_equiv _ e u
+
+@[to_fun]
+theorem spaceDeriv_comp_left_equiv (a : Fin 3) (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    ∂ₓ[a] (e ∘ u) = e ∘ ∂ₓ[a] u :=
+  derivAlong_comp_left_equiv _ e u
+
+@[to_fun]
+theorem partialDeriv_comp_left_equiv (α : Fin 4) (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    ∂[α] (e ∘ u) = e ∘ ∂[α] u :=
+  derivAlong_comp_left_equiv _ e u
 
 /-! #### Values on constants and coordinates -/
 

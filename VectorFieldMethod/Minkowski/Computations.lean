@@ -154,16 +154,51 @@ theorem scaling_timeCoord_sq_sub_radius_sq :
 
 The operators act on functions with values in an arbitrary real normed space `F`. The first
 examples apply them to complex-valued and vector-valued functions, through the commutation with
-continuous linear maps (`dAlembertian_clm_comp`, `kleinGordon_clm_comp`). The last examples check
-that for `F = ℝ`, where `•` is multiplication, the definitions and the defining formulas are the
-real-valued ones, by `rfl` or by the general lemma itself. -/
+continuous linear maps (`dAlembertian_comp_left`, `kleinGordon_comp_left`), the homogeneity under
+complex scalars (`timeDeriv_const_smul_field`, `dAlembertian_const_smul_field`), and the reduction
+of a genuinely complex-valued function to its real and imaginary parts (`Complex.reCLM`,
+`Complex.imCLM`). The last examples check that for `F = ℝ`, where `•` is multiplication, the
+definitions and the defining formulas are the real-valued ones, by `rfl` or by the general lemma
+itself. -/
+
+/-- `□ (t² + i x₁²) = -2 + 2i`, by reduction to the real part `t²` and the imaginary part `x₁²`.
+(The Lean index `0` of `spaceCoord` is the mathematical index `1`.) -/
+example :
+    □ (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ) + Complex.I * ((spaceCoord 0 p ^ 2 : ℝ) : ℂ)) =
+      fun _ ↦ -2 + 2 * Complex.I := by
+  set w : Spacetime → ℂ :=
+    fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ) + Complex.I * ((spaceCoord 0 p ^ 2 : ℝ) : ℂ)
+  have hw (p : Spacetime) : ContDiffAt ℝ 2 w p := by
+    have h : w = fun p ↦ Complex.ofRealCLM (timeCoord p ^ 2) +
+        Complex.I * Complex.ofRealCLM (spaceCoord 0 p ^ 2) := rfl
+    rw [h]
+    fun_prop
+  have hre : Complex.reCLM ∘ w = fun p ↦ timeCoord p ^ 2 := by
+    funext p
+    simp [w, -Complex.ofReal_pow]
+  have him : Complex.imCLM ∘ w = fun p ↦ spaceCoord 0 p ^ 2 := by
+    funext p
+    simp [w, -Complex.ofReal_pow]
+  funext p
+  apply Complex.ext
+  · rw [← Complex.reCLM_apply, ← dAlembertian_comp_left Complex.reCLM (hw p), hre,
+      dAlembertian_timeCoord_sq]
+    simp
+  · rw [← Complex.imCLM_apply, ← dAlembertian_comp_left Complex.imCLM (hw p), him,
+      dAlembertian_spaceCoord_sq]
+    simp
+
+/-- Homogeneity under complex scalars, without hypotheses on `u`. -/
+example (u : Spacetime → ℂ) :
+    ∂ₜ (Complex.I • u) = Complex.I • ∂ₜ u ∧ □ (Complex.I • u) = Complex.I • □ u :=
+  ⟨timeDeriv_const_smul_field _ u, dAlembertian_const_smul_field _ u⟩
 
 /-- `□ (t²) = -2` for `t²` as a complex-valued function. -/
 example : □ (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ)) = fun _ ↦ -2 := by
   funext p
   have h : (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ)) = Complex.ofRealCLM ∘ fun p ↦ timeCoord p ^ 2 :=
     rfl
-  rw [h, dAlembertian_clm_comp _ (by fun_prop), dAlembertian_timeCoord_sq, Complex.ofRealCLM_apply]
+  rw [h, dAlembertian_comp_left _ (by fun_prop), dAlembertian_timeCoord_sq, Complex.ofRealCLM_apply]
   push_cast
   rfl
 
@@ -174,7 +209,7 @@ example (m : ℝ) :
   funext p
   have h : (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ)) = Complex.ofRealCLM ∘ fun p ↦ timeCoord p ^ 2 :=
     rfl
-  rw [h, kleinGordon_clm_comp m _ (by fun_prop), kleinGordon_apply, dAlembertian_timeCoord_sq,
+  rw [h, kleinGordon_comp_left m _ (by fun_prop), kleinGordon_apply, dAlembertian_timeCoord_sq,
     map_sub, map_smul, Complex.ofRealCLM_apply, Complex.ofRealCLM_apply]
   push_cast
   rfl
@@ -186,7 +221,7 @@ example {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F] (w : F) :
   have h : (fun p ↦ timeCoord p ^ 2 • w) =
       ContinuousLinearMap.toSpanSingleton ℝ w ∘ fun p ↦ timeCoord p ^ 2 :=
     rfl
-  rw [h, dAlembertian_clm_comp _ (by fun_prop), dAlembertian_timeCoord_sq,
+  rw [h, dAlembertian_comp_left _ (by fun_prop), dAlembertian_timeCoord_sq,
     ContinuousLinearMap.toSpanSingleton_apply]
 
 /-- For `F = ℝ`, `□` is the original `∑ α, ∑ β, η α β * ∂[α] (∂[β] u) p`. -/

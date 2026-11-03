@@ -19,14 +19,18 @@ public import VectorFieldMethod.Minkowski.Derivative
 ## Main statements
 
 * `dAlembertian_eq`: `□u = -∂_t² u + ∑ a, ∂_a² u`.
-* Linearity: `dAlembertian_smul`, `kleinGordon_smul` (no hypothesis); `dAlembertian_add`,
-  `kleinGordon_add` (for `u`, `v` that are `C²` at the point).
+* Linearity: `dAlembertian_smul`, `kleinGordon_smul` (real scalars, no hypothesis);
+  `dAlembertian_const_smul_field`, `kleinGordon_const_smul_field` (scalars `c : R` acting on `F`,
+  no hypothesis); `dAlembertian_add`, `kleinGordon_add` (for `u`, `v` that are `C²` at the point).
+* Values on constants: `dAlembertian_const` (`0`) and `kleinGordon_const` (`-m² c`).
 * Function-level additivity: `dAlembertian_add_of_contDiff`, `kleinGordon_add_of_contDiff`
   (for `u`, `v` of class `C²`).
 * Smoothness: `contDiff_dAlembertian`, `contDiff_kleinGordon` (`C^{n+2} → C^n`) and their `C^∞`
   versions.
-* Commutation with continuous linear maps: `dAlembertian_clm_comp`, `kleinGordon_clm_comp`
-  (`□ (T ∘ u) = T (□ u)` at a point where `u` is `C²`).
+* Commutation with continuous linear maps: `dAlembertian_comp_left`, `kleinGordon_comp_left`
+  (`□ (T ∘ u) = T (□ u)` at a point where `u` is `C²`) with their eta-expanded forms `fun_*`, and
+  `dAlembertian_comp_left_equiv`, `kleinGordon_comp_left_equiv` (`□ (e ∘ u) = e ∘ □ u` for a
+  continuous linear equivalence `e`, without hypotheses).
 
 Both operators act on functions `Spacetime → F` with values in an arbitrary real normed space `F`;
 the coefficients `η α β` and `m ^ 2` act by scalar multiplication.
@@ -51,6 +55,8 @@ namespace VectorFieldMethod.Minkowski
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
 variable {G : Type*} [NormedAddCommGroup G] [NormedSpace ℝ G]
+variable {R : Type*} [DivisionSemiring R] [Module R F] [SMulCommClass ℝ R F]
+  [ContinuousConstSMul R F]
 variable {u v : Spacetime → F} {p : Spacetime} {n : ℕ∞ω}
 
 /-- The wave operator (d'Alembertian) `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u`.
@@ -105,8 +111,15 @@ theorem kleinGordon_apply (m : ℝ) (u : Spacetime → F) (p : Spacetime) :
     kleinGordon m u p = □ u p - m ^ 2 • u p :=
   rfl
 
+/-- `KG_m c = -m² c` for a constant function `c`. -/
+@[simp]
+theorem kleinGordon_const (m : ℝ) (c : F) : kleinGordon m (fun _ ↦ c) = fun _ ↦ -(m ^ 2 • c) := by
+  funext p
+  simp [kleinGordon_apply]
+
 /-! ### Linearity -/
 
+/-- `□ (c u) = c □ u` for `c : ℝ`, without hypotheses. -/
 theorem dAlembertian_smul (c : ℝ) (u : Spacetime → F) : □ (c • u) = c • □ u := by
   funext p
   simp only [dAlembertian_apply, partialDeriv_smul, Pi.smul_apply, Finset.smul_sum]
@@ -130,6 +143,7 @@ theorem dAlembertian_add (hu : ContDiffAt ℝ 2 u p) (hv : ContDiffAt ℝ 2 v p)
   simp only [dAlembertian_apply, partialDeriv_partialDeriv_add _ _ hu hv, smul_add,
     Finset.sum_add_distrib]
 
+/-- `KG (c u) = c KG u` for `c : ℝ`, without hypotheses. -/
 theorem kleinGordon_smul (m c : ℝ) (u : Spacetime → F) :
     kleinGordon m (c • u) = c • kleinGordon m u := by
   funext p
@@ -141,6 +155,21 @@ theorem kleinGordon_add (m : ℝ) (hu : ContDiffAt ℝ 2 u p) (hv : ContDiffAt �
     kleinGordon m (u + v) p = kleinGordon m u p + kleinGordon m v p := by
   simp only [kleinGordon_apply, dAlembertian_add hu hv, Pi.add_apply, smul_add]
   abel
+
+/-- `□ (c u) = c □ u` for a scalar `c : R` acting on `F` (for instance `c : ℂ` when `F = ℂ`),
+without hypotheses. -/
+theorem dAlembertian_const_smul_field (c : R) (u : Spacetime → F) : □ (c • u) = c • □ u := by
+  funext p
+  simp only [dAlembertian_apply, partialDeriv_const_smul_field, Pi.smul_apply, Finset.smul_sum]
+  exact Finset.sum_congr rfl fun _ _ ↦ Finset.sum_congr rfl fun _ _ ↦ smul_comm _ _ _
+
+/-- `KG (c u) = c KG u` for a scalar `c : R` acting on `F`, without hypotheses. -/
+theorem kleinGordon_const_smul_field (m : ℝ) (c : R) (u : Spacetime → F) :
+    kleinGordon m (c • u) = c • kleinGordon m u := by
+  funext p
+  simp only [kleinGordon_apply, dAlembertian_const_smul_field, Pi.smul_apply, smul_sub]
+  congr 1
+  exact smul_comm _ _ _
 
 /-- `□(u + v) = □u + □v` for `u` and `v` of class `C²`. -/
 theorem dAlembertian_add_of_contDiff (hu : ContDiff ℝ 2 u) (hv : ContDiff ℝ 2 v) :
@@ -155,25 +184,45 @@ theorem kleinGordon_add_of_contDiff (m : ℝ) (hu : ContDiff ℝ 2 u) (hv : Cont
 /-! ### Commutation with continuous linear maps -/
 
 /-- `∂_α ∂_β (T ∘ u) = T (∂_α ∂_β u)` at a point where `u` is `C²`. -/
-theorem partialDeriv_partialDeriv_clm_comp (α β : Fin 4) (T : F →L[ℝ] G)
+@[to_fun]
+theorem partialDeriv_partialDeriv_comp_left (α β : Fin 4) (T : F →L[ℝ] G)
     (hu : ContDiffAt ℝ 2 u p) : ∂[α] (∂[β] (T ∘ u)) p = T (∂[α] (∂[β] u) p) := by
   have h : ∂[β] (T ∘ u) =ᶠ[𝓝 p] T ∘ ∂[β] u := by
     filter_upwards [hu.eventually (by simp)] with q hu'
-    exact partialDeriv_clm_comp β T (hu'.differentiableAt two_ne_zero)
+    exact partialDeriv_comp_left β T (hu'.differentiableAt two_ne_zero)
   rw [partialDeriv, derivAlong_congr_of_eventuallyEq _ h, ← partialDeriv]
   have hu1 : ContDiffAt ℝ (1 + 1) u p := by rwa [one_add_one_eq_two]
-  exact partialDeriv_clm_comp α T ((contDiffAt_partialDeriv β hu1).differentiableAt one_ne_zero)
+  exact partialDeriv_comp_left α T ((contDiffAt_partialDeriv β hu1).differentiableAt one_ne_zero)
 
-/-- `□ (T ∘ u) = T (□ u)` for a continuous linear map `T`, at a point where `u` is `C²`. -/
-theorem dAlembertian_clm_comp (T : F →L[ℝ] G) (hu : ContDiffAt ℝ 2 u p) :
+/-- `□ (T ∘ u) = T (□ u)` for a continuous linear map `T`, at a point where `u` is `C²`. The
+eta-expanded form `fun_dAlembertian_comp_left` is about `fun q ↦ T (u q)`. -/
+@[to_fun]
+theorem dAlembertian_comp_left (T : F →L[ℝ] G) (hu : ContDiffAt ℝ 2 u p) :
     □ (T ∘ u) p = T (□ u p) := by
-  simp only [dAlembertian_apply, partialDeriv_partialDeriv_clm_comp _ _ T hu, map_sum, map_smul]
+  simp only [dAlembertian_apply, partialDeriv_partialDeriv_comp_left _ _ T hu, map_sum, map_smul]
 
 /-- `KG (T ∘ u) = T (KG u)` for a continuous linear map `T`, at a point where `u` is `C²`. -/
-theorem kleinGordon_clm_comp (m : ℝ) (T : F →L[ℝ] G) (hu : ContDiffAt ℝ 2 u p) :
+@[to_fun]
+theorem kleinGordon_comp_left (m : ℝ) (T : F →L[ℝ] G) (hu : ContDiffAt ℝ 2 u p) :
     kleinGordon m (T ∘ u) p = T (kleinGordon m u p) := by
-  rw [kleinGordon_apply, kleinGordon_apply, dAlembertian_clm_comp T hu, map_sub, map_smul]
+  rw [kleinGordon_apply, kleinGordon_apply, dAlembertian_comp_left T hu, map_sub, map_smul]
   rfl
+
+/-- `□ (e ∘ u) = e ∘ □ u` for a continuous linear equivalence `e`, without hypotheses. -/
+@[to_fun]
+theorem dAlembertian_comp_left_equiv (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    □ (e ∘ u) = e ∘ □ u := by
+  funext p
+  simp only [dAlembertian_apply, partialDeriv_comp_left_equiv, Function.comp_apply, map_sum,
+    map_smul]
+
+/-- `KG (e ∘ u) = e ∘ KG u` for a continuous linear equivalence `e`, without hypotheses. -/
+@[to_fun]
+theorem kleinGordon_comp_left_equiv (m : ℝ) (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    kleinGordon m (e ∘ u) = e ∘ kleinGordon m u := by
+  funext p
+  simp only [kleinGordon_apply, dAlembertian_comp_left_equiv, Function.comp_apply, map_sub,
+    map_smul]
 
 /-! ### Smoothness -/
 

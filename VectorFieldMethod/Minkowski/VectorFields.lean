@@ -26,8 +26,10 @@ are real and act by scalar multiplication.
 ## Main statements
 
 * `rotation_eq`, `boost_eq`, `scaling_eq`: the defining formulas in terms of `∂_t`, `∂_a`.
-* Linearity (`*_smul`, `*_add`), smoothness (`contDiff_*`, `contDiff_infty_*`) and commutation
-  with continuous linear maps (`*_clm_comp`).
+* Linearity (`*_smul` for real scalars, `*_const_smul_field` for scalars `c : R` acting on `F`,
+  `*_add`), smoothness (`contDiff_*`, `contDiff_infty_*`) and commutation with continuous linear
+  maps (`*_comp_left` and the eta-expanded `fun_*_comp_left` at points of differentiability,
+  `*_comp_left_equiv` for continuous linear equivalences, without hypotheses).
 * Values on the coordinates: `rotation_spaceCoord`, `boost_timeCoord`, `scaling_spaceCoord`, etc.
 * `rotation_swap`: `Ω_ba = -Ω_ab`.
 -/
@@ -40,6 +42,8 @@ namespace VectorFieldMethod.Minkowski
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
 variable {G : Type*} [NormedAddCommGroup G] [NormedSpace ℝ G]
+variable {R : Type*} [DivisionSemiring R] [Module R F] [SMulCommClass ℝ R F]
+  [ContinuousConstSMul R F]
 variable {u v : Spacetime → F} {p : Spacetime} {n : ℕ∞ω}
 
 /-! ### Definitions -/
@@ -148,6 +152,17 @@ theorem boost_smul (a : Fin 3) (c : ℝ) (u : Spacetime → F) : boost a (c • 
 theorem scaling_smul (c : ℝ) (u : Spacetime → F) : scaling (c • u) = c • scaling u :=
   derivAlong_smul _ c u
 
+theorem rotation_const_smul_field (a b : Fin 3) (c : R) (u : Spacetime → F) :
+    rotation a b (c • u) = c • rotation a b u :=
+  derivAlong_const_smul_field _ c u
+
+theorem boost_const_smul_field (a : Fin 3) (c : R) (u : Spacetime → F) :
+    boost a (c • u) = c • boost a u :=
+  derivAlong_const_smul_field _ c u
+
+theorem scaling_const_smul_field (c : R) (u : Spacetime → F) : scaling (c • u) = c • scaling u :=
+  derivAlong_const_smul_field _ c u
+
 theorem rotation_add (a b : Fin 3) (hu : DifferentiableAt ℝ u p) (hv : DifferentiableAt ℝ v p) :
     rotation a b (u + v) p = rotation a b u p + rotation a b v p :=
   derivAlong_add _ hu hv
@@ -162,17 +177,35 @@ theorem scaling_add (hu : DifferentiableAt ℝ u p) (hv : DifferentiableAt ℝ v
 
 /-! ### Commutation with continuous linear maps -/
 
-theorem rotation_clm_comp (a b : Fin 3) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+@[to_fun]
+theorem rotation_comp_left (a b : Fin 3) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
     rotation a b (T ∘ u) p = T (rotation a b u p) :=
-  derivAlong_clm_comp _ T hu
+  derivAlong_comp_left _ T hu
 
-theorem boost_clm_comp (a : Fin 3) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+@[to_fun]
+theorem boost_comp_left (a : Fin 3) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
     boost a (T ∘ u) p = T (boost a u p) :=
-  derivAlong_clm_comp _ T hu
+  derivAlong_comp_left _ T hu
 
-theorem scaling_clm_comp (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+@[to_fun]
+theorem scaling_comp_left (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
     scaling (T ∘ u) p = T (scaling u p) :=
-  derivAlong_clm_comp _ T hu
+  derivAlong_comp_left _ T hu
+
+@[to_fun]
+theorem rotation_comp_left_equiv (a b : Fin 3) (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    rotation a b (e ∘ u) = e ∘ rotation a b u :=
+  derivAlong_comp_left_equiv _ e u
+
+@[to_fun]
+theorem boost_comp_left_equiv (a : Fin 3) (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    boost a (e ∘ u) = e ∘ boost a u :=
+  derivAlong_comp_left_equiv _ e u
+
+@[to_fun]
+theorem scaling_comp_left_equiv (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    scaling (e ∘ u) = e ∘ scaling u :=
+  derivAlong_comp_left_equiv _ e u
 
 /-! ### Values on constants and coordinates -/
 
