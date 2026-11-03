@@ -11,6 +11,9 @@ public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.Prod
 public import VectorFieldMethod.ForMathlib.Topology.Algebra.Support
 public import Mathlib.Analysis.Calculus.Gradient.Basic
 
+import Mathlib.Analysis.Calculus.BumpFunction.InnerProduct
+import Mathlib.Analysis.Calculus.BumpFunction.Normed
+
 /-!
 # The divergence theorem on the region below a graph
 
@@ -335,3 +338,143 @@ theorem integral_divergence_hypograph_gradient (hφ : ContDiff ℝ 1 φ) (hX₀ 
 end InnerProductSpace
 
 end MeasureTheory
+
+/-! ### Sanity checks
+
+Each divergence theorem of this file has a hypothesis beyond regularity, the compact support of the
+vector field. Each is applied below to the same explicit nonzero vector field, which shows that its
+hypotheses can hold simultaneously. The data are as follows.
+
+* `E = ℝ` with Lebesgue measure, and `X = 0`.
+* `X₀ (x, t) = ψ x * ψ t`, where `ψ` is a smooth bump function on `ℝ` that equals `1` on
+  `[-1 / 4, 1 / 4]` and vanishes outside `(-1 / 2, 1 / 2)`. So `X₀` is smooth with compact support.
+* The graphs are horizontal lines: `φ = 0` for the theorems below a graph, and `φ₁ = -1`, `φ₂ = 0`
+  for the theorems between two graphs.
+
+None of the identities is a trivial `0 = 0`. Since the derivative of a constant function vanishes
+and `X = 0`, the flux through the line `t = c` is `∫ x, ψ x * ψ c = ψ c * ∫ x, ψ x`. Hence:
+
+* for `c = 0` it is `∫ x, ψ x > 0`, because `ψ 0 = 1` and `ψ` is continuous, nonnegative and equal
+  to `1` near `0`;
+* for `c = -1` it is `0`, because `ψ (-1) = 0`.
+
+So every right-hand side below equals `∫ x, ψ x > 0` (for the time-first version, by the same
+computation with the coordinates swapped). The last example proves that the flux through `t = 0` is
+positive and that the flux through `t = -1` vanishes. -/
+
+section SanityChecks
+
+open MeasureTheory
+
+open scoped RealInnerProductSpace Gradient
+
+/-- A smooth bump function on `ℝ` centered at `0`: it equals `1` on `[-1 / 4, 1 / 4]` and vanishes
+outside `(-1 / 2, 1 / 2)`. -/
+private def sanityBump : ContDiffBump (0 : ℝ) where
+  rIn := 1 / 4
+  rOut := 1 / 2
+  rIn_pos := by norm_num
+  rIn_lt_rOut := by norm_num
+
+/-- The time component `(x, t) ↦ ψ x * ψ t` of the vector field of the sanity checks. -/
+private def sanityX₀ (p : ℝ × ℝ) : ℝ :=
+  sanityBump p.1 * sanityBump p.2
+
+private theorem contDiff_sanityX₀ : ContDiff ℝ 1 sanityX₀ :=
+  ((sanityBump.contDiff (n := 1)).comp contDiff_fst).mul
+    ((sanityBump.contDiff (n := 1)).comp contDiff_snd)
+
+private theorem hasCompactSupport_sanityX₀ : HasCompactSupport sanityX₀ :=
+  HasCompactSupport.of_support_subset_isCompact
+    (IsCompact.prod sanityBump.hasCompactSupport sanityBump.hasCompactSupport) fun p hp ↦ by
+      have h : sanityBump p.1 * sanityBump p.2 ≠ 0 := hp
+      exact ⟨subset_tsupport _ (left_ne_zero_of_mul h), subset_tsupport _ (right_ne_zero_of_mul h)⟩
+
+/-- `MeasureTheory.integral_divergence_hypograph` with `φ = 0`: both sides equal `∫ x, ψ x`. -/
+example :
+    ∫ p in {p : ℝ × ℝ | p.2 ≤ 0},
+        (deriv (fun t ↦ sanityX₀ (p.1, t)) p.2 + spatialDivergence (fun _ ↦ (0 : ℝ)) p)
+          ∂volume.prod volume =
+      ∫ x, (sanityX₀ (x, 0) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0) :=
+  integral_divergence_hypograph (φ := fun _ ↦ 0) contDiff_const contDiff_sanityX₀
+    hasCompactSupport_sanityX₀ contDiff_const HasCompactSupport.zero
+
+/-- `MeasureTheory.integral_setIntegral_Iic_divergence` with `φ = 0`: both sides equal
+`∫ x, ψ x`. -/
+example :
+    ∫ x, (∫ t in Iic 0, (deriv (fun s ↦ sanityX₀ (x, s)) t +
+        spatialDivergence (fun _ ↦ (0 : ℝ)) (x, t))) =
+      ∫ x, (sanityX₀ (x, 0) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0) :=
+  integral_setIntegral_Iic_divergence (φ := fun _ ↦ 0) contDiff_const contDiff_sanityX₀
+    hasCompactSupport_sanityX₀ contDiff_const HasCompactSupport.zero
+
+/-- `MeasureTheory.integral_intervalIntegral_divergence` with `φ₁ = -1` and `φ₂ = 0`: both sides
+equal `∫ x, ψ x` (the flux through `t = -1` vanishes). -/
+example :
+    ∫ x, (∫ t in (-1 : ℝ)..0, (deriv (fun s ↦ sanityX₀ (x, s)) t +
+        spatialDivergence (fun _ ↦ (0 : ℝ)) (x, t))) =
+      (∫ x, (sanityX₀ (x, 0) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0)) -
+        ∫ x, (sanityX₀ (x, -1) - fderiv ℝ (fun _ ↦ (-1 : ℝ)) x 0) :=
+  integral_intervalIntegral_divergence (φ₁ := fun _ ↦ -1) (φ₂ := fun _ ↦ 0) contDiff_const
+    contDiff_const contDiff_sanityX₀ hasCompactSupport_sanityX₀ contDiff_const
+    HasCompactSupport.zero
+
+/-- `MeasureTheory.integral_divergence_region_between_cc` with `φ₁ = -1 ≤ φ₂ = 0`: both sides
+equal `∫ x, ψ x`. -/
+example :
+    ∫ p in {p : ℝ × ℝ | p.2 ∈ Icc (-1) 0},
+        (deriv (fun t ↦ sanityX₀ (p.1, t)) p.2 + spatialDivergence (fun _ ↦ (0 : ℝ)) p)
+          ∂volume.prod volume =
+      (∫ x, (sanityX₀ (x, 0) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0)) -
+        ∫ x, (sanityX₀ (x, -1) - fderiv ℝ (fun _ ↦ (-1 : ℝ)) x 0) :=
+  integral_divergence_region_between_cc (φ₁ := fun _ ↦ -1) (φ₂ := fun _ ↦ 0) contDiff_const
+    contDiff_const (fun _ ↦ by norm_num) contDiff_sanityX₀ hasCompactSupport_sanityX₀
+    contDiff_const HasCompactSupport.zero
+
+/-- `MeasureTheory.integral_divergence_regionBetween` with `φ₁ = -1 ≤ φ₂ = 0`: both sides equal
+`∫ x, ψ x`. -/
+example :
+    ∫ p in regionBetween (fun _ : ℝ ↦ (-1 : ℝ)) (fun _ ↦ 0) univ,
+        (deriv (fun t ↦ sanityX₀ (p.1, t)) p.2 + spatialDivergence (fun _ ↦ (0 : ℝ)) p)
+          ∂volume.prod volume =
+      (∫ x, (sanityX₀ (x, 0) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0)) -
+        ∫ x, (sanityX₀ (x, -1) - fderiv ℝ (fun _ ↦ (-1 : ℝ)) x 0) :=
+  integral_divergence_regionBetween (φ₁ := fun _ ↦ -1) (φ₂ := fun _ ↦ 0) contDiff_const
+    contDiff_const (fun _ ↦ by norm_num) contDiff_sanityX₀ hasCompactSupport_sanityX₀
+    contDiff_const HasCompactSupport.zero
+
+/-- `MeasureTheory.integral_divergence_hypograph_gradient` with `φ = 0` on the inner product space
+`ℝ`: both sides equal `∫ x, ψ x`. -/
+example :
+    ∫ p in {p : ℝ × ℝ | p.2 ≤ 0},
+        (deriv (fun t ↦ sanityX₀ (p.1, t)) p.2 + spatialDivergence (fun _ ↦ (0 : ℝ)) p)
+          ∂volume.prod volume =
+      ∫ x, (sanityX₀ (x, 0) - ⟪∇ (fun _ ↦ (0 : ℝ)) x, (0 : ℝ)⟫) :=
+  integral_divergence_hypograph_gradient (φ := fun _ ↦ 0) contDiff_const contDiff_sanityX₀
+    hasCompactSupport_sanityX₀ contDiff_const HasCompactSupport.zero
+
+/-- `MeasureTheory.integral_divergence_hypograph_swap` with `φ = 0`, on `ℝ × ℝ` with time first
+(`sanityX₀ (t, x) = ψ t * ψ x`): both sides equal `∫ x, ψ x`. -/
+example :
+    ∫ p in {p : ℝ × ℝ | p.1 ≤ 0},
+        (deriv (fun t ↦ sanityX₀ (t, p.2)) p.1 +
+          LinearMap.trace ℝ ℝ (fderiv ℝ (fun _ ↦ (0 : ℝ)) p.2 : ℝ →ₗ[ℝ] ℝ)) ∂volume.prod volume =
+      ∫ x, (sanityX₀ (0, x) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0) :=
+  integral_divergence_hypograph_swap (φ := fun _ ↦ 0) (X := fun _ ↦ 0) contDiff_const
+    contDiff_sanityX₀ hasCompactSupport_sanityX₀ contDiff_const HasCompactSupport.zero
+
+/-- The fluxes in the examples above, so that none of the identities is a trivial `0 = 0`: the flux
+through the line `t = 0` is `∫ x, ψ x * ψ 0 = ∫ x, ψ x > 0`, and the flux through the line
+`t = -1` is `0`, because `ψ (-1) = 0`. -/
+example :
+    0 < ∫ x, (sanityX₀ (x, 0) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0) ∧
+      ∫ x, (sanityX₀ (x, -1) - fderiv ℝ (fun _ ↦ (-1 : ℝ)) x 0) = 0 := by
+  have h₀ : sanityBump 0 = 1 :=
+    sanityBump.one_of_mem_closedBall (Metric.mem_closedBall_self sanityBump.rIn_pos.le)
+  have h₁ : sanityBump (-1) = 0 :=
+    sanityBump.zero_of_le_dist (by norm_num [sanityBump, Real.dist_eq])
+  constructor
+  · simpa [sanityX₀, h₀, fderiv_const_apply] using sanityBump.integral_pos (μ := volume)
+  · simp [sanityX₀, h₁, fderiv_const_apply]
+
+end SanityChecks

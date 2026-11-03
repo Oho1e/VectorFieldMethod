@@ -8,6 +8,8 @@ module
 public import VectorFieldMethod.ForMathlib.Geometry.Manifold.PartitionOfUnity
 public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHypograph
 
+import Mathlib.Analysis.Calculus.BumpFunction.Normed
+
 /-!
 # The divergence theorem between two graphs, for locally defined vector fields
 
@@ -138,3 +140,97 @@ theorem integral_divergence_region_between_cc_of_contDiffOn {U : Set (E × ℝ)}
       · simp only [(hD _ (h₁ x)).1.eq_of_nhds, (hD _ (h₁ x)).2.eq_of_nhds]
 
 end MeasureTheory
+
+/-! ### Sanity checks
+
+Both theorems of this file have hypotheses beyond regularity: the region `D` between the graphs
+lies in the open set `U`, and `D ∩ (tsupport X₀ ∪ tsupport X)` is compact. Each is applied below to
+the same explicit vector field, which is not compactly supported, so that the corresponding
+theorems of `DivergenceTheoremHypograph.lean` do not apply to it. The data are as follows.
+
+* `E = ℝ` with Lebesgue measure, `X = 0`, `U = ℝ × ℝ`, `φ₁ = -1` and `φ₂ = 0`, so that `D` is the
+  strip `ℝ × [-1, 0]`.
+* `X₀ (x, t) = ψ x * (t + 2)`, where `ψ` is a smooth bump function on `ℝ` that equals `1` on
+  `[-1 / 4, 1 / 4]` and vanishes outside `(-1 / 2, 1 / 2)`.
+
+The support of `X₀` lies in `[-1 / 2, 1 / 2] × ℝ`, so its intersection with `D` is compact.
+Neither identity is a trivial `0 = 0`. Since `∂ₜ X₀ (x, t) = ψ x` and `X = 0`, the left-hand sides
+equal `∫ x, ψ x`. The right-hand sides equal `∫ x, 2 * ψ x - ∫ x, ψ x = ∫ x, ψ x`, which is
+positive because `ψ` is continuous, nonnegative and equal to `1` near `0`; the last example proves
+this. -/
+
+section SanityChecks
+
+open MeasureTheory
+
+/-- A smooth bump function on `ℝ` centered at `0`: it equals `1` on `[-1 / 4, 1 / 4]` and vanishes
+outside `(-1 / 2, 1 / 2)`. -/
+private def sanityBump : ContDiffBump (0 : ℝ) where
+  rIn := 1 / 4
+  rOut := 1 / 2
+  rIn_pos := by norm_num
+  rIn_lt_rOut := by norm_num
+
+/-- The time component `(x, t) ↦ ψ x * (t + 2)` of the vector field of the sanity checks: it is
+smooth, but not compactly supported. -/
+private def sanityX₀ (p : ℝ × ℝ) : ℝ :=
+  sanityBump p.1 * (p.2 + 2)
+
+private theorem contDiff_sanityX₀ : ContDiff ℝ 1 sanityX₀ :=
+  ((sanityBump.contDiff (n := 1)).comp contDiff_fst).mul (contDiff_snd.add contDiff_const)
+
+/-- The part of the strip `ℝ × [-1, 0]` in the support of the field is compact. -/
+private theorem isCompact_sanity :
+    IsCompact ({p : ℝ × ℝ | p.2 ∈ Icc (-1) 0} ∩
+      (tsupport sanityX₀ ∪ tsupport fun _ : ℝ × ℝ ↦ (0 : ℝ))) := by
+  refine (IsCompact.prod (isCompact_closedBall (0 : ℝ) (1 / 2))
+    (isCompact_Icc (a := (-1 : ℝ)) (b := 0))).of_isClosed_subset
+    ((isClosed_Icc.preimage continuous_snd).inter
+      ((isClosed_tsupport _).union (isClosed_tsupport _))) ?_
+  rintro p ⟨hp₂, hp⟩
+  refine ⟨?_, hp₂⟩
+  have hsub : tsupport sanityX₀ ⊆ {q : ℝ × ℝ | q.1 ∈ Metric.closedBall 0 (1 / 2)} := by
+    refine closure_minimal (fun q hq ↦ ?_) (Metric.isClosed_closedBall.preimage continuous_fst)
+    have h : sanityBump q.1 * (q.2 + 2) ≠ 0 := hq
+    have h' : q.1 ∈ tsupport sanityBump := subset_tsupport _ (left_ne_zero_of_mul h)
+    rwa [sanityBump.tsupport_eq] at h'
+  rcases hp with hp | hp
+  · exact hsub hp
+  · simp at hp
+
+/-- `MeasureTheory.integral_intervalIntegral_divergence_of_contDiffOn` with `φ₁ = -1`, `φ₂ = 0`,
+`U = ℝ × ℝ`, `X₀ (x, t) = ψ x * (t + 2)` and `X = 0`: both sides equal `∫ x, ψ x`. -/
+example :
+    ∫ x, (∫ t in (-1 : ℝ)..0, (deriv (fun s ↦ sanityX₀ (x, s)) t +
+        spatialDivergence (fun _ ↦ (0 : ℝ)) (x, t))) =
+      (∫ x, (sanityX₀ (x, 0) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0)) -
+        ∫ x, (sanityX₀ (x, -1) - fderiv ℝ (fun _ ↦ (-1 : ℝ)) x 0) := by
+  have hK := isCompact_sanity
+  rw [← Set.uIcc_of_le (by norm_num : (-1 : ℝ) ≤ 0)] at hK
+  exact integral_intervalIntegral_divergence_of_contDiffOn (φ₁ := fun _ ↦ -1) (φ₂ := fun _ ↦ 0)
+    (X := fun _ ↦ 0) isOpen_univ contDiff_const contDiff_const (subset_univ _)
+    contDiff_sanityX₀.contDiffOn contDiffOn_const hK
+
+/-- `MeasureTheory.integral_divergence_region_between_cc_of_contDiffOn` with `φ₁ = -1 ≤ φ₂ = 0`,
+`U = ℝ × ℝ`, `X₀ (x, t) = ψ x * (t + 2)` and `X = 0`: both sides equal `∫ x, ψ x`. -/
+example :
+    ∫ p in {p : ℝ × ℝ | p.2 ∈ Icc (-1) 0},
+        (deriv (fun t ↦ sanityX₀ (p.1, t)) p.2 + spatialDivergence (fun _ ↦ (0 : ℝ)) p)
+          ∂volume.prod volume =
+      (∫ x, (sanityX₀ (x, 0) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0)) -
+        ∫ x, (sanityX₀ (x, -1) - fderiv ℝ (fun _ ↦ (-1 : ℝ)) x 0) :=
+  integral_divergence_region_between_cc_of_contDiffOn (φ₁ := fun _ ↦ -1) (φ₂ := fun _ ↦ 0)
+    (X := fun _ ↦ 0) isOpen_univ contDiff_const contDiff_const (fun _ ↦ by norm_num)
+    (subset_univ _) contDiff_sanityX₀.contDiffOn contDiffOn_const isCompact_sanity
+
+/-- The common right-hand side of the two examples above is positive, so that neither identity is a
+trivial `0 = 0`: it equals `∫ x, 2 * ψ x - ∫ x, ψ x = ∫ x, ψ x > 0`. -/
+example :
+    0 < (∫ x, (sanityX₀ (x, 0) - fderiv ℝ (fun _ ↦ (0 : ℝ)) x 0)) -
+      ∫ x, (sanityX₀ (x, -1) - fderiv ℝ (fun _ ↦ (-1 : ℝ)) x 0) := by
+  have h := sanityBump.integral_pos (μ := volume)
+  simp only [sanityX₀, fderiv_const_apply, zero_apply, sub_zero, integral_mul_const]
+  norm_num
+  linarith
+
+end SanityChecks

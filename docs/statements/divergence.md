@@ -154,6 +154,12 @@ theorem integral_divergence_hypograph (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDif
   the coordinate order $`(x, t)`$ (see also the gradient version below). Both integrands are
   continuous with compact support, so both integrals are genuine (not junk zeros). The same $`\mu`$
   appears on both sides, so the normalization of the Haar measure does not matter.
+  The "Sanity checks" section of the file (added after the linked commit) applies the theorem with
+  $`E = \mathbb{R}`$, $`\mu`$ = `volume`, $`\varphi = 0`$, $`X = 0`$ and
+  $`X_0(x, t) = \psi(x)\,\psi(t)`$, where $`\psi`$ is a smooth bump function equal to $`1`$ on
+  $`[-1/4, 1/4]`$ and vanishing outside $`(-1/2, 1/2)`$: both sides equal
+  $`\int_{\mathbb{R}} \psi > 0`$, and the last `example` there proves that the right-hand side is
+  positive.
 
 ### Divergence theorem below a graph (iterated)
 
@@ -177,7 +183,9 @@ theorem integral_setIntegral_Iic_divergence (hφ : ContDiff ℝ 1 φ) (hX₀ : C
   below the graph written as an iterated integral: first over $`t \in (-\infty, \varphi(x)]`$
   (`Iic (φ x)`) for each $`x`$, then over $`x`$. The integrand is continuous with compact support,
   so for every $`x`$ the inner integral is a genuine integral, and it is an integrable function of
-  $`x`$. The versions between two graphs are deduced from this form.
+  $`x`$. The versions between two graphs are deduced from this form. The "Sanity checks" section of
+  the file (added after the linked commit) applies it to the data of the sanity check of
+  `integral_divergence_hypograph`, for which both sides equal $`\int_{\mathbb{R}} \psi > 0`$.
 
 ### Divergence theorem between two graphs (iterated, oriented)
 
@@ -208,6 +216,11 @@ theorem integral_intervalIntegral_divergence (hφ₁ : ContDiff ℝ 1 φ₁) (h�
 
 - **Notes.** `∫ t in a..b` is the oriented integral for Lebesgue measure (see the README). Where
   $`\varphi_1(x) \gt \varphi_2(x)`$ the inner integral counts negatively.
+  The "Sanity checks" section of the file (added after the linked commit) applies it to the field of
+  the sanity check of `integral_divergence_hypograph` with $`\varphi_1 = -1`$ and
+  $`\varphi_2 = 0`$: the flux through $`t = -1`$ vanishes, so both sides equal
+  $`\int_{\mathbb{R}} \psi > 0`$ (the last `example` there proves that the flux through $`t = 0`$
+  is positive and the one through $`t = -1`$ is $`0`$).
 
 ### Divergence theorem on the closed region between two graphs
 
@@ -235,6 +248,11 @@ theorem integral_divergence_region_between_cc (hφ₁ : ContDiff ℝ 1 φ₁) (h
 
 - **Notes.** `hφ : φ₁ ≤ φ₂` is the pointwise order of functions. Without it the region would be
   empty over the set where $`\varphi_1 \gt \varphi_2`$ while the right-hand side would still count it.
+  The "Sanity checks" section of the file (added after the linked commit) applies it to the field of
+  the sanity check of `integral_divergence_hypograph` with $`\varphi_1 = -1`$ and
+  $`\varphi_2 = 0`$: the flux through $`t = -1`$ vanishes, so both sides equal
+  $`\int_{\mathbb{R}} \psi > 0`$ (the last `example` there proves that the flux through $`t = 0`$
+  is positive and the one through $`t = -1`$ is $`0`$).
 
 ### Divergence theorem on the open region between two graphs
 
@@ -261,6 +279,11 @@ theorem integral_divergence_regionBetween (hφ₁ : ContDiff ℝ 1 φ₁) (hφ�
 - **Notes.** Mathlib's `regionBetween φ₁ φ₂ univ` is
   $`\{(x, t) : x \in E,\ \varphi_1(x) \lt t \lt \varphi_2(x)\}`$. The open and closed regions differ by
   the two graphs, which are null sets.
+  The "Sanity checks" section of the file (added after the linked commit) applies it to the field of
+  the sanity check of `integral_divergence_hypograph` with $`\varphi_1 = -1`$ and
+  $`\varphi_2 = 0`$: the flux through $`t = -1`$ vanishes, so both sides equal
+  $`\int_{\mathbb{R}} \psi > 0`$ (the last `example` there proves that the flux through $`t = 0`$
+  is positive and the one through $`t = -1`$ is $`0`$).
 
 ### Divergence theorem below a graph, gradient form
 
@@ -284,7 +307,9 @@ theorem integral_divergence_hypograph_gradient (hφ : ContDiff ℝ 1 φ) (hX₀ 
 ```
 
 - **Notes.** Same statement as `integral_divergence_hypograph`, with
-  $`D\varphi(x)\,v = \langle \nabla\varphi(x), v\rangle`$.
+  $`D\varphi(x)\,v = \langle \nabla\varphi(x), v\rangle`$. The "Sanity checks" section of the file
+  (added after the linked commit) applies it to the data of the sanity check of
+  `integral_divergence_hypograph`, for which both sides equal $`\int_{\mathbb{R}} \psi > 0`$.
 
 ### Divergence theorem below a graph, time first
 
@@ -318,7 +343,11 @@ theorem integral_divergence_hypograph_swap {X₀ : ℝ × E → ℝ} {X : ℝ ×
   `spatialDivergence` expects time second. The theorem only swaps the order of the coordinates in
   `integral_divergence_hypograph`. With $`E`$ = `EuclideanSpace ℝ (Fin 3)` and $`\mu`$ = `volume`
   it is a statement on `Spacetime` with its Lebesgue measure. All other divergence theorems of this
-  layer (listed in the section *Coordinates* above) exist only in the time-second form.
+  layer (listed in the section *Coordinates* above) exist only in the time-second form. The
+  "Sanity checks" section of the file (added after the linked commit) applies it with
+  $`E = \mathbb{R}`$, $`\mu`$ = `volume`, $`\varphi = 0`$, $`X = 0`$ and
+  $`X_0(t, x) = \psi(t)\,\psi(x)`$, with $`\psi`$ as in the sanity check of
+  `integral_divergence_hypograph`, for which both sides equal $`\int_{\mathbb{R}} \psi > 0`$.
 
 ### Spatial divergence in Euclidean coordinates
 
@@ -380,7 +409,14 @@ theorem integral_intervalIntegral_divergence_of_contDiffOn {U : Set (E × ℝ)} 
 - **Notes.** Generalizes `integral_intervalIntegral_divergence`: no global smoothness and no
   compact support of $`X_0, X`$, and their values outside $`U`$ are arbitrary. The supports are the
   closed supports `tsupport`. Everything in the conclusion is evaluated on $`D`$, where $`X_0, X`$
-  are $`C^1`$, so the derivatives in the integrands are genuine.
+  are $`C^1`$, so the derivatives in the integrands are genuine. The "Sanity checks" section of
+  `DivergenceTheoremLocal.lean` (added after the linked commit) applies it with
+  $`E = \mathbb{R}`$, $`\mu`$ = `volume`, $`U = \mathbb{R}^2`$, $`\varphi_1 = -1`$,
+  $`\varphi_2 = 0`$, $`X = 0`$ and $`X_0(x, t) = \psi(x)\,(t + 2)`$, where $`\psi`$ is a smooth bump
+  function equal to $`1`$ near $`0`$: this field is not compactly supported, so
+  `integral_intervalIntegral_divergence` does not apply to it, and both sides equal
+  $`\int_{\mathbb{R}} \psi > 0`$ (the fluxes are $`2 \int_{\mathbb{R}} \psi`$ and
+  $`\int_{\mathbb{R}} \psi`$; the last `example` there proves that the right-hand side is positive).
 
 ### Divergence theorem on the closed region between two graphs, locally defined field
 
@@ -415,7 +451,10 @@ theorem integral_divergence_region_between_cc_of_contDiffOn {U : Set (E × ℝ)}
 - **Notes.** Generalizes `integral_divergence_region_between_cc` in the same way as the previous
   entry. It is the form used for the hyperboloids below: the localized hyperboloid theorem applies
   it with the open set $`U \cup (\operatorname{supp} X_0 \cup \operatorname{supp} X)^c`$, and hence
-  the global one with $`E \times \mathbb{R}`$.
+  the global one with $`E \times \mathbb{R}`$. The "Sanity checks" section of
+  `DivergenceTheoremLocal.lean` (added after the linked commit) applies it to the data of the
+  sanity check of the previous entry, for which $`\varphi_1 \le \varphi_2`$ and both sides equal
+  $`\int_{\mathbb{R}} \psi > 0`$.
 
 ### Divergence theorem between two hyperboloids, global version
 
