@@ -22,8 +22,8 @@ through `r² = ∑ a, x_a²` (`radius_sq`).
 
 ## Main statements
 
-* `wave_timeCoord_sq_sub_radius_sq`: `□(t² - r²) = -8`.
-* `wave_timeCoord_sq`: `□(t²) = -2`; `wave_spaceCoord_sq`: `□(x_a²) = 2`.
+* `dAlembertian_timeCoord_sq_sub_radius_sq`: `□(t² - r²) = -8`.
+* `dAlembertian_timeCoord_sq`: `□(t²) = -2`; `dAlembertian_spaceCoord_sq`: `□(x_a²) = 2`.
 * `boost_timeCoord_sq_sub_radius_sq`: `L_a (t² - r²) = 0`.
 * `rotation_radius_sq`: `Ω_ab (r²) = 0`.
 * `scaling_timeCoord_sq_sub_radius_sq`: `S (t² - r²) = 2 (t² - r²)`.
@@ -86,23 +86,23 @@ theorem spaceDeriv_timeCoord_sq_sub_radius_sq (a : Fin 3) :
 /-! ### The wave operator -/
 
 /-- `□(t² - r²) = -8`. -/
-theorem wave_timeCoord_sq_sub_radius_sq :
+theorem dAlembertian_timeCoord_sq_sub_radius_sq :
     □ (fun p ↦ timeCoord p ^ 2 - radius p ^ 2) = fun _ ↦ -8 := by
   funext p
-  rw [wave_eq, timeDeriv_timeCoord_sq_sub_radius_sq]
+  rw [dAlembertian_eq, timeDeriv_timeCoord_sq_sub_radius_sq]
   simp_rw [spaceDeriv_timeCoord_sq_sub_radius_sq]
   simp only [timeDeriv, spaceDeriv, derivAlong_const_mul]
   simp [timeField, spaceField]
   norm_num
 
 /-- `□(t²) = -2`. -/
-theorem wave_timeCoord_sq : □ (fun p ↦ timeCoord p ^ 2) = fun _ ↦ -2 := by
+theorem dAlembertian_timeCoord_sq : □ (fun p ↦ timeCoord p ^ 2) = fun _ ↦ -2 := by
   funext p
-  simp [wave_eq, timeDeriv, spaceDeriv, derivAlong_timeCoord_sq, derivAlong_const_mul, timeField,
-    spaceField]
+  simp [dAlembertian_eq, timeDeriv, spaceDeriv, derivAlong_timeCoord_sq, derivAlong_const_mul,
+    timeField, spaceField]
 
 /-- `□(x_a²) = 2`. -/
-theorem wave_spaceCoord_sq (a : Fin 3) : □ (fun p ↦ spaceCoord a p ^ 2) = fun _ ↦ 2 := by
+theorem dAlembertian_spaceCoord_sq (a : Fin 3) : □ (fun p ↦ spaceCoord a p ^ 2) = fun _ ↦ 2 := by
   have ht : ∂ₜ (fun p ↦ spaceCoord a p ^ 2) = fun _ ↦ 0 := by
     rw [timeDeriv, derivAlong_spaceCoord_sq]
     funext q
@@ -116,7 +116,7 @@ theorem wave_spaceCoord_sq (a : Fin 3) : □ (fun p ↦ spaceCoord a p ^ 2) = fu
       simp [spaceField, mul_comm]
     · simp [spaceField, h, Ne.symm h]
   funext p
-  simp only [wave_eq, ht, hs]
+  simp only [dAlembertian_eq, ht, hs]
   simp only [timeDeriv_const, spaceDeriv, derivAlong_const_mul]
   simp [spaceField]
 

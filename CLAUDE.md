@@ -130,7 +130,7 @@ notes are in `docs/minkowski-layer.md`.
 | `timeDeriv` (`∂ₜ`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `∂_t` |
 | `spaceDeriv` (`∂ₓ[a]`) | `Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `∂_a` |
 | `partialDeriv` (`∂[α]`) | `Fin 4 → (Spacetime → ℝ) → Spacetime → ℝ` | `∂_α` |
-| `wave` (`□`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u` |
+| `dAlembertian` (`□`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u` |
 | `kleinGordon` | `ℝ → (Spacetime → ℝ) → Spacetime → ℝ` | `kleinGordon m u = □u - m² u` |
 | `rotationField` | `Fin 3 → Fin 3 → Spacetime → Spacetime` | components of `Ω_ab`: `(0, x_a e_b - x_b e_a)` |
 | `rotation` | `Fin 3 → Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `Ω_ab = x_a ∂_b - x_b ∂_a` |
@@ -140,5 +140,5 @@ notes are in `docs/minkowski-layer.md`.
 | `scaling` | `(Spacetime → ℝ) → Spacetime → ℝ` | `S = t ∂_t + ∑ a, x_a ∂_a` |
 
 Scoped notation: `η` (`minkowskiMetric`), `∂ₜ` (`timeDeriv`), `∂ₓ[a]`
-(`spaceDeriv a`), `∂[α]` (`partialDeriv α`), `□` (`wave`). With the scope open
+(`spaceDeriv a`), `∂[α]` (`partialDeriv α`), `□` (`dAlembertian`). With the scope open
 these are tokens, so for example `η` cannot be used as a variable name there.

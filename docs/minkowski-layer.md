@@ -20,7 +20,7 @@ all imported by `VectorFieldMethod.lean`. Every declaration is in the namespace
 | `timeDeriv` (`∂ₜ`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `∂_t` |
 | `spaceDeriv` (`∂ₓ[a]`) | `Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `∂_a` |
 | `partialDeriv` (`∂[α]`) | `Fin 4 → (Spacetime → ℝ) → Spacetime → ℝ` | `∂_α` |
-| `wave` (`□`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u` |
+| `dAlembertian` (`□`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u` |
 | `kleinGordon` | `ℝ → (Spacetime → ℝ) → Spacetime → ℝ` | `kleinGordon m u = □u - m² u` |
 | `rotationField` | `Fin 3 → Fin 3 → Spacetime → Spacetime` | components of `Ω_ab`: `(0, x_a e_b - x_b e_a)` |
 | `rotation` | `Fin 3 → Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `Ω_ab = x_a ∂_b - x_b ∂_a` |
@@ -30,7 +30,7 @@ all imported by `VectorFieldMethod.lean`. Every declaration is in the namespace
 | `scaling` | `(Spacetime → ℝ) → Spacetime → ℝ` | `S = t ∂_t + ∑ a, x_a ∂_a` |
 
 Scoped notation: `η` (`minkowskiMetric`), `∂ₜ` (`timeDeriv`), `∂ₓ[a]`
-(`spaceDeriv a`), `∂[α]` (`partialDeriv α`), `□` (`wave`).
+(`spaceDeriv a`), `∂[α]` (`partialDeriv α`), `□` (`dAlembertian`).
 
 ## Conventions
 
@@ -178,32 +178,36 @@ coordinates (`timeDeriv_timeCoord : ∂ₜ timeCoord = fun _ ↦ 1`,
 `partialDeriv_partialDeriv_apply` identifies `∂_α ∂_β u (p)` with the second
 Fréchet derivative `D²u(p) e_α e_β`.
 
-### `wave` (`□`) and `kleinGordon`
+### `dAlembertian` (`□`) and `kleinGordon`
 
 *Formula.* `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u`; Klein–Gordon:
 `□u - m² u`.
 
 *Implementation.*
-`wave u = fun p ↦ ∑ α, ∑ β, η α β * ∂[α] (∂[β] u) p` (the entries of `η` are
+`dAlembertian u = fun p ↦ ∑ α, ∑ β, η α β * ∂[α] (∂[β] u) p` (the entries of `η` are
 those of `η^{αβ}`, see above), with the expansion
-`wave_eq : □ u p = -∂ₜ (∂ₜ u) p + ∑ a, ∂ₓ[a] (∂ₓ[a] u) p`, and
+`dAlembertian_eq : □ u p = -∂ₜ (∂ₜ u) p + ∑ a, ∂ₓ[a] (∂ₓ[a] u) p`, and
 `kleinGordon m u = fun p ↦ □ u p - m ^ 2 * u p`.
 
 *Reasons.* The index form is the one used in the energy-momentum computations
-of the vector field method, and `wave_eq` gives the explicit form. Second
+of the vector field method, and `dAlembertian_eq` gives the explicit form. Second
 derivatives are iterated first-order operators, so every lemma about `∂_α`
 applies to them.
 
-*Lemmas.* `wave_smul`, `kleinGordon_smul` (no hypothesis); `wave_add`,
+*Lemmas.* `dAlembertian_smul`, `kleinGordon_smul` (no hypothesis); `dAlembertian_add`,
 `kleinGordon_add` for `u`, `v` that are `C²` at the point (via
 `partialDeriv_partialDeriv_add`, which uses that the first derivatives agree
-near the point); `contDiff_wave : ContDiff ℝ (n + 2) u → ContDiff ℝ n (□ u)` and
-`contDiff_kleinGordon`, with `C^∞` corollaries; `wave_const`, `wave_timeCoord`,
-`wave_spaceCoord` (all `0`).
+near the point); the function-level corollaries
+`dAlembertian_add_of_contDiff : □ (u + v) = □ u + □ v` and
+`kleinGordon_add_of_contDiff : kleinGordon m (u + v) = kleinGordon m u + kleinGordon m v`
+for `u`, `v` of class `C²`;
+`contDiff_dAlembertian : ContDiff ℝ (n + 2) u → ContDiff ℝ n (□ u)` and
+`contDiff_kleinGordon`, with `C^∞` corollaries; `dAlembertian_const`, `dAlembertian_timeCoord`,
+`dAlembertian_spaceCoord` (all `0`).
 
 *Alternatives considered.*
 * Defining `□` directly as `-∂_t² + ∑ ∂_a²`: loses the index form; it is the
-  lemma `wave_eq` instead.
+  lemma `dAlembertian_eq` instead.
 * Writing `η⁻¹` in the definition: then every computation would first rewrite
   with `inv_minkowskiMetric`.
 * Mathlib's Laplacian (`Mathlib.Analysis.InnerProductSpace.Laplacian`,
@@ -247,7 +251,7 @@ fields.
 
 * values of the operators on the coordinate functions and on constants
   (`timeDeriv_timeCoord`, `spaceDeriv_spaceCoord`, `boost_timeCoord`,
-  `rotation_spaceCoord`, `scaling_spaceCoord`, `wave_const`,
+  `rotation_spaceCoord`, `scaling_spaceCoord`, `dAlembertian_const`,
   `derivAlong_timeCoord`, ...);
 * `partialDeriv_zero`, `partialDeriv_succ`, `partialDeriv_one`,
   `partialDeriv_two`, `partialDeriv_three`.
@@ -263,7 +267,7 @@ Each is a named theorem.
 | Statement | Lean name | File |
 | --- | --- | --- |
 | `∂_t t = 1`, `∂_t x_b = 0`, `∂_a t = 0`, `∂_a x_b = δ_ab` | `timeDeriv_timeCoord`, `timeDeriv_spaceCoord`, `spaceDeriv_timeCoord`, `spaceDeriv_spaceCoord` | `Derivative.lean` |
-| `□(t² - r²) = -8`, `□(t²) = -2`, `□(x_a²) = 2` | `wave_timeCoord_sq_sub_radius_sq`, `wave_timeCoord_sq`, `wave_spaceCoord_sq` | `Computations.lean` |
+| `□(t² - r²) = -8`, `□(t²) = -2`, `□(x_a²) = 2` | `dAlembertian_timeCoord_sq_sub_radius_sq`, `dAlembertian_timeCoord_sq`, `dAlembertian_spaceCoord_sq` | `Computations.lean` |
 | `L_a t = x_a`, `L_a x_b = t δ_ab` | `boost_timeCoord`, `boost_spaceCoord` | `VectorFields.lean` |
 | `L_a (t² - r²) = 0` | `boost_timeCoord_sq_sub_radius_sq` | `Computations.lean` |
 | `Ω_ab x_c = δ_bc x_a - δ_ac x_b`, `Ω_ba = -Ω_ab` | `rotation_spaceCoord`, `rotation_swap` | `VectorFields.lean` |
