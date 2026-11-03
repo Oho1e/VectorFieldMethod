@@ -7,8 +7,8 @@ module
 
 public import VectorFieldMethod.Minkowski.WaveOperator
 public import Mathlib.Analysis.InnerProductSpace.Calculus
-public import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 public import Mathlib.LinearAlgebra.Matrix.Symmetric
+import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 
 /-!
 # The energy-momentum tensor of the Klein–Gordon field
@@ -35,7 +35,7 @@ For a field `u : Spacetime → F` with values in a real inner product space `F` 
   `η^{αγ} ∂_γ T_{αβ} = ⟪□u - m² u, ∂_β u⟫` at a point where `u` is `C²`.
 * `spacetimeDiv_energyCurrent`: the energy identity `∂_α P^α = -⟪□u - m² u, ∂_t u⟫` at a point
   where `u` is `C²`, and `spacetimeDiv_energyCurrent_eq_zero`: `∂_α P^α = 0` at `p` if moreover
-  `□u - m² u = 0` near `p`.
+  `(□u - m² u)(p) = 0`.
 * `energyCurrent_zero`, `energyCurrent_zero_nonneg`, `energyCurrent_succ`: the energy density
   `P^0 = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²) ≥ 0` and the components
   `P^a = -⟪∂_a u, ∂_t u⟫`, without hypotheses on `u`.
@@ -57,8 +57,7 @@ Signature `(-, +, +, +)`. The inverse metric `η^{αβ}` has the same entries as
 
 @[expose] public noncomputable section
 
-open Filter
-open scoped RealInnerProductSpace Topology
+open scoped RealInnerProductSpace
 
 namespace VectorFieldMethod.Minkowski
 
@@ -137,23 +136,26 @@ theorem energyMomentum_swap (m : ℝ) (u : Spacetime → F) (α β : Fin 4) :
   rw [energyMomentum_apply, energyMomentum_apply, real_inner_comm (∂[β] u p),
     Matrix.IsSymm.apply transpose_minkowskiMetric β α]
 
-/-! ### Sums against the diagonal metric -/
+/-! ### Sums against the diagonal metric
+
+The four lemmas of this section are private to this file: lemmas about the metric are to be
+collected in `Spacetime.lean`. -/
 
 /-- The off-diagonal entries of `η` vanish. -/
-theorem minkowskiMetric_apply_of_ne {α β : Fin 4} (h : α ≠ β) : η α β = 0 :=
+private theorem minkowskiMetric_apply_of_ne {α β : Fin 4} (h : α ≠ β) : η α β = 0 :=
   Matrix.diagonal_apply_ne _ h
 
 /-- `η_{αα}² = 1`. -/
-theorem minkowskiMetric_self_mul_self (α : Fin 4) : η α α * η α α = 1 := by
+private theorem minkowskiMetric_self_mul_self (α : Fin 4) : η α α * η α α = 1 := by
   cases α using Fin.cases <;> simp [minkowskiMetric_zero_zero, minkowskiMetric_succ_succ]
 
 /-- `η` is diagonal: `∑ γ, η_{αγ} f_γ = η_{αα} f_α`, for `f` with values in a real vector space. -/
-theorem sum_minkowskiMetric_smul {M : Type*} [AddCommMonoid M] [Module ℝ M] (α : Fin 4)
+private theorem sum_minkowskiMetric_smul {M : Type*} [AddCommMonoid M] [Module ℝ M] (α : Fin 4)
     (f : Fin 4 → M) : ∑ γ, η α γ • f γ = η α α • f α :=
   Fintype.sum_eq_single α fun γ hγ ↦ by rw [minkowskiMetric_apply_of_ne hγ.symm, zero_smul]
 
 /-- `η` is diagonal: `∑ γ, η_{αγ} f_γ = η_{αα} f_α`. -/
-theorem sum_minkowskiMetric_mul (α : Fin 4) (f : Fin 4 → ℝ) :
+private theorem sum_minkowskiMetric_mul (α : Fin 4) (f : Fin 4 → ℝ) :
     ∑ γ, η α γ * f γ = η α α * f α :=
   sum_minkowskiMetric_smul α f
 
@@ -222,10 +224,11 @@ theorem spacetimeDiv_energyCurrent (m : ℝ) (hu : ContDiffAt ℝ 2 u p) :
   simp only [neg_mul, Finset.sum_neg_distrib]
 
 /-- The energy current of a solution is divergence free: if `u` is `C²` at `p` and
-`□u - m² u = 0` on a neighbourhood of `p`, then `∂_α P^α = 0` at `p`. -/
+`(□u - m² u)(p) = 0`, then `∂_α P^α = 0` at `p`. In particular `∂_α P^α = 0` on an open set on
+which `u` is `C²` and solves the Klein–Gordon equation. -/
 theorem spacetimeDiv_energyCurrent_eq_zero (m : ℝ) (hu : ContDiffAt ℝ 2 u p)
-    (hKG : kleinGordon m u =ᶠ[𝓝 p] 0) : spacetimeDiv (energyCurrent m u) p = 0 := by
-  rw [spacetimeDiv_energyCurrent m hu, hKG.eq_of_nhds, Pi.zero_apply, inner_zero_left, neg_zero]
+    (hKG : kleinGordon m u p = 0) : spacetimeDiv (energyCurrent m u) p = 0 := by
+  rw [spacetimeDiv_energyCurrent m hu, hKG, inner_zero_left, neg_zero]
 
 /-! ### Components of the energy current -/
 
@@ -262,8 +265,7 @@ theorem energyCurrent_succ (m : ℝ) (u : Spacetime → F) (a : Fin 3) (p : Spac
 /-- The hypotheses of `spacetimeDiv_energyCurrent_eq_zero` hold for `u = t`, which is smooth and
 solves the massless equation `□u = 0`. -/
 example (p : Spacetime) : spacetimeDiv (energyCurrent 0 timeCoord) p = 0 :=
-  spacetimeDiv_energyCurrent_eq_zero 0 contDiff_timeCoord.contDiffAt
-    (Eventually.of_forall fun q ↦ by simp [kleinGordon_apply])
+  spacetimeDiv_energyCurrent_eq_zero 0 contDiff_timeCoord.contDiffAt (by simp [kleinGordon_apply])
 
 /-- For the real field `u = t` (`F = ℝ`), the energy density is `P^0 = ½ (1 + m² t²)`. -/
 example (m : ℝ) :
@@ -346,8 +348,7 @@ example (m : ℝ) (p : Spacetime) :
   have hu : ContDiffAt ℝ 2 u p := by
     simp only [u]
     fun_prop
-  refine ⟨spacetimeDiv_energyCurrent_eq_zero m hu (Eventually.of_forall fun q ↦ congrFun hKG q),
-    ?_⟩
+  refine ⟨spacetimeDiv_energyCurrent_eq_zero m hu (congrFun hKG p), ?_⟩
   rw [energyCurrent_zero, ht]
   simp [hs, hnorm]
   ring
