@@ -4,14 +4,14 @@ Layer: `VectorFieldMethod/Minkowski/EnergyMomentum.lean`, built on the Minkowski
 (see [`minkowski.md`](minkowski.md) for $`\partial_\alpha`$, $`\Box`$, the Klein–Gordon operator
 and their conventions). All declarations are in the namespace `VectorFieldMethod.Minkowski`. The
 links below point to commit
-[`c075659`](https://github.com/Oho1e/VectorFieldMethod/tree/c07565966e70ee96c016a711b0ee35a6d6a86777),
+[`8e4ac8f`](https://github.com/Oho1e/VectorFieldMethod/tree/8e4ac8faa524514a83b59822dbba21b8198c4ffa),
 the last commit that changes the Lean file of this layer; it is identical at the head of the
 branch. How to read the entries: [`README.md`](README.md).
 
 ## Conventions
 
 Quoted from the module docstring of
-[`EnergyMomentum.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L43)
+[`EnergyMomentum.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L43)
 (normalization):
 
 > The tensor carries the factor `½`, so that the energy density is
@@ -52,7 +52,7 @@ The `variable` lines of the file declare the types of the letters used in the st
   also a real normed space through its inner product, which is the structure the operators of the
   Minkowski layer use. No completeness or finite dimension is assumed.
 
-[`EnergyMomentum.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L65):
+[`EnergyMomentum.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L64):
 
 ```lean
 variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]
@@ -74,7 +74,7 @@ are then inferred from the hypotheses (`hu : ContDiffAt ℝ 2 u p`, ...).
       \langle \partial_\gamma u(p), \partial_\delta u(p) \rangle + m^2 \lVert u(p) \rVert^2 \Big).
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`m`$ and $`u`$ are arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.energyMomentum`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L103)
+- **Lean.** `VectorFieldMethod.Minkowski.energyMomentum`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L102)
 
 ```lean
 def energyMomentum (m : ℝ) (u : Spacetime → F) (α β : Fin 4) : Spacetime → ℝ :=
@@ -96,7 +96,7 @@ def energyMomentum (m : ℝ) (u : Spacetime → F) (α β : Fin 4) : Spacetime �
   (\operatorname{div} J)(p) = \partial_\alpha J^\alpha(p) = \sum_{\alpha=0}^{3} \partial_\alpha J^\alpha(p).
   ```
 - **Hypotheses.** None; $`J`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.spacetimeDiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L114)
+- **Lean.** `VectorFieldMethod.Minkowski.spacetimeDiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L113)
 
 ```lean
 def spacetimeDiv (J : Fin 4 → Spacetime → ℝ) : Spacetime → ℝ :=
@@ -115,7 +115,7 @@ def spacetimeDiv (J : Fin 4 → Spacetime → ℝ) : Spacetime → ℝ :=
   the current associated with the vector field $`\partial_t`$ (so $`P^0 = T_{00}`$ and
   $`P^a = -T_{a0}`$).
 - **Hypotheses.** $`F`$ is a real inner product space; $`m`$ and $`u`$ are arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.energyCurrent`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L124)
+- **Lean.** `VectorFieldMethod.Minkowski.energyCurrent`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L123)
 
 ```lean
 def energyCurrent (m : ℝ) (u : Spacetime → F) (α : Fin 4) : Spacetime → ℝ :=
@@ -138,7 +138,7 @@ def energyCurrent (m : ℝ) (u : Spacetime → F) (α : Fin 4) : Spacetime → �
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`u`$ and $`v`$ are differentiable at
   $`p`$; no hypothesis on $`V`$.
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_inner`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L72)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_inner`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L71)
 
 ```lean
 theorem derivAlong_inner (V : Spacetime → Spacetime) (hu : DifferentiableAt ℝ u p)
@@ -149,7 +149,7 @@ theorem derivAlong_inner (V : Spacetime → Spacetime) (hu : DifferentiableAt �
 - **Notes.** $`\langle u, v\rangle`$ is the real-valued function $`q \mapsto \langle u(q), v(q)\rangle`$
   and $`Vu = Du(\cdot)\,V(\cdot)`$ is `derivAlong V u`. The differentiability hypotheses are needed
   because of the junk value of `fderiv`. The same statement for $`\partial_\alpha`$ is
-  `partialDeriv_inner` ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L85)).
+  `partialDeriv_inner` ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L84)).
 
 ### Leibniz rule for the squared norm
 
@@ -160,7 +160,7 @@ theorem derivAlong_inner (V : Spacetime → Spacetime) (hu : DifferentiableAt �
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`u`$ is differentiable at $`p`$; no
   hypothesis on $`V`$.
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_norm_sq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L79)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_norm_sq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L78)
 
 ```lean
 theorem derivAlong_norm_sq (V : Spacetime → Spacetime) (hu : DifferentiableAt ℝ u p) :
@@ -168,14 +168,14 @@ theorem derivAlong_norm_sq (V : Spacetime → Spacetime) (hu : DifferentiableAt 
 ```
 
 - **Notes.** This is the previous entry with $`v = u`$. The version for $`\partial_\alpha`$ is
-  `partialDeriv_norm_sq` ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L91)).
+  `partialDeriv_norm_sq` ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L90)).
 
 ### Symmetry of the energy-momentum tensor
 
 - **Math.** For every $`m \in \mathbb{R}`$, $`u : \mathbb{R}^{1+3} \to F`$ and
   $`\alpha, \beta \in \{0, 1, 2, 3\}`$, $`T_{\alpha\beta} = T_{\beta\alpha}`$ on $`\mathbb{R}^{1+3}`$.
 - **Hypotheses.** $`F`$ is a real inner product space; no hypothesis on $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.energyMomentum_swap`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L134)
+- **Lean.** `VectorFieldMethod.Minkowski.energyMomentum_swap`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L133)
 
 ```lean
 theorem energyMomentum_swap (m : ℝ) (u : Spacetime → F) (α β : Fin 4) :
@@ -195,7 +195,7 @@ theorem energyMomentum_swap (m : ℝ) (u : Spacetime → F) (α β : Fin 4) :
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`u`$ is $`C^2`$ at $`p`$
   (`ContDiffAt ℝ 2 u p`).
-- **Lean.** `VectorFieldMethod.Minkowski.sum_sum_minkowskiMetric_mul_partialDeriv_energyMomentum`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L192)
+- **Lean.** `VectorFieldMethod.Minkowski.sum_sum_minkowskiMetric_mul_partialDeriv_energyMomentum`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L194)
 
 ```lean
 theorem sum_sum_minkowskiMetric_mul_partialDeriv_energyMomentum (m : ℝ) (β : Fin 4)
@@ -220,7 +220,7 @@ theorem sum_sum_minkowskiMetric_mul_partialDeriv_energyMomentum (m : ℝ) (β : 
     = -\big\langle (\Box u - m^2 u)(p),\ \partial_t u(p) \big\rangle .
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`u`$ is $`C^2`$ at $`p`$.
-- **Lean.** `VectorFieldMethod.Minkowski.spacetimeDiv_energyCurrent`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L217)
+- **Lean.** `VectorFieldMethod.Minkowski.spacetimeDiv_energyCurrent`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L219)
 
 ```lean
 theorem spacetimeDiv_energyCurrent (m : ℝ) (hu : ContDiffAt ℝ 2 u p) :
@@ -235,20 +235,22 @@ theorem spacetimeDiv_energyCurrent (m : ℝ) (hu : ContDiffAt ℝ 2 u p) :
 
 - **Math.** Let $`m \in \mathbb{R}`$, $`p \in \mathbb{R}^{1+3}`$, and let
   $`u : \mathbb{R}^{1+3} \to F`$ be $`C^2`$ on a neighbourhood of $`p`$ and satisfy
-  $`\Box u - m^2 u = 0`$ on a neighbourhood of $`p`$. Then $`(\operatorname{div} P)(p) = 0`$.
-- **Hypotheses.** $`F`$ is a real inner product space; $`u`$ is $`C^2`$ at $`p`$; $`u`$ solves the
-  Klein–Gordon equation on a neighbourhood of $`p`$ (`kleinGordon m u =ᶠ[𝓝 p] 0`).
-- **Lean.** `VectorFieldMethod.Minkowski.spacetimeDiv_energyCurrent_eq_zero`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L226)
+  $`(\Box u - m^2 u)(p) = 0`$. Then $`(\operatorname{div} P)(p) = 0`$.
+- **Hypotheses.** $`F`$ is a real inner product space; $`u`$ is $`C^2`$ at $`p`$; the
+  Klein–Gordon operator of $`u`$ vanishes at the point $`p`$ (`kleinGordon m u p = 0`).
+- **Lean.** `VectorFieldMethod.Minkowski.spacetimeDiv_energyCurrent_eq_zero`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L229)
 
 ```lean
 theorem spacetimeDiv_energyCurrent_eq_zero (m : ℝ) (hu : ContDiffAt ℝ 2 u p)
-    (hKG : kleinGordon m u =ᶠ[𝓝 p] 0) : spacetimeDiv (energyCurrent m u) p = 0
+    (hKG : kleinGordon m u p = 0) : spacetimeDiv (energyCurrent m u) p = 0
 ```
 
-- **Notes.** `0` on the right of `=ᶠ[𝓝 p]` is the zero function. The proof only uses the value
-  $`(\Box u - m^2 u)(p) = 0`$ at $`p`$. The hypotheses can hold simultaneously: the *Sanity checks*
-  below apply the theorem to $`u = t`$ with $`m = 0`$ and to the plane wave $`e^{-imt}`$ for every
-  $`m`$.
+- **Notes.** The equation is assumed only at the point $`p`$; the $`C^2`$ hypothesis is still on a
+  neighbourhood of $`p`$, since it is needed to differentiate $`P`$ at $`p`$. If $`u`$ is $`C^2`$
+  on an open set $`U`$ and solves $`\Box u - m^2 u = 0`$ on $`U`$, the theorem applies at every
+  point of $`U`$, so $`\operatorname{div} P = 0`$ on $`U`$. The hypotheses can hold
+  simultaneously: the *Sanity checks* below apply the theorem to $`u = t`$ with $`m = 0`$ and to
+  the plane wave $`e^{-imt}`$ for every $`m`$.
 
 ### Energy density
 
@@ -258,7 +260,7 @@ theorem spacetimeDiv_energyCurrent_eq_zero (m : ℝ) (hu : ContDiffAt ℝ 2 u p)
     + m^2 \lVert u(p) \rVert^2 \Big).
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; no hypothesis on $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.energyCurrent_zero`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L239)
+- **Lean.** `VectorFieldMethod.Minkowski.energyCurrent_zero`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L242)
 
 ```lean
 theorem energyCurrent_zero (m : ℝ) (u : Spacetime → F) (p : Spacetime) :
@@ -274,7 +276,7 @@ theorem energyCurrent_zero (m : ℝ) (u : Spacetime → F) (p : Spacetime) :
 - **Math.** For every $`m \in \mathbb{R}`$, $`u : \mathbb{R}^{1+3} \to F`$ and $`p`$,
   $`P^0(p) \ge 0`$.
 - **Hypotheses.** $`F`$ is a real inner product space; no hypothesis on $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.energyCurrent_zero_nonneg`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L247)
+- **Lean.** `VectorFieldMethod.Minkowski.energyCurrent_zero_nonneg`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L250)
 
 ```lean
 theorem energyCurrent_zero_nonneg (m : ℝ) (u : Spacetime → F) (p : Spacetime) :
@@ -289,7 +291,7 @@ theorem energyCurrent_zero_nonneg (m : ℝ) (u : Spacetime → F) (p : Spacetime
   P^a(p) = -\langle \partial_a u(p), \partial_t u(p) \rangle .
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; no hypothesis on $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.energyCurrent_succ`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L254)
+- **Lean.** `VectorFieldMethod.Minkowski.energyCurrent_succ`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L257)
 
 ```lean
 theorem energyCurrent_succ (m : ℝ) (u : Spacetime → F) (a : Fin 3) (p : Spacetime) :
@@ -306,10 +308,10 @@ The section "Sanity checks" at the end of the file contains the following `examp
 
 | Statement | Line |
 | --- | --- |
-| $`u = t`$, $`m = 0`$ ($`F = \mathbb{R}`$): `spacetimeDiv_energyCurrent_eq_zero` applies, since $`t`$ is smooth and $`\Box t = 0`$ | [L264](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L264) |
-| $`u = t`$ ($`F = \mathbb{R}`$): $`P^0 = \tfrac12 (1 + m^2 t^2)`$ | [L269](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L269) |
-| $`u = t + i x^1`$ ($`F = \mathbb{C}`$): $`P^0 = 1 + m^2 (t^2 + (x^1)^2)/2`$ and $`P^1 = -\langle i, 1\rangle = 0`$ | [L279](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L279) |
-| $`u = e^{-imt}`$ ($`F = \mathbb{C}`$, every $`m`$): $`u`$ solves $`\Box u - m^2 u = 0`$, so `spacetimeDiv_energyCurrent_eq_zero` applies and $`\operatorname{div} P = 0`$; moreover $`P^0 = m^2`$ | [L317](https://github.com/Oho1e/VectorFieldMethod/blob/c07565966e70ee96c016a711b0ee35a6d6a86777/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L317) |
+| $`u = t`$, $`m = 0`$ ($`F = \mathbb{R}`$): `spacetimeDiv_energyCurrent_eq_zero` applies, since $`t`$ is smooth and $`\Box t = 0`$ | [L267](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L267) |
+| $`u = t`$ ($`F = \mathbb{R}`$): $`P^0 = \tfrac12 (1 + m^2 t^2)`$ | [L271](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L271) |
+| $`u = t + i x^1`$ ($`F = \mathbb{C}`$): $`P^0 = 1 + m^2 (t^2 + (x^1)^2)/2`$ and $`P^1 = -\langle i, 1\rangle = 0`$ | [L281](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L281) |
+| $`u = e^{-imt}`$ ($`F = \mathbb{C}`$, every $`m`$): $`u`$ solves $`\Box u - m^2 u = 0`$, so `spacetimeDiv_energyCurrent_eq_zero` applies and $`\operatorname{div} P = 0`$; moreover $`P^0 = m^2`$ | [L319](https://github.com/Oho1e/VectorFieldMethod/blob/8e4ac8faa524514a83b59822dbba21b8198c4ffa/VectorFieldMethod/Minkowski/EnergyMomentum.lean#L319) |
 
 The first and last examples show that the hypotheses of `spacetimeDiv_energyCurrent_eq_zero` can
 hold simultaneously (massless and massive case). The complex examples show that the definitions
