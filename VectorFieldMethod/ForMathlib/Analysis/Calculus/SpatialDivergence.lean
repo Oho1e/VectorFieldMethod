@@ -46,58 +46,20 @@ identically zero, hence so is `spatialDivergence`; all nontrivial statements ass
 
 open Filter Function Topology
 
-variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E]
+variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [NormedAddCommGroup F]
+  [NormedSpace ℝ F]
 
-/-- The *spatial divergence* of a time-dependent vector field `X : E × ℝ → E` at `p = (x, t)`:
-the trace of the derivative at `x` of the vector field `y ↦ X (y, t)`. -/
-def spatialDivergence (X : E × ℝ → E) (p : E × ℝ) : ℝ :=
-  LinearMap.trace ℝ E (fderiv ℝ (fun y ↦ X (y, p.2)) p.1 : E →ₗ[ℝ] E)
-
-@[simp]
-theorem spatialDivergence_zero : spatialDivergence (0 : E × ℝ → E) = 0 := by
-  ext p
-  simp [spatialDivergence]
-
-/-- The spatial divergence at `p` only depends on the germ of the vector field at `p`. -/
-theorem Filter.EventuallyEq.spatialDivergence_eq {X Y : E × ℝ → E} {p : E × ℝ}
-    (h : X =ᶠ[𝓝 p] Y) : spatialDivergence X p = spatialDivergence Y p := by
-  have h' : (fun y ↦ X (y, p.2)) =ᶠ[𝓝 p.1] fun y ↦ Y (y, p.2) :=
-    h.comp_tendsto (Continuous.tendsto' (by fun_prop) _ _ rfl)
-  simp only [spatialDivergence, h'.fderiv_eq]
-
-theorem spatialDivergence_of_notMem_tsupport {X : E × ℝ → E} {p : E × ℝ}
-    (hp : p ∉ tsupport X) : spatialDivergence X p = 0 := by
-  rw [(notMem_tsupport_iff_eventuallyEq.1 hp).spatialDivergence_eq, spatialDivergence_zero,
-    Pi.zero_apply]
-
-theorem support_spatialDivergence_subset (X : E × ℝ → E) :
-    support (spatialDivergence X) ⊆ tsupport X := fun _ hp ↦
-  by_contra fun h ↦ hp (spatialDivergence_of_notMem_tsupport h)
-
-theorem HasCompactSupport.spatialDivergence {X : E × ℝ → E} (hX : HasCompactSupport X) :
-    HasCompactSupport (spatialDivergence X) :=
-  hX.mono' (support_spatialDivergence_subset X)
-
-/-- If `X` is differentiable at `p`, its spatial divergence at `p` is the trace of the restriction
-of `fderiv ℝ X p` to the spatial directions. -/
-theorem spatialDivergence_eq_trace_comp_inl {X : E × ℝ → E} {p : E × ℝ}
-    (hX : DifferentiableAt ℝ X p) :
-    spatialDivergence X p =
-      LinearMap.trace ℝ E ((fderiv ℝ X p).comp (ContinuousLinearMap.inl ℝ E ℝ) : E →ₗ[ℝ] E) := by
-  exact congrArg (fun L : E →L[ℝ] E ↦ LinearMap.trace ℝ E (L : E →ₗ[ℝ] E))
-    (hX.hasFDerivAt.comp p.1 (hasFDerivAt_prodMk_left p.1 p.2)).fderiv
+/-! ### Time derivatives of functions on spacetime -/
 
 /-- The partial derivative in time of a function on `E × ℝ` which is differentiable at `p`. -/
-theorem deriv_comp_prodMk_right {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
-    {f : E × ℝ → F} {p : E × ℝ} (hf : DifferentiableAt ℝ f p) :
+theorem deriv_comp_prodMk_right {f : E × ℝ → F} {p : E × ℝ} (hf : DifferentiableAt ℝ f p) :
     deriv (fun t ↦ f (p.1, t)) p.2 = fderiv ℝ f p (0, 1) := by
   have h : HasDerivAt (fun t : ℝ ↦ (p.1, t)) ((0 : E), (1 : ℝ)) p.2 := by
     simpa using (hasFDerivAt_prodMk_right (𝕜 := ℝ) p.1 p.2).hasDerivAt
   exact (hf.hasFDerivAt.comp_hasDerivAt (x := p.2) (f := fun t : ℝ ↦ (p.1, t)) h).deriv
 
 /-- The partial derivative in time of a `C¹` function on `E × ℝ` is continuous. -/
-theorem ContDiff.continuous_deriv_comp_prodMk_right {F : Type*} [NormedAddCommGroup F]
-    [NormedSpace ℝ F] {f : E × ℝ → F} (hf : ContDiff ℝ 1 f) :
+theorem ContDiff.continuous_deriv_comp_prodMk_right {f : E × ℝ → F} (hf : ContDiff ℝ 1 f) :
     Continuous fun p : E × ℝ ↦ deriv (fun t ↦ f (p.1, t)) p.2 := by
   have h : (fun p : E × ℝ ↦ deriv (fun t ↦ f (p.1, t)) p.2) = fun p ↦ fderiv ℝ f p (0, 1) := by
     ext1 p
@@ -107,18 +69,69 @@ theorem ContDiff.continuous_deriv_comp_prodMk_right {F : Type*} [NormedAddCommGr
 
 omit [NormedSpace ℝ E] in
 /-- The partial derivative in time of a function with compact support has compact support. -/
-theorem HasCompactSupport.deriv_comp_prodMk_right {F : Type*} [NormedAddCommGroup F]
-    [NormedSpace ℝ F] {f : E × ℝ → F} (hf : HasCompactSupport f) :
+protected theorem HasCompactSupport.deriv_comp_prodMk_right {f : E × ℝ → F}
+    (hf : HasCompactSupport f) :
     HasCompactSupport fun p : E × ℝ ↦ deriv (fun t ↦ f (p.1, t)) p.2 := by
   refine hf.mono' fun p hp ↦ by_contra fun h ↦ hp ?_
   have h' : (fun t ↦ f (p.1, t)) =ᶠ[𝓝 p.2] fun _ ↦ 0 :=
     (notMem_tsupport_iff_eventuallyEq.1 h).comp_tendsto (Continuous.tendsto' (by fun_prop) _ _ rfl)
   simp only [h'.deriv_eq, deriv_const]
 
+/-! ### The spatial divergence -/
+
+/-- The *spatial divergence* of a time-dependent vector field `X : E × ℝ → E` at `p = (x, t)`:
+the trace of the derivative at `x` of the vector field `y ↦ X (y, t)`. -/
+def spatialDivergence (X : E × ℝ → E) (p : E × ℝ) : ℝ :=
+  LinearMap.trace ℝ E (fderiv ℝ (fun y ↦ X (y, p.2)) p.1 : E →ₗ[ℝ] E)
+
+/-- The zero vector field has zero spatial divergence. -/
+@[simp]
+theorem spatialDivergence_zero : spatialDivergence (0 : E × ℝ → E) = 0 := by
+  ext p
+  simp [spatialDivergence]
+
+namespace Filter.EventuallyEq
+
+/-- The spatial divergence at `p` only depends on the germ of the vector field at `p`. -/
+theorem spatialDivergence_eq {X Y : E × ℝ → E} {p : E × ℝ} (h : X =ᶠ[𝓝 p] Y) :
+    spatialDivergence X p = spatialDivergence Y p := by
+  have h' : (fun y ↦ X (y, p.2)) =ᶠ[𝓝 p.1] fun y ↦ Y (y, p.2) :=
+    h.comp_tendsto (Continuous.tendsto' (by fun_prop) _ _ rfl)
+  simp only [spatialDivergence, h'.fderiv_eq]
+
+end Filter.EventuallyEq
+
+/-- The spatial divergence vanishes outside the support of the vector field. -/
+theorem spatialDivergence_of_notMem_tsupport {X : E × ℝ → E} {p : E × ℝ}
+    (hp : p ∉ tsupport X) : spatialDivergence X p = 0 := by
+  rw [(notMem_tsupport_iff_eventuallyEq.1 hp).spatialDivergence_eq, spatialDivergence_zero,
+    Pi.zero_apply]
+
+/-- The support of the spatial divergence is contained in the support of the vector field. -/
+theorem support_spatialDivergence_subset (X : E × ℝ → E) :
+    support (spatialDivergence X) ⊆ tsupport X := fun _ hp ↦
+  by_contra fun h ↦ hp (spatialDivergence_of_notMem_tsupport h)
+
+/-- The spatial divergence of a compactly supported vector field has compact support. -/
+protected theorem HasCompactSupport.spatialDivergence {X : E × ℝ → E}
+    (hX : HasCompactSupport X) : HasCompactSupport (spatialDivergence X) :=
+  hX.mono' (support_spatialDivergence_subset X)
+
+/-- If `X` is differentiable at `p`, its spatial divergence at `p` is the trace of the restriction
+of `fderiv ℝ X p` to the spatial directions. -/
+theorem spatialDivergence_eq_trace_comp_inl {X : E × ℝ → E} {p : E × ℝ}
+    (hX : DifferentiableAt ℝ X p) :
+    spatialDivergence X p =
+      LinearMap.trace ℝ E ((fderiv ℝ X p).comp (ContinuousLinearMap.inl ℝ E ℝ) : E →ₗ[ℝ] E) :=
+  congrArg (fun L : E →L[ℝ] E ↦ LinearMap.trace ℝ E (L : E →ₗ[ℝ] E))
+    (hX.hasFDerivAt.comp p.1 (hasFDerivAt_prodMk_left p.1 p.2)).fderiv
+
 variable [FiniteDimensional ℝ E]
 
+namespace ContDiff
+
 /-- The spatial divergence of a `C¹` vector field is continuous. -/
-theorem ContDiff.continuous_spatialDivergence {X : E × ℝ → E} (hX : ContDiff ℝ 1 X) :
+theorem continuous_spatialDivergence {X : E × ℝ → E} (hX : ContDiff ℝ 1 X) :
     Continuous (spatialDivergence X) := by
   have h : spatialDivergence X = fun p ↦ ((LinearMap.trace ℝ E).comp
       (ContinuousLinearMap.coeLM ℝ)) ((fderiv ℝ X p).comp (ContinuousLinearMap.inl ℝ E ℝ)) := by
@@ -127,6 +140,8 @@ theorem ContDiff.continuous_spatialDivergence {X : E × ℝ → E} (hX : ContDif
   rw [h]
   exact (LinearMap.continuous_of_finiteDimensional _).comp
     ((hX.continuous_fderiv one_ne_zero).clm_comp continuous_const)
+
+end ContDiff
 
 /-- **Chain rule for the spatial divergence along a shear.** If `φ : E → ℝ` is differentiable at
 `x` and `X` is differentiable at `(x, τ + φ x)`, then the spatial divergence of
@@ -161,14 +176,14 @@ theorem spatialDivergence_shear {X : E × ℝ → E} {φ : E → ℝ} {x : E} {�
 
 section InnerProductSpace
 
-variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]
+variable {H : Type*} [NormedAddCommGroup H] [InnerProductSpace ℝ H]
 
 open scoped RealInnerProductSpace
 
 /-- The spatial divergence in an orthonormal basis `b`:
 `spatialDivergence X p = ∑ i, ⟪b i, ∂_{b i} X p⟫`. -/
-theorem spatialDivergence_eq_sum_inner {ι : Type*} [Fintype ι] (b : OrthonormalBasis ι ℝ F)
-    (X : F × ℝ → F) (p : F × ℝ) :
+theorem spatialDivergence_eq_sum_inner {ι : Type*} [Fintype ι] (b : OrthonormalBasis ι ℝ H)
+    (X : H × ℝ → H) (p : H × ℝ) :
     spatialDivergence X p = ∑ i, ⟪b i, fderiv ℝ (fun y ↦ X (y, p.2)) p.1 (b i)⟫ :=
   LinearMap.trace_eq_sum_inner _ b
 
@@ -177,9 +192,9 @@ end InnerProductSpace
 /-- The spatial divergence in the coordinates of `EuclideanSpace ℝ (Fin n)`: if `y ↦ X (y, t)` is
 differentiable at `x`, then the spatial divergence of `X` at `(x, t)` is the sum over `i` of the
 partial derivatives along `EuclideanSpace.single i 1` of the `i`-th components of `X`. -/
-theorem spatialDivergence_euclideanSpace {n : ℕ} {X : EuclideanSpace ℝ (Fin n) × ℝ →
-    EuclideanSpace ℝ (Fin n)} {p : EuclideanSpace ℝ (Fin n) × ℝ}
-    (hX : DifferentiableAt ℝ (fun y ↦ X (y, p.2)) p.1) :
+theorem spatialDivergence_euclideanSpace {n : ℕ}
+    {X : EuclideanSpace ℝ (Fin n) × ℝ → EuclideanSpace ℝ (Fin n)}
+    {p : EuclideanSpace ℝ (Fin n) × ℝ} (hX : DifferentiableAt ℝ (fun y ↦ X (y, p.2)) p.1) :
     spatialDivergence X p =
       ∑ i, fderiv ℝ (fun y ↦ X (y, p.2) i) p.1 (EuclideanSpace.single i 1) := by
   rw [spatialDivergence_eq_sum_inner (EuclideanSpace.basisFun (Fin n) ℝ)]

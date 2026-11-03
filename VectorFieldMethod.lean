@@ -1,7 +1,11 @@
 module
 
 public import VectorFieldMethod.Placeholder
+public import VectorFieldMethod.ForMathlib.Analysis.Calculus.LineDeriv.IntegrationByParts
 public import VectorFieldMethod.ForMathlib.Analysis.Calculus.SpatialDivergence
+public import VectorFieldMethod.ForMathlib.Geometry.Manifold.PartitionOfUnity
+public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHyperboloid
 public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHypograph
 public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremLocal
-public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHyperboloid
+public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.Prod
+public import VectorFieldMethod.ForMathlib.Topology.Algebra.Support

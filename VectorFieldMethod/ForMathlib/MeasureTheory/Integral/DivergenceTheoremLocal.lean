@@ -5,25 +5,28 @@ Authors: VectorFieldMethod contributors
 -/
 module
 
+public import VectorFieldMethod.ForMathlib.Geometry.Manifold.PartitionOfUnity
 public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHypograph
-public import Mathlib.Geometry.Manifold.PartitionOfUnity
 
 /-!
 # The divergence theorem between two graphs, for locally defined vector fields
 
-The divergence theorems of `Mathlib.MeasureTheory.Integral.DivergenceTheoremHypograph` (in this
-project, `VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHypograph`) assume
-that the vector field `(X₀, X)` on spacetime `E × ℝ` is `C¹` and compactly supported. Here we only
-assume that it is `C¹` on an open set `U` containing the closed region `D` between the graphs of two
-`C¹` functions `φ₁, φ₂ : E → ℝ`, and that `D ∩ (tsupport X₀ ∪ tsupport X)` is compact. The proof
-multiplies `(X₀, X)` by a smooth cutoff function which is equal to `1` near
-`D ∩ (tsupport X₀ ∪ tsupport X)` and supported in `U`, and applies the compactly supported case.
+The divergence theorems between two graphs `MeasureTheory.integral_intervalIntegral_divergence`
+and `MeasureTheory.integral_divergence_region_between_cc` assume that the vector field `(X₀, X)` on
+spacetime `E × ℝ` is `C¹` and compactly supported. Here we only assume that it is `C¹` on an open
+set `U` containing the closed region `D` between the graphs of two `C¹` functions
+`φ₁, φ₂ : E → ℝ`, and that `D ∩ (tsupport X₀ ∪ tsupport X)` is compact. The proof multiplies
+`X₀` and `X` by smooth cutoff functions which are equal to `1` near
+`D ∩ (tsupport X₀ ∪ tsupport X)` and supported in `U`
+(`ContDiffOn.exists_contDiff_hasCompactSupport_eventuallyEq`), and applies the compactly supported
+case.
 
 ## Main statements
 
-* `ContDiffOn.exists_contDiff_hasCompactSupport_eventuallyEq`: a function which is `C¹` on an open
-  set `U` coincides near a compact set `K ⊆ U`, and near every point outside its support, with a
-  compactly supported `C¹` function.
+* `deriv_add_spatialDivergence_congr`: two vector fields which coincide near `p` have the same
+  divergence at `p`.
+* `exists_contDiff_hasCompactSupport_eventuallyEq_of_contDiffOn`: localization of a vector field
+  near a set `D`.
 * `MeasureTheory.integral_intervalIntegral_divergence_of_contDiffOn`: the divergence theorem
   between two graphs, in any order, as an iterated integral.
 * `MeasureTheory.integral_divergence_region_between_cc_of_contDiffOn`: the divergence theorem on
@@ -33,38 +36,6 @@ multiplies `(X₀, X)` by a smooth cutoff function which is equal to `1` near
 @[expose] public noncomputable section
 
 open Set Filter Function Topology
-
-section Cutoff
-
-variable {G F : Type*} [NormedAddCommGroup G] [NormedSpace ℝ G] [FiniteDimensional ℝ G]
-  [NormedAddCommGroup F] [NormedSpace ℝ F]
-
-/-- A function which is `C¹` on an open set `U` coincides, near every point of a compact set
-`K ⊆ U` and near every point outside its support, with a compactly supported `C¹` function. -/
-theorem ContDiffOn.exists_contDiff_hasCompactSupport_eventuallyEq {f : G → F} {U K : Set G}
-    (hf : ContDiffOn ℝ 1 f U) (hU : IsOpen U) (hK : IsCompact K) (hKU : K ⊆ U) :
-    ∃ g : G → F, ContDiff ℝ 1 g ∧ HasCompactSupport g ∧
-      ∀ x, x ∈ K ∨ x ∉ tsupport f → g =ᶠ[𝓝 x] f := by
-  obtain ⟨L, hLc, hKL, hLU⟩ := exists_compact_between hK hU hKU
-  obtain ⟨L', hL'c, hLL', hL'U⟩ := exists_compact_between hLc hU hLU
-  obtain ⟨χ, hχd, -, hχs, hχ1⟩ :=
-    exists_contDiff_support_eq_eq_one_iff (n := 1) isOpen_interior hLc.isClosed hLL'
-  have hχt : tsupport χ ⊆ L' := closure_minimal (hχs ▸ interior_subset) hL'c.isClosed
-  refine ⟨χ • f, contDiff_iff_contDiffAt.2 fun x ↦ ?_, ?_, ?_⟩
-  · by_cases hx : x ∈ U
-    · exact hχd.contDiffAt.smul (hf.contDiffAt (hU.mem_nhds hx))
-    · have h : χ =ᶠ[𝓝 x] 0 := notMem_tsupport_iff_eventuallyEq.1 fun h ↦ hx (hL'U (hχt h))
-      exact (contDiffAt_const (c := (0 : F))).congr_of_eventuallyEq
-        (h.mono fun y hy ↦ by simp [hy])
-  · exact HasCompactSupport.of_support_subset_isCompact hL'c
-      ((support_smul_subset_left χ f).trans (subset_tsupport χ |>.trans hχt))
-  · rintro x (hx | hx)
-    · filter_upwards [isOpen_interior.mem_nhds (hKL hx)] with y hy
-      simp [(hχ1 y).1 (interior_subset hy)]
-    · filter_upwards [notMem_tsupport_iff_eventuallyEq.1 hx] with y hy
-      simp [hy]
-
-end Cutoff
 
 section Localization
 
