@@ -1,3 +1,5 @@
 module
 
 public import VectorFieldMethod.Placeholder
+public import VectorFieldMethod.ForMathlib.Analysis.Calculus.SpatialDivergence
+public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremHypograph
