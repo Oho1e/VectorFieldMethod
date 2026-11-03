@@ -10,6 +10,7 @@ public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheo
 public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheoremLocal
 public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.Prod
 public import VectorFieldMethod.ForMathlib.Topology.Algebra.Support
+public import VectorFieldMethod.Minkowski.Commutators
 public import VectorFieldMethod.Minkowski.Computations
 public import VectorFieldMethod.Minkowski.Derivative
 public import VectorFieldMethod.Minkowski.Spacetime
