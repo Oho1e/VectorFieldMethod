@@ -30,6 +30,11 @@ For a field `u : Spacetime → F` with values in a real inner product space `F` 
 * `derivAlong_inner`, `derivAlong_norm_sq`: the Leibniz rules `V ⟪u, v⟫ = ⟪V u, v⟫ + ⟪u, V v⟫`
   and `V ‖u‖² = 2 ⟪u, V u⟫` at a point where `u` and `v` are differentiable.
 * `energyMomentum_swap`: `T_{βα} = T_{αβ}`.
+* `sum_minkowskiMetric_mul_partialDeriv_energyMomentum`: the divergence identity
+  `η^{αγ} ∂_γ T_{αβ} = ⟪□u - m² u, ∂_β u⟫` at a point where `u` is `C²`.
+* `spacetimeDiv_energyCurrent`: the energy identity `∂_α P^α = -⟪□u - m² u, ∂_t u⟫` at a point
+  where `u` is `C²`, and `spacetimeDiv_energyCurrent_eq_zero`: `∂_α P^α = 0` at `p` if moreover
+  `□u - m² u = 0` near `p`.
 
 ## Normalization
 
@@ -194,5 +199,35 @@ theorem sum_minkowskiMetric_mul_partialDeriv_energyMomentum (m : ℝ) (β : Fin 
   simp only [mul_add, Finset.sum_add_distrib, hsymm, kleinGordon_apply, dAlembertian_apply,
     sum_minkowskiMetric_smul, inner_sub_left, sum_inner, real_inner_smul_left]
   ring
+
+/-! ### The energy current -/
+
+/-- Since `η` is diagonal, `P^α = -η_{αα} T_{α0}`. -/
+theorem energyCurrent_eq (m : ℝ) (u : Spacetime → F) (α : Fin 4) :
+    energyCurrent m u α = fun q ↦ -η α α * energyMomentum m u α 0 q := by
+  funext q
+  rw [energyCurrent_apply, sum_minkowskiMetric_mul, neg_mul]
+
+/-- The energy identity `∂_α P^α = -⟪□u - m² u, ∂_t u⟫` at a point where `u` is `C²`. -/
+theorem spacetimeDiv_energyCurrent (m : ℝ) (hu : ContDiffAt ℝ 2 u p) :
+    spacetimeDiv (energyCurrent m u) p = -⟪kleinGordon m u p, ∂ₜ u p⟫ := by
+  rw [← partialDeriv_zero, ← sum_minkowskiMetric_mul_partialDeriv_energyMomentum m 0 hu]
+  simp only [spacetimeDiv_apply, energyCurrent_eq, partialDeriv, derivAlong_const_mul,
+    sum_minkowskiMetric_mul]
+  simp only [neg_mul, Finset.sum_neg_distrib]
+
+/-- The energy current of a solution is divergence free: if `u` is `C²` at `p` and
+`□u - m² u = 0` on a neighbourhood of `p`, then `∂_α P^α = 0` at `p`. -/
+theorem spacetimeDiv_energyCurrent_eq_zero (m : ℝ) (hu : ContDiffAt ℝ 2 u p)
+    (hKG : kleinGordon m u =ᶠ[𝓝 p] 0) : spacetimeDiv (energyCurrent m u) p = 0 := by
+  rw [spacetimeDiv_energyCurrent m hu, hKG.eq_of_nhds, Pi.zero_apply, inner_zero_left, neg_zero]
+
+/-! ### Sanity checks -/
+
+/-- The hypotheses of `spacetimeDiv_energyCurrent_eq_zero` hold for `u = t`, which is smooth and
+solves the massless equation `□u = 0`. -/
+example (p : Spacetime) : spacetimeDiv (energyCurrent 0 timeCoord) p = 0 :=
+  spacetimeDiv_energyCurrent_eq_zero 0 contDiff_timeCoord.contDiffAt
+    (Eventually.of_forall fun q ↦ by simp [kleinGordon_apply])
 
 end VectorFieldMethod.Minkowski
