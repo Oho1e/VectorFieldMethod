@@ -4,6 +4,13 @@ Files: `VectorFieldMethod/Minkowski/{Spacetime,Derivative,WaveOperator,VectorFie
 all imported by `VectorFieldMethod.lean`. Every declaration is in the namespace
 `VectorFieldMethod.Minkowski`; the notations are scoped there.
 
+The operators act on functions `u : Spacetime → F` with values in an arbitrary
+real normed space `F` (`{F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]`,
+an implicit argument inferred from `u`), so that the same definitions serve real
+fields (`F = ℝ`), complex fields (`F = ℂ`) and, later, spinor fields. The
+coordinate functions, the metric and the component fields are real and do not
+depend on `F`.
+
 ## Public interface
 
 | Lean name | Type signature | Mathematical meaning |
@@ -13,21 +20,21 @@ all imported by `VectorFieldMethod.lean`. Every declaration is in the namespace
 | `spaceCoord` | `Fin 3 → Spacetime → ℝ` | `x_a` (Lean `a = 0, 1, 2` is math `1, 2, 3`) |
 | `radius` | `Spacetime → ℝ` | `r = \|x\|` |
 | `minkowskiMetric` (`η`) | `Matrix (Fin 4) (Fin 4) ℝ` | `η_{αβ} = diag(-1, 1, 1, 1)`, numerically also `η^{αβ}` |
-| `derivAlong` | `(Spacetime → Spacetime) → (Spacetime → ℝ) → Spacetime → ℝ` | `V u = V^α ∂_α u`, i.e. `Du(p) (V p)` |
+| `derivAlong` | `(Spacetime → Spacetime) → (Spacetime → F) → Spacetime → F` | `V u = V^α ∂_α u`, i.e. `Du(p) (V p)` |
 | `timeField` | `Spacetime → Spacetime` | components of `∂_t`: `(1, 0)` |
 | `spaceField` | `Fin 3 → Spacetime → Spacetime` | components of `∂_a`: `(0, e_a)` |
 | `coordField` | `Fin 4 → Spacetime → Spacetime` | components of `∂_α` |
-| `timeDeriv` (`∂ₜ`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `∂_t` |
-| `spaceDeriv` (`∂ₓ[a]`) | `Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `∂_a` |
-| `partialDeriv` (`∂[α]`) | `Fin 4 → (Spacetime → ℝ) → Spacetime → ℝ` | `∂_α` |
-| `dAlembertian` (`□`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u` |
-| `kleinGordon` | `ℝ → (Spacetime → ℝ) → Spacetime → ℝ` | `kleinGordon m u = □u - m² u` |
+| `timeDeriv` (`∂ₜ`) | `(Spacetime → F) → Spacetime → F` | `∂_t` |
+| `spaceDeriv` (`∂ₓ[a]`) | `Fin 3 → (Spacetime → F) → Spacetime → F` | `∂_a` |
+| `partialDeriv` (`∂[α]`) | `Fin 4 → (Spacetime → F) → Spacetime → F` | `∂_α` |
+| `dAlembertian` (`□`) | `(Spacetime → F) → Spacetime → F` | `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u` |
+| `kleinGordon` | `ℝ → (Spacetime → F) → Spacetime → F` | `kleinGordon m u = □u - m² u` |
 | `rotationField` | `Fin 3 → Fin 3 → Spacetime → Spacetime` | components of `Ω_ab`: `(0, x_a e_b - x_b e_a)` |
-| `rotation` | `Fin 3 → Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `Ω_ab = x_a ∂_b - x_b ∂_a` |
+| `rotation` | `Fin 3 → Fin 3 → (Spacetime → F) → Spacetime → F` | `Ω_ab = x_a ∂_b - x_b ∂_a` |
 | `boostField` | `Fin 3 → Spacetime → Spacetime` | components of `L_a`: `(x_a, t e_a)` |
-| `boost` | `Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `L_a = t ∂_a + x_a ∂_t` |
+| `boost` | `Fin 3 → (Spacetime → F) → Spacetime → F` | `L_a = t ∂_a + x_a ∂_t` |
 | `scalingField` | `Spacetime → Spacetime` | components of `S`: `p ↦ p`, i.e. `(t, x)` |
-| `scaling` | `(Spacetime → ℝ) → Spacetime → ℝ` | `S = t ∂_t + ∑ a, x_a ∂_a` |
+| `scaling` | `(Spacetime → F) → Spacetime → F` | `S = t ∂_t + ∑ a, x_a ∂_a` |
 
 Scoped notation: `η` (`minkowskiMetric`), `∂ₜ` (`timeDeriv`), `∂ₓ[a]`
 (`spaceDeriv a`), `∂[α]` (`partialDeriv α`), `□` (`dAlembertian`).
@@ -42,6 +49,10 @@ Scoped notation: `η` (`minkowskiMetric`), `∂ₜ` (`timeDeriv`), `∂ₓ[a]`
   their Klein–Gordon operator `□u + m²u` is `-(□u - m²u) = -kleinGordon m u`.
 * Constant functions are written `fun _ ↦ c`, including in results of the
   operators. The Kronecker delta `δ_ab` is written `if a = b then 1 else 0`.
+* Real coefficients (`η α β`, `m ^ 2`, `timeCoord p`, `spaceCoord a p`) act on
+  values in `F` by scalar multiplication `•`. For `F = ℝ` this is the product
+  `*` definitionally (`smul_eq_mul`), so for example
+  `□ u p = ∑ α, ∑ β, η α β * ∂[α] (∂[β] u) p` holds by `rfl` for real `u`.
 
 ## Definitions
 
@@ -114,9 +125,9 @@ docstring says that these are the entries of `η^{αβ}`.
 `V(p) = (V⁰(p), (V¹(p), V²(p), V³(p)))`, `(V u)(p) = V^α(p) ∂_α u(p) = Du(p)(V(p))`.
 
 *Implementation.* `derivAlong V u = fun p ↦ fderiv ℝ u p (V p)` with
-`V : Spacetime → Spacetime` the component field. Every first-order operator of
-the layer is `derivAlong` of a named component field, and all operators are
-plain functions `(Spacetime → ℝ) → Spacetime → ℝ`.
+`V : Spacetime → Spacetime` the component field and `u : Spacetime → F`. Every
+first-order operator of the layer is `derivAlong` of a named component field,
+and all operators are plain functions `(Spacetime → F) → Spacetime → F`.
 
 *Reasons.* One operator means one set of lemmas: linearity, smoothness
 (`contDiff_derivAlong : C^n` field and `C^{n+1}` function give `C^n`),
@@ -130,9 +141,26 @@ component functions `E → E` is also Mathlib's convention in
 *Linearity.* `fderiv` is `0` at points where `u` is not differentiable, so
 `derivAlong V (u + v) p = derivAlong V u p + derivAlong V v p` is false in
 general; `derivAlong_add` assumes `DifferentiableAt ℝ u p` and
-`DifferentiableAt ℝ v p`. Homogeneity `derivAlong_smul` holds without
+`DifferentiableAt ℝ v p`. Homogeneity `derivAlong_smul` holds for `c : ℝ` without
 hypotheses (`fderiv_const_smul_field`: for `c ≠ 0` the map `u ↦ c • u` preserves
-differentiability, and `c = 0` is trivial).
+differentiability, and `c = 0` is trivial). `derivAlong_const_mul` is the same
+statement with the product written pointwise, `fun q ↦ c * u q`; it is about
+`*` and is stated for real-valued `u` only.
+
+*Values in `F`.* The value space `F` is a real normed space, with no inner
+product or complex structure assumed: `fderiv ℝ` only uses the real linear
+structure, and complex or spinor fields are then functions into `ℂ` or `ℂ⁴`
+viewed as real normed spaces. Statements that need more structure on `F` will
+assume it where they are made.
+
+*Commutation with continuous linear maps.* For `T : F →L[ℝ] G`,
+`derivAlong_clm_comp : derivAlong V (T ∘ u) p = T (derivAlong V u p)` at a point
+where `u` is differentiable (chain rule, `T` being its own derivative). The same
+holds for `timeDeriv`, `spaceDeriv`, `partialDeriv` (`*_clm_comp` in
+`Derivative.lean`) and `rotation`, `boost`, `scaling` (`VectorFields.lean`).
+These lemmas reduce statements about `F`-valued fields to their components (real
+and imaginary parts, spinor components) and embed real computations into `F`
+(`Complex.ofRealCLM`, `ContinuousLinearMap.toSpanSingleton ℝ w`).
 
 *Alternatives considered.*
 * `lineDeriv ℝ u p v` (Gateaux derivative): it agrees with
@@ -184,10 +212,11 @@ Fréchet derivative `D²u(p) e_α e_β`.
 `□u - m² u`.
 
 *Implementation.*
-`dAlembertian u = fun p ↦ ∑ α, ∑ β, η α β * ∂[α] (∂[β] u) p` (the entries of `η` are
-those of `η^{αβ}`, see above), with the expansion
+`dAlembertian u = fun p ↦ ∑ α, ∑ β, η α β • ∂[α] (∂[β] u) p` (the entries of `η` are
+those of `η^{αβ}`, see above; the real entry acts on the value in `F` by `•`),
+with the expansion
 `dAlembertian_eq : □ u p = -∂ₜ (∂ₜ u) p + ∑ a, ∂ₓ[a] (∂ₓ[a] u) p`, and
-`kleinGordon m u = fun p ↦ □ u p - m ^ 2 * u p`.
+`kleinGordon m u = fun p ↦ □ u p - m ^ 2 • u p`.
 
 *Reasons.* The index form is the one used in the energy-momentum computations
 of the vector field method, and `dAlembertian_eq` gives the explicit form. Second
@@ -203,7 +232,11 @@ near the point); the function-level corollaries
 for `u`, `v` of class `C²`;
 `contDiff_dAlembertian : ContDiff ℝ (n + 2) u → ContDiff ℝ n (□ u)` and
 `contDiff_kleinGordon`, with `C^∞` corollaries; `dAlembertian_const`, `dAlembertian_timeCoord`,
-`dAlembertian_spaceCoord` (all `0`).
+`dAlembertian_spaceCoord` (all `0`); and the commutation with continuous linear
+maps `dAlembertian_clm_comp : □ (T ∘ u) p = T (□ u p)` and
+`kleinGordon_clm_comp` for `u` that is `C²` at `p` (via
+`partialDeriv_partialDeriv_clm_comp`, again using that the first derivatives
+agree near the point).
 
 *Alternatives considered.*
 * Defining `□` directly as `-∂_t² + ∑ ∂_a²`: loses the index form; it is the
@@ -229,7 +262,7 @@ for `u`, `v` of class `C²`;
 lemmas `rotationField_eq`, `boostField_eq`, `scalingField_eq` write the fields
 as combinations of `timeField` and `spaceField`, and `rotation_eq`, `boost_eq`,
 `scaling_eq` give the defining formulas (for instance
-`boost a u p = timeCoord p * ∂ₓ[a] u p + spaceCoord a p * ∂ₜ u p`) without any
+`boost a u p = timeCoord p • ∂ₓ[a] u p + spaceCoord a p • ∂ₜ u p`) without any
 hypothesis, since `fderiv ℝ u p` is linear.
 
 *Reasons.* Writing the components explicitly keeps the definitions
@@ -275,10 +308,20 @@ Each is a named theorem.
 | `S t = t`, `S x_a = x_a` | `scaling_timeCoord`, `scaling_spaceCoord` | `VectorFields.lean` |
 | `S (t² - r²) = 2 (t² - r²)` | `scaling_timeCoord_sq_sub_radius_sq` | `Computations.lean` |
 
-The computations with `t² - r²` go through the general first-derivative
+These computations are for real-valued functions (`F = ℝ`). The computations with
+`t² - r²` go through the general first-derivative
 formulas `derivAlong_timeCoord_sq`, `derivAlong_spaceCoord_sq`,
 `derivAlong_radius_sq` and `derivAlong_timeCoord_sq_sub_radius_sq`
 (`V (t² - r²) = 2 t V⁰ - 2 ∑ a, x_a Vᵃ`).
+
+The section "Sanity checks" at the end of `Computations.lean` contains
+`example`s (not named theorems) that check the generalization to `F`:
+`□ (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ)) = fun _ ↦ -2` and the corresponding
+Klein–Gordon value for a complex-valued function (via `Complex.ofRealCLM` and
+`dAlembertian_clm_comp`, `kleinGordon_clm_comp`);
+`□ (fun p ↦ timeCoord p ^ 2 • w) = fun _ ↦ (-2 : ℝ) • w` for `w` in any real
+normed space; and, for `F = ℝ`, that `□`, `kleinGordon`, `rotation_eq`,
+`boost_eq`, `scaling_eq` reduce to the forms with `*`.
 
 ## Notation and tokens
 

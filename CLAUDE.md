@@ -94,6 +94,14 @@ notes are in `docs/minkowski-layer.md`.
   index `a : Fin 3`. The mathematical spatial indices `1, 2, 3` are the Lean
   indices `0, 1, 2`. Spatial indices are raised and lowered without changing the
   value (`x_a = x^a`).
+- **Values.** The operators act on functions `Spacetime → F` with values in an
+  arbitrary real normed space `F` (`{F : Type*} [NormedAddCommGroup F]
+  [NormedSpace ℝ F]`, always an implicit argument, inferred from `u`); the
+  coordinate functions `timeCoord`, `spaceCoord`, `radius` are real-valued. Real
+  coefficients act on values by `•` (for `F = ℝ` this is `*`). No inner product
+  or complex structure on `F` is assumed. For `T : F →L[ℝ] G` the `*_clm_comp`
+  lemmas give `op (T ∘ u) p = T (op u p)` (first-order operators: `u`
+  differentiable at `p`; `□`, Klein–Gordon: `u` of class `C²` at `p`).
 - **Operators.** `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u`; the
   Klein–Gordon operator is `□u - m² u`. LeFloch–Ma's `□ = ∂_t² - Δ` is `-□`
   here, and their Klein–Gordon operator `□u + m²u` is `-(□u - m²u)`.
@@ -104,7 +112,7 @@ notes are in `docs/minkowski-layer.md`.
 - **One first-order operator.** A vector field is given by its component field
   `V : Spacetime → Spacetime`, and `derivAlong V u p = fderiv ℝ u p (V p)`. All
   of `∂_t`, `∂_a`, `∂_α`, `Ω_ab`, `L_a`, `S` are `derivAlong` of a named
-  component field, and are plain functions `(Spacetime → ℝ) → Spacetime → ℝ`.
+  component field, and are plain functions `(Spacetime → F) → Spacetime → F`.
   `∂_t u p` unfolds (by `rfl`) to `fderiv ℝ u p (1, 0)` and `∂_a u p` to
   `fderiv ℝ u p (0, EuclideanSpace.single a 1)`.
 - **Hypotheses.** `fderiv` is `0` where `u` is not differentiable, so additivity
@@ -124,6 +132,9 @@ notes are in `docs/minkowski-layer.md`.
 
 ### Public interface (`namespace VectorFieldMethod.Minkowski`)
 
+The operators act on functions with values in an arbitrary real normed space
+`F` (implicit); the coordinate functions are real-valued.
+
 | Lean name | Type signature | Mathematical meaning |
 | --- | --- | --- |
 | `Spacetime` | `Type` (`abbrev` for `ℝ × EuclideanSpace ℝ (Fin 3)`) | Minkowski spacetime `ℝ^{1+3}`, `p = (t, x)` |
@@ -131,21 +142,21 @@ notes are in `docs/minkowski-layer.md`.
 | `spaceCoord` | `Fin 3 → Spacetime → ℝ` | `x_a` (Lean `a = 0, 1, 2` is math `1, 2, 3`) |
 | `radius` | `Spacetime → ℝ` | `r = \|x\|` |
 | `minkowskiMetric` (`η`) | `Matrix (Fin 4) (Fin 4) ℝ` | `η_{αβ} = diag(-1, 1, 1, 1)`, numerically also `η^{αβ}` |
-| `derivAlong` | `(Spacetime → Spacetime) → (Spacetime → ℝ) → Spacetime → ℝ` | `V u = V^α ∂_α u`, i.e. `Du(p) (V p)` |
+| `derivAlong` | `(Spacetime → Spacetime) → (Spacetime → F) → Spacetime → F` | `V u = V^α ∂_α u`, i.e. `Du(p) (V p)` |
 | `timeField` | `Spacetime → Spacetime` | components of `∂_t`: `(1, 0)` |
 | `spaceField` | `Fin 3 → Spacetime → Spacetime` | components of `∂_a`: `(0, e_a)` |
 | `coordField` | `Fin 4 → Spacetime → Spacetime` | components of `∂_α` |
-| `timeDeriv` (`∂ₜ`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `∂_t` |
-| `spaceDeriv` (`∂ₓ[a]`) | `Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `∂_a` |
-| `partialDeriv` (`∂[α]`) | `Fin 4 → (Spacetime → ℝ) → Spacetime → ℝ` | `∂_α` |
-| `dAlembertian` (`□`) | `(Spacetime → ℝ) → Spacetime → ℝ` | `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u` |
-| `kleinGordon` | `ℝ → (Spacetime → ℝ) → Spacetime → ℝ` | `kleinGordon m u = □u - m² u` |
+| `timeDeriv` (`∂ₜ`) | `(Spacetime → F) → Spacetime → F` | `∂_t` |
+| `spaceDeriv` (`∂ₓ[a]`) | `Fin 3 → (Spacetime → F) → Spacetime → F` | `∂_a` |
+| `partialDeriv` (`∂[α]`) | `Fin 4 → (Spacetime → F) → Spacetime → F` | `∂_α` |
+| `dAlembertian` (`□`) | `(Spacetime → F) → Spacetime → F` | `□u = η^{αβ} ∂_α ∂_β u = -∂_t² u + ∑ a, ∂_a² u` |
+| `kleinGordon` | `ℝ → (Spacetime → F) → Spacetime → F` | `kleinGordon m u = □u - m² u` (`m ^ 2 • u p`) |
 | `rotationField` | `Fin 3 → Fin 3 → Spacetime → Spacetime` | components of `Ω_ab`: `(0, x_a e_b - x_b e_a)` |
-| `rotation` | `Fin 3 → Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `Ω_ab = x_a ∂_b - x_b ∂_a` |
+| `rotation` | `Fin 3 → Fin 3 → (Spacetime → F) → Spacetime → F` | `Ω_ab = x_a ∂_b - x_b ∂_a` |
 | `boostField` | `Fin 3 → Spacetime → Spacetime` | components of `L_a`: `(x_a, t e_a)` |
-| `boost` | `Fin 3 → (Spacetime → ℝ) → Spacetime → ℝ` | `L_a = t ∂_a + x_a ∂_t` |
+| `boost` | `Fin 3 → (Spacetime → F) → Spacetime → F` | `L_a = t ∂_a + x_a ∂_t` |
 | `scalingField` | `Spacetime → Spacetime` | components of `S`: `p ↦ p`, i.e. `(t, x)` |
-| `scaling` | `(Spacetime → ℝ) → Spacetime → ℝ` | `S = t ∂_t + ∑ a, x_a ∂_a` |
+| `scaling` | `(Spacetime → F) → Spacetime → F` | `S = t ∂_t + ∑ a, x_a ∂_a` |
 
 Scoped notation: `η` (`minkowskiMetric`), `∂ₜ` (`timeDeriv`), `∂ₓ[a]`
 (`spaceDeriv a`), `∂[α]` (`partialDeriv α`), `□` (`dAlembertian`). With the scope open
