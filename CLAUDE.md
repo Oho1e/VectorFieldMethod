@@ -43,7 +43,10 @@ outside `VectorFieldMethod/` (e.g. `Scratch.lean`, not committed) and run
 `lake lean Scratch.lean`.
 
 When adding a module, import it from `VectorFieldMethod.lean`. CI runs
-`scripts/check-no-sorry.sh` and `lake build --wfail` (warnings are errors).
+`scripts/check-no-sorry.sh`, `lake build --wfail` (warnings are errors) and
+`lake env lean scripts/CheckAxioms.lean`, which enforces the axiom policy (see
+Verification) and also fails if a `.lean` file under `VectorFieldMethod/` is not
+imported, directly or indirectly, by `VectorFieldMethod.lean`.
 
 ## Forbidden
 
@@ -62,6 +65,19 @@ Any statement that is not (yet) proved must appear as an explicit assumption:
 either a hypothesis of the theorem that uses it, or a field of a `structure`
 bundling the assumptions. Never introduce it with `axiom` or `sorry`. This
 keeps every dependency on unproved mathematics visible in the statements.
+
+## Verification
+
+- **Axioms.** CI runs `lake env lean scripts/CheckAxioms.lean` after `lake build`:
+  every declaration, auxiliary ones included, may depend only on `propext`,
+  `Classical.choice` and `Quot.sound` (so no `sorry`, `native_decide` or `axiom`).
+  It also fails unless the root imports all library files, directly or indirectly.
+- **Non-vacuity.** Each main theorem whose hypotheses go beyond regularity (`C^k`,
+  differentiability) and signs of numbers (`0 < r`), e.g. support conditions,
+  inequalities between functions or assumptions bundled in a `structure`, gets an
+  `example` in a `/-! ### Sanity checks -/` section at the end of its file: it
+  applies the theorem to concrete objects satisfying all its hypotheses, showing
+  that the hypotheses can hold simultaneously.
 
 ## Statement documentation
 
