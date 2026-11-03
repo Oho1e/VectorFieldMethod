@@ -35,6 +35,9 @@ For a field `u : Spacetime → F` with values in a real inner product space `F` 
 * `spacetimeDiv_energyCurrent`: the energy identity `∂_α P^α = -⟪□u - m² u, ∂_t u⟫` at a point
   where `u` is `C²`, and `spacetimeDiv_energyCurrent_eq_zero`: `∂_α P^α = 0` at `p` if moreover
   `□u - m² u = 0` near `p`.
+* `energyCurrent_zero`, `energyCurrent_zero_nonneg`, `energyCurrent_succ`: the energy density
+  `P^0 = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²) ≥ 0` and the components
+  `P^a = -⟪∂_a u, ∂_t u⟫`, without hypotheses on `u`.
 
 ## Normalization
 
@@ -222,6 +225,36 @@ theorem spacetimeDiv_energyCurrent_eq_zero (m : ℝ) (hu : ContDiffAt ℝ 2 u p)
     (hKG : kleinGordon m u =ᶠ[𝓝 p] 0) : spacetimeDiv (energyCurrent m u) p = 0 := by
   rw [spacetimeDiv_energyCurrent m hu, hKG.eq_of_nhds, Pi.zero_apply, inner_zero_left, neg_zero]
 
+/-! ### Components of the energy current -/
+
+/-- `η^{γδ} ⟪∂_γ u, ∂_δ u⟫ = -‖∂_t u‖² + ∑ a, ‖∂_a u‖²`. -/
+theorem sum_sum_minkowskiMetric_mul_inner (u : Spacetime → F) (p : Spacetime) :
+    ∑ γ, ∑ δ, η γ δ * ⟪∂[γ] u p, ∂[δ] u p⟫ = -‖∂ₜ u p‖ ^ 2 + ∑ a, ‖∂ₓ[a] u p‖ ^ 2 := by
+  simp only [sum_minkowskiMetric_mul, real_inner_self_eq_norm_sq]
+  simp [Fin.sum_univ_succ (n := 3), minkowskiMetric_zero_zero, minkowskiMetric_succ_succ]
+
+/-- The energy density `P^0 = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²)`. -/
+theorem energyCurrent_zero (m : ℝ) (u : Spacetime → F) (p : Spacetime) :
+    energyCurrent m u 0 p = 1 / 2 * (‖∂ₜ u p‖ ^ 2 + ∑ a, ‖∂ₓ[a] u p‖ ^ 2 + m ^ 2 * ‖u p‖ ^ 2) := by
+  rw [energyCurrent_apply, sum_minkowskiMetric_mul, energyMomentum_apply,
+    sum_sum_minkowskiMetric_mul_inner, minkowskiMetric_zero_zero, partialDeriv_zero,
+    real_inner_self_eq_norm_sq]
+  ring
+
+/-- The energy density is nonnegative: `0 ≤ P^0`. -/
+theorem energyCurrent_zero_nonneg (m : ℝ) (u : Spacetime → F) (p : Spacetime) :
+    0 ≤ energyCurrent m u 0 p := by
+  rw [energyCurrent_zero]
+  positivity
+
+/-- The spatial components `P^a = -⟪∂_a u, ∂_t u⟫`, for `a : Fin 3` (the mathematical index is
+`a + 1`). -/
+theorem energyCurrent_succ (m : ℝ) (u : Spacetime → F) (a : Fin 3) (p : Spacetime) :
+    energyCurrent m u a.succ p = -⟪∂ₓ[a] u p, ∂ₜ u p⟫ := by
+  rw [energyCurrent_apply, sum_minkowskiMetric_mul, energyMomentum_apply,
+    minkowskiMetric_succ_zero, minkowskiMetric_succ_succ, partialDeriv_succ, partialDeriv_zero]
+  simp
+
 /-! ### Sanity checks -/
 
 /-- The hypotheses of `spacetimeDiv_energyCurrent_eq_zero` hold for `u = t`, which is smooth and
@@ -229,5 +262,51 @@ solves the massless equation `□u = 0`. -/
 example (p : Spacetime) : spacetimeDiv (energyCurrent 0 timeCoord) p = 0 :=
   spacetimeDiv_energyCurrent_eq_zero 0 contDiff_timeCoord.contDiffAt
     (Eventually.of_forall fun q ↦ by simp [kleinGordon_apply])
+
+/-- For the real field `u = t` (`F = ℝ`), the energy density is `P^0 = ½ (1 + m² t²)`. -/
+example (m : ℝ) :
+    energyCurrent m timeCoord 0 = fun p ↦ 1 / 2 * (1 + m ^ 2 * timeCoord p ^ 2) := by
+  funext p
+  rw [energyCurrent_zero]
+  simp
+
+/-- A complex field (`F = ℂ`, with the real inner product `⟪z, w⟫ = Re (conj z * w)`): for
+`u = t + i x¹`, the energy density is `P^0 = 1 + m² (t² + (x¹)²) / 2`, and `P^1 = -⟪i, 1⟫ = 0`.
+(The Lean index `0` of `spaceCoord` and `Fin.succ 0` of `energyCurrent` is the mathematical
+index `1`.) -/
+example (m : ℝ) (p : Spacetime) :
+    energyCurrent m (fun q ↦ (timeCoord q : ℂ) + spaceCoord 0 q • Complex.I) 0 p =
+        1 + m ^ 2 * (timeCoord p ^ 2 + spaceCoord 0 p ^ 2) / 2 ∧
+      energyCurrent m (fun q ↦ (timeCoord q : ℂ) + spaceCoord 0 q • Complex.I) (Fin.succ 0) p =
+        0 := by
+  set u : Spacetime → ℂ := fun q ↦ (timeCoord q : ℂ) + spaceCoord 0 q • Complex.I
+  have hu : u = Complex.ofRealCLM ∘ timeCoord +
+      ContinuousLinearMap.toSpanSingleton ℝ Complex.I ∘ spaceCoord 0 :=
+    rfl
+  have hd (V : Spacetime → Spacetime) :
+      derivAlong V u p = ((V p).1 : ℂ) + (V p).2 0 • Complex.I := by
+    rw [hu, derivAlong_add V ((Complex.ofRealCLM.differentiable.comp differentiable_timeCoord) p)
+      (((ContinuousLinearMap.toSpanSingleton ℝ Complex.I).differentiable.comp
+        (differentiable_spaceCoord 0)) p),
+      derivAlong_comp_left V _ (differentiable_timeCoord p),
+      derivAlong_comp_left V _ (differentiable_spaceCoord 0 p), derivAlong_timeCoord,
+      derivAlong_spaceCoord]
+    rfl
+  have ht : ∂ₜ u p = 1 := by
+    rw [timeDeriv, hd]
+    simp [timeField]
+  have hs (a : Fin 3) : ∂ₓ[a] u p = if a = 0 then Complex.I else 0 := by
+    rw [spaceDeriv, hd]
+    by_cases ha : a = 0
+    · subst ha
+      simp [spaceField]
+    · simp [spaceField, Ne.symm ha, ha]
+  constructor
+  · rw [energyCurrent_zero, ht]
+    simp only [hs, Fin.sum_univ_three]
+    simp [u, Complex.sq_norm, Complex.normSq_apply]
+    ring
+  · rw [energyCurrent_succ, ht, hs]
+    simp
 
 end VectorFieldMethod.Minkowski
