@@ -39,6 +39,10 @@ and `C` is an absolute constant. See `docs/hyperboloidal-sobolev.md`.
   an open set containing `H_s`.
 * `contDiff_restrictHyperboloid`: under the same hypotheses, `u|_{H_s}` is `C²` on `ℝ³` (more
   generally `C^n` if `u` is `C^n` near `H_s`).
+* `exists_klainermanSobolev_hyperboloid`: the Klainerman–Sobolev inequality on `H_s`, with an
+  absolute constant `C` (independent of `s`, `u` and the point) and `L²` norms on `H_s` for the
+  flat measure `dx`. It is `EuclideanSobolev.exists_hyperboloidalSobolev` applied to
+  `w = u|_{H_s}`, whose weighted derivatives are rewritten with the two restriction formulas.
 -/
 
 @[expose] public noncomputable section
@@ -177,7 +181,47 @@ theorem contDiff_restrictHyperboloid {s : ℝ} (hs : s ≠ 0) {n : ℕ∞ω} {u 
       (contDiffAt_of_contDiffOn_of_hyperboloid_subset hU hHU hu x)
       (contDiff_hyperboloidPoint hs).contDiffAt
 
+/-! ### The Klainerman–Sobolev inequality on hyperboloids -/
+
+/-- **Klainerman–Sobolev inequality on hyperboloids.** There is an absolute constant `C` such that
+for all `s > 0`, every `u` of class `C²` on an open set `U` containing
+`H_s = {t = √(s ^ 2 + ‖x‖ ^ 2)}` and every point `(t₀, x₀) = (√(s ^ 2 + ‖x₀‖ ^ 2), x₀)` of `H_s`,
+`t₀ ^ (3/2) |u (t₀, x₀)| ≤ C ∑_{|J| ≤ 2} ‖L^J u‖_{L²_f(H_s)}`, where
+`‖v‖_{L²_f(H_s)} = ‖v|_{H_s}‖_{L²(ℝ³)}` is the `L²` norm on `H_s` for the flat measure `dx`, and
+`L^J` runs over `1`, the three boosts `L_a` and the nine products `L_a L_b`. -/
+theorem exists_klainermanSobolev_hyperboloid :
+    ∃ C : NNReal, ∀ s : ℝ, 0 < s → ∀ (u : Spacetime → ℝ) (U : Set Spacetime), IsOpen U →
+      {p : Spacetime | p.1 = √(s ^ 2 + ‖p.2‖ ^ 2)} ⊆ U → ContDiffOn ℝ 2 u U →
+      ∀ x₀ : EuclideanSpace ℝ (Fin 3),
+      ENNReal.ofReal (√(s ^ 2 + ‖x₀‖ ^ 2) ^ (3 / 2 : ℝ) * |u (√(s ^ 2 + ‖x₀‖ ^ 2), x₀)|) ≤
+        (C : ENNReal) *
+          (eLpNorm (restrictHyperboloid s u) 2 volume +
+            ∑ a, eLpNorm (restrictHyperboloid s (boost a u)) 2 volume +
+            ∑ a, ∑ b, eLpNorm (restrictHyperboloid s (boost a (boost b u))) 2 volume) := by
+  obtain ⟨C, hC⟩ := exists_hyperboloidalSobolev
+  refine ⟨C, fun s hs u U hU hHU hu x₀ ↦ ?_⟩
+  have h := hC s hs (restrictHyperboloid s u) (contDiff_restrictHyperboloid hs.ne' hU hHU hu) x₀
+  simp only [hyperboloidalWeightedDeriv_hyperboloidalWeightedDeriv_restrictHyperboloid hs.ne' hU
+    hHU hu] at h
+  simp only [hyperboloidalWeightedDeriv_restrictHyperboloid_of_differentiableOn hs.ne' hU hHU
+    (hu.differentiableOn two_ne_zero)] at h
+  exact h
+
 /-! ### Sanity checks -/
+
+/-- The hypotheses of `exists_klainermanSobolev_hyperboloid` hold for `u = t`, which is smooth on
+the whole spacetime `U = Set.univ`. (Here `t|_{H_s} = √(s ^ 2 + ‖x‖ ^ 2)` is not square
+integrable on `ℝ³`, so the right-hand side is `∞`.) -/
+example : ∃ C : NNReal, ∀ s : ℝ, 0 < s → ∀ x₀ : EuclideanSpace ℝ (Fin 3),
+    ENNReal.ofReal
+        (√(s ^ 2 + ‖x₀‖ ^ 2) ^ (3 / 2 : ℝ) * |timeCoord (√(s ^ 2 + ‖x₀‖ ^ 2), x₀)|) ≤
+      (C : ENNReal) *
+        (eLpNorm (restrictHyperboloid s timeCoord) 2 volume +
+          ∑ a, eLpNorm (restrictHyperboloid s (boost a timeCoord)) 2 volume +
+          ∑ a, ∑ b, eLpNorm (restrictHyperboloid s (boost a (boost b timeCoord))) 2 volume) := by
+  obtain ⟨C, hC⟩ := exists_klainermanSobolev_hyperboloid
+  exact ⟨C, fun s hs x₀ ↦ hC s hs timeCoord Set.univ isOpen_univ (Set.subset_univ _)
+    contDiff_timeCoord.contDiffOn x₀⟩
 
 /-- The two sides of the restriction formula for `v = t`, computed independently of it. Since
 `t|_{H_s} = φ_s`, the left side is `Λ_a φ_s = φ_s ∂_a φ_s = x_a`; since `L_a t = x_a`, the right
