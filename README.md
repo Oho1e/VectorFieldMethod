@@ -17,11 +17,19 @@ Early stage: the library contains the Minkowski coordinate layer
 (`VectorFieldMethod/Minkowski/`): coordinates and metric, coordinate
 derivatives, the wave and Klein–Gordon operators, and the rotation, boost and
 scaling vector fields, with their basic lemmas (see
-[docs/minkowski-layer.md](docs/minkowski-layer.md)). It also contains the
-divergence theorem layer (`VectorFieldMethod/ForMathlib/`): the divergence
-theorem on the region below a graph of a `C¹` function, between two graphs and
-between two hyperboloids. The mathematical statements of the main definitions
-and theorems are listed in [docs/statements/](docs/statements/).
+[docs/minkowski-layer.md](docs/minkowski-layer.md)). On top of it, the
+commutator layer (`VectorFieldMethod/Minkowski/Commutators.lean` and
+`WaveCommutators.lean`) proves the commutation relations of these vector
+fields (the commutator of two of them is the Lie bracket of their component
+fields) and their commutators with the wave and Klein–Gordon operators: the
+translations, rotations and boosts commute with both, and `[S, □] = -2 □`.
+It also contains the divergence theorem layer (`VectorFieldMethod/ForMathlib/`):
+the divergence theorem on the region below a graph of a `C¹` function, between
+two graphs and between two hyperboloids. The Sobolev inequality layer
+(`VectorFieldMethod/Analysis/`) proves the local Sobolev bound `H² ⊂ L^∞` on
+balls of `ℝ³` and the hyperboloidal Sobolev inequality on `ℝ³`. The
+mathematical statements of the main definitions and theorems are listed in
+[docs/statements/](docs/statements/).
 
 ## Building
 
