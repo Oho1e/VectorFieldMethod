@@ -7,6 +7,7 @@ module
 
 public import VectorFieldMethod.ForMathlib.Analysis.Calculus.SpatialDivergence
 public import Mathlib.Analysis.Calculus.LineDeriv.IntegrationByParts
+public import Mathlib.Analysis.Calculus.Gradient.Basic
 public import Mathlib.MeasureTheory.Integral.Prod
 
 /-!
@@ -28,6 +29,16 @@ measure appear.
 
 * `MeasureTheory.integral_divergence_hypograph`: the divergence theorem on the hypograph of a `C¹`
   function, for a compactly supported `C¹` vector field.
+* `MeasureTheory.integral_setIntegral_Iic_divergence`: the same statement as an iterated integral.
+* `MeasureTheory.integral_intervalIntegral_divergence`: the divergence theorem between the graphs
+  of two `C¹` functions `φ₁, φ₂`, in any order, with an oriented inner integral
+  `∫ t in φ₁ x..φ₂ x`.
+* `MeasureTheory.integral_divergence_region_between_cc`,
+  `MeasureTheory.integral_divergence_regionBetween`: if `φ₁ ≤ φ₂`, the same statement as a set
+  integral over the closed, respectively open, region between the graphs.
+* `MeasureTheory.integral_divergence_hypograph_gradient`: inner product space version, with the
+  flux written using `∇ φ`.
+* `MeasureTheory.integral_divergence_hypograph_swap`: version on `ℝ × E`, time first.
 * `MeasureTheory.integral_fderiv_apply_eq_zero`: the integral of a directional derivative of a
   compactly supported `C¹` function vanishes.
 * `MeasureTheory.integral_trace_fderiv_eq_zero`: the integral of the divergence of a compactly
@@ -137,6 +148,8 @@ theorem measurePreserving_shear (hφ : Measurable φ) :
     (ae_of_all _ fun x ↦ map_add_right_eq_self volume (φ x))
 
 end Shear
+
+section NormedSpace
 
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
   [MeasurableSpace E] [BorelSpace E] {μ : Measure E} [μ.IsAddHaarMeasure]
@@ -265,5 +278,149 @@ theorem integral_divergence_hypograph (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDif
   calc _ = ∫ q in univ ×ˢ Iic (0 : ℝ), (G q + spatialDivergence Y q) ∂μ.prod volume :=
         integral_congr_ae (Eventually.of_forall hpt)
     _ = _ := by rw [integral_add hGi.integrableOn hYi.integrableOn, h₂, h₃, add_zero]
+
+/-- The divergence `∂ₜ X₀ + div_x X` of a compactly supported `C¹` vector field on spacetime is
+integrable. -/
+theorem integrable_deriv_add_spatialDivergence (hX₀ : ContDiff ℝ 1 X₀)
+    (hX₀c : HasCompactSupport X₀) (hX : ContDiff ℝ 1 X) (hXc : HasCompactSupport X) :
+    Integrable (fun p : E × ℝ ↦ deriv (fun t ↦ X₀ (p.1, t)) p.2 + spatialDivergence X p)
+      (μ.prod volume) :=
+  (hX₀.continuous_deriv_comp_prodMk_right.add hX.continuous_spatialDivergence)
+    |>.integrable_of_hasCompactSupport
+      (hX₀c.deriv_comp_prodMk_right.add hXc.spatialDivergence)
+
+/-- **Divergence theorem on the region below a graph**, as an iterated integral: the integral
+over `t ≤ φ x` is computed first. -/
+theorem integral_setIntegral_Iic_divergence (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDiff ℝ 1 X₀)
+    (hX₀c : HasCompactSupport X₀) (hX : ContDiff ℝ 1 X) (hXc : HasCompactSupport X) :
+    ∫ x, (∫ t in Iic (φ x), (deriv (fun s ↦ X₀ (x, s)) t + spatialDivergence X (x, t))) ∂μ =
+      ∫ x, (X₀ (x, φ x) - fderiv ℝ φ x (X (x, φ x))) ∂μ := by
+  have hs : MeasurableSet {p : E × ℝ | p.2 ≤ φ p.1} :=
+    measurableSet_le measurable_snd (hφ.continuous.measurable.comp measurable_fst)
+  rw [← integral_divergence_hypograph hφ hX₀ hX₀c hX hXc,
+    setIntegral_prod_eq_integral_setIntegral hs
+      (integrable_deriv_add_spatialDivergence hX₀ hX₀c hX hXc).integrableOn]
+  rfl
+
+/-- The inner integral in `MeasureTheory.integral_setIntegral_Iic_divergence` is an integrable
+function of `x`. -/
+theorem integrable_setIntegral_Iic_divergence (hφ : Continuous φ) (hX₀ : ContDiff ℝ 1 X₀)
+    (hX₀c : HasCompactSupport X₀) (hX : ContDiff ℝ 1 X) (hXc : HasCompactSupport X) :
+    Integrable (fun x ↦
+      ∫ t in Iic (φ x), (deriv (fun s ↦ X₀ (x, s)) t + spatialDivergence X (x, t))) μ :=
+  integrable_setIntegral_prod (measurableSet_le measurable_snd (hφ.measurable.comp measurable_fst))
+    (integrable_deriv_add_spatialDivergence hX₀ hX₀c hX hXc).integrableOn
+
+variable {φ₁ φ₂ : E → ℝ}
+
+/-- **Divergence theorem between two graphs.** For `C¹` functions `φ₁ φ₂ : E → ℝ` (in any order)
+and a compactly supported `C¹` vector field `(X₀, X)` on spacetime, the integral over `x` of the
+oriented integral `∫ t in φ₁ x..φ₂ x` of the divergence `∂ₜ X₀ + div_x X` is the difference of the
+fluxes through the graphs of `φ₂` and `φ₁`. -/
+theorem integral_intervalIntegral_divergence (hφ₁ : ContDiff ℝ 1 φ₁) (hφ₂ : ContDiff ℝ 1 φ₂)
+    (hX₀ : ContDiff ℝ 1 X₀) (hX₀c : HasCompactSupport X₀) (hX : ContDiff ℝ 1 X)
+    (hXc : HasCompactSupport X) :
+    ∫ x, (∫ t in φ₁ x..φ₂ x, (deriv (fun s ↦ X₀ (x, s)) t + spatialDivergence X (x, t))) ∂μ =
+      (∫ x, (X₀ (x, φ₂ x) - fderiv ℝ φ₂ x (X (x, φ₂ x))) ∂μ) -
+        ∫ x, (X₀ (x, φ₁ x) - fderiv ℝ φ₁ x (X (x, φ₁ x))) ∂μ := by
+  have hint : ∀ (x : E) (a : ℝ), IntegrableOn
+      (fun t ↦ deriv (fun s ↦ X₀ (x, s)) t + spatialDivergence X (x, t)) (Iic a) := fun x a ↦
+    ((hX₀.continuous_deriv_comp_prodMk_right.add hX.continuous_spatialDivergence).comp
+        (Continuous.prodMk_right x)).integrable_of_hasCompactSupport
+      ((hX₀c.deriv_comp_prodMk_right.add hXc.spatialDivergence).comp_prodMkRight x)
+      |>.integrableOn
+  have h : ∀ x : E, ∫ t in φ₁ x..φ₂ x, (deriv (fun s ↦ X₀ (x, s)) t + spatialDivergence X (x, t)) =
+      (∫ t in Iic (φ₂ x), (deriv (fun s ↦ X₀ (x, s)) t + spatialDivergence X (x, t))) -
+        ∫ t in Iic (φ₁ x), (deriv (fun s ↦ X₀ (x, s)) t + spatialDivergence X (x, t)) :=
+    fun x ↦ (intervalIntegral.integral_Iic_sub_Iic (hint x _) (hint x _)).symm
+  simp_rw [h]
+  rw [integral_sub (integrable_setIntegral_Iic_divergence hφ₂.continuous hX₀ hX₀c hX hXc)
+      (integrable_setIntegral_Iic_divergence hφ₁.continuous hX₀ hX₀c hX hXc),
+    integral_setIntegral_Iic_divergence hφ₂ hX₀ hX₀c hX hXc,
+    integral_setIntegral_Iic_divergence hφ₁ hX₀ hX₀c hX hXc]
+
+/-- **Divergence theorem on the closed region between two graphs.** If `φ₁ ≤ φ₂` are `C¹`, the
+integral of the divergence `∂ₜ X₀ + div_x X` of a compactly supported `C¹` vector field over
+`{(x, t) | φ₁ x ≤ t ≤ φ₂ x}` is the difference of the fluxes through the graphs of `φ₂` and
+`φ₁`. -/
+theorem integral_divergence_region_between_cc (hφ₁ : ContDiff ℝ 1 φ₁) (hφ₂ : ContDiff ℝ 1 φ₂)
+    (hφ : φ₁ ≤ φ₂) (hX₀ : ContDiff ℝ 1 X₀) (hX₀c : HasCompactSupport X₀) (hX : ContDiff ℝ 1 X)
+    (hXc : HasCompactSupport X) :
+    ∫ p in {p : E × ℝ | p.2 ∈ Icc (φ₁ p.1) (φ₂ p.1)},
+        (deriv (fun t ↦ X₀ (p.1, t)) p.2 + spatialDivergence X p) ∂μ.prod volume =
+      (∫ x, (X₀ (x, φ₂ x) - fderiv ℝ φ₂ x (X (x, φ₂ x))) ∂μ) -
+        ∫ x, (X₀ (x, φ₁ x) - fderiv ℝ φ₁ x (X (x, φ₁ x))) ∂μ := by
+  have hs : MeasurableSet {p : E × ℝ | p.2 ∈ Icc (φ₁ p.1) (φ₂ p.1)} :=
+    (measurableSet_le (hφ₁.continuous.measurable.comp measurable_fst) measurable_snd).inter
+      (measurableSet_le measurable_snd (hφ₂.continuous.measurable.comp measurable_fst))
+  rw [setIntegral_prod_eq_integral_setIntegral hs
+      (integrable_deriv_add_spatialDivergence hX₀ hX₀c hX hXc).integrableOn,
+    ← integral_intervalIntegral_divergence hφ₁ hφ₂ hX₀ hX₀c hX hXc]
+  refine integral_congr_ae (Eventually.of_forall fun x ↦ ?_)
+  dsimp only
+  rw [intervalIntegral.integral_of_le (hφ x), ← integral_Icc_eq_integral_Ioc]
+  rfl
+
+/-- **Divergence theorem on the open region between two graphs**, stated with `regionBetween`.
+If `φ₁ ≤ φ₂` are `C¹`, the integral of the divergence `∂ₜ X₀ + div_x X` of a compactly supported
+`C¹` vector field over `regionBetween φ₁ φ₂ univ = {(x, t) | φ₁ x < t < φ₂ x}` is the difference of
+the fluxes through the graphs of `φ₂` and `φ₁`. -/
+theorem integral_divergence_regionBetween (hφ₁ : ContDiff ℝ 1 φ₁) (hφ₂ : ContDiff ℝ 1 φ₂)
+    (hφ : φ₁ ≤ φ₂) (hX₀ : ContDiff ℝ 1 X₀) (hX₀c : HasCompactSupport X₀) (hX : ContDiff ℝ 1 X)
+    (hXc : HasCompactSupport X) :
+    ∫ p in regionBetween φ₁ φ₂ univ,
+        (deriv (fun t ↦ X₀ (p.1, t)) p.2 + spatialDivergence X p) ∂μ.prod volume =
+      (∫ x, (X₀ (x, φ₂ x) - fderiv ℝ φ₂ x (X (x, φ₂ x))) ∂μ) -
+        ∫ x, (X₀ (x, φ₁ x) - fderiv ℝ φ₁ x (X (x, φ₁ x))) ∂μ := by
+  rw [setIntegral_prod_eq_integral_setIntegral
+      (measurableSet_regionBetween hφ₁.continuous.measurable hφ₂.continuous.measurable
+        MeasurableSet.univ)
+      (integrable_deriv_add_spatialDivergence hX₀ hX₀c hX hXc).integrableOn,
+    ← integral_intervalIntegral_divergence hφ₁ hφ₂ hX₀ hX₀c hX hXc]
+  refine integral_congr_ae (Eventually.of_forall fun x ↦ ?_)
+  have hx : Prod.mk x ⁻¹' regionBetween φ₁ φ₂ univ = Ioo (φ₁ x) (φ₂ x) := by
+    ext t
+    simp [regionBetween]
+  dsimp only
+  rw [hx, intervalIntegral.integral_of_le (hφ x), integral_Ioc_eq_integral_Ioo]
+
+/-- **Divergence theorem on the region below a graph, time first.** The version of
+`MeasureTheory.integral_divergence_hypograph` on spacetime `ℝ × E`, with time as the first
+coordinate and the measure `volume.prod μ`. The spatial divergence of `X : ℝ × E → E` at
+`(t, x)` is the trace of the derivative at `x` of `y ↦ X (t, y)`. -/
+theorem integral_divergence_hypograph_swap {X₀ : ℝ × E → ℝ} {X : ℝ × E → E}
+    (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDiff ℝ 1 X₀) (hX₀c : HasCompactSupport X₀)
+    (hX : ContDiff ℝ 1 X) (hXc : HasCompactSupport X) :
+    ∫ p in {p : ℝ × E | p.1 ≤ φ p.2},
+        (deriv (fun t ↦ X₀ (t, p.2)) p.1 +
+          LinearMap.trace ℝ E (fderiv ℝ (fun y ↦ X (p.1, y)) p.2 : E →ₗ[ℝ] E)) ∂volume.prod μ =
+      ∫ x, (X₀ (φ x, x) - fderiv ℝ φ x (X (φ x, x))) ∂μ := by
+  rw [← (Measure.measurePreserving_swap (μ := μ) (ν := volume)).setIntegral_preimage_emb
+    MeasurableEquiv.prodComm.measurableEmbedding]
+  exact integral_divergence_hypograph (X₀ := X₀ ∘ Prod.swap) (X := X ∘ Prod.swap) hφ
+    (hX₀.comp (contDiff_snd.prodMk contDiff_fst)) (hX₀c.comp_homeomorph (Homeomorph.prodComm E ℝ))
+    (hX.comp (contDiff_snd.prodMk contDiff_fst)) (hXc.comp_homeomorph (Homeomorph.prodComm E ℝ))
+
+end NormedSpace
+
+section InnerProductSpace
+
+variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDimensional ℝ E]
+  [MeasurableSpace E] [BorelSpace E] {μ : Measure E} [μ.IsAddHaarMeasure]
+  {φ : E → ℝ} {X₀ : E × ℝ → ℝ} {X : E × ℝ → E}
+
+open scoped RealInnerProductSpace Gradient
+
+/-- **Divergence theorem on the region below a graph**, inner product space version: the flux
+through the graph of `φ` is `∫ x, X₀ (x, φ x) - ⟪∇ φ x, X (x, φ x)⟫ ∂μ`. -/
+theorem integral_divergence_hypograph_gradient (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDiff ℝ 1 X₀)
+    (hX₀c : HasCompactSupport X₀) (hX : ContDiff ℝ 1 X) (hXc : HasCompactSupport X) :
+    ∫ p in {p : E × ℝ | p.2 ≤ φ p.1},
+        (deriv (fun t ↦ X₀ (p.1, t)) p.2 + spatialDivergence X p) ∂μ.prod volume =
+      ∫ x, (X₀ (x, φ x) - ⟪∇ φ x, X (x, φ x)⟫) ∂μ := by
+  simp_rw [inner_gradient_left]
+  exact integral_divergence_hypograph hφ hX₀ hX₀c hX hXc
+
+end InnerProductSpace
 
 end MeasureTheory
