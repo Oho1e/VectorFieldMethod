@@ -20,15 +20,20 @@ operator `derivAlong V u p = Du(p) (V p)`.
 
 ## Main definitions
 
-* `derivAlong V u`: the derivative `V u = V^α ∂_α u` of `u : Spacetime → ℝ` along `V`.
+* `derivAlong V u`: the derivative `V u = V^α ∂_α u` of `u : Spacetime → F` along `V`.
 * `timeField`, `spaceField a`, `coordField α`: the constant component fields of `∂_t`, `∂_a`,
   `∂_α`.
 * `timeDeriv`, `spaceDeriv a`, `partialDeriv α`: the coordinate derivatives `∂_t`, `∂_a`, `∂_α`.
 
 ## Main statements
 
-* Linearity: `derivAlong_smul` (no hypothesis) and `derivAlong_add` (differentiability at the
+* Linearity: `derivAlong_smul` (real scalars, no hypothesis), `derivAlong_const_smul_field`
+  (scalars `c : R` acting on `F`, no hypothesis) and `derivAlong_add` (differentiability at the
   point), and the same for `timeDeriv`, `spaceDeriv`, `partialDeriv`.
+* Commutation with continuous linear maps: `derivAlong_comp_left` (`V (T ∘ u) = T (V u)` at a point
+  where `u` is differentiable), its eta-expanded form `fun_derivAlong_comp_left`, and
+  `derivAlong_comp_left_equiv` (`V (e ∘ u) = e ∘ V u` for a continuous linear equivalence `e`,
+  without hypotheses); the same for `timeDeriv`, `spaceDeriv`, `partialDeriv`.
 * Smoothness: `contDiff_partialDeriv` (`C^{n+1} → C^n`) and `contDiff_infty_partialDeriv`.
 * Symmetry of second derivatives: `partialDeriv_comm_apply` (for `u` that is `C²` at the point)
   and `partialDeriv_comm`.
@@ -41,9 +46,15 @@ Scoped in `VectorFieldMethod.Minkowski`: `∂ₜ` for `timeDeriv`, `∂ₓ[a]` f
 
 ## Implementation notes
 
-The operators are plain functions `(Spacetime → ℝ) → Spacetime → ℝ` built from `fderiv`. Since
+The operators are plain functions `(Spacetime → F) → Spacetime → F` built from `fderiv`, for an
+arbitrary real normed space `F` (the type of values, an implicit argument inferred from `u`): real
+fields have `F = ℝ`, complex fields `F = ℂ`. The coordinate functions are real-valued. Since
 `fderiv` is `0` at points of non-differentiability, additivity needs differentiability
 hypotheses, while homogeneity under constant scalars does not.
+
+`F` is inferred from `u`. A statement without a function argument, such as
+`partialDeriv_zero : ∂[0] = ∂ₜ`, carries a type ascription to fix `F`, and a function whose values
+are only numerals, such as `fun _ ↦ 1`, needs a type ascription `(1 : ℝ)`.
 -/
 
 @[expose] public noncomputable section
@@ -53,7 +64,11 @@ open scoped ContDiff Topology
 
 namespace VectorFieldMethod.Minkowski
 
-variable {V : Spacetime → Spacetime} {u v : Spacetime → ℝ} {p : Spacetime} {n : ℕ∞ω}
+variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
+variable {G : Type*} [NormedAddCommGroup G] [NormedSpace ℝ G]
+variable {R : Type*} [DivisionSemiring R] [Module R F] [SMulCommClass ℝ R F]
+  [ContinuousConstSMul R F]
+variable {V : Spacetime → Spacetime} {u v : Spacetime → F} {p : Spacetime} {n : ℕ∞ω}
 
 /-! ### Smoothness of the coordinate functions -/
 
@@ -88,24 +103,31 @@ theorem hasFDerivAt_spaceCoord (a : Fin 3) (p : Spacetime) :
 
 /-- The derivative of `u` along the vector field with component field `V`:
 `(V u)(p) = V^α(p) ∂_α u(p) = Du(p) (V p)`. -/
-def derivAlong (V : Spacetime → Spacetime) (u : Spacetime → ℝ) : Spacetime → ℝ :=
+def derivAlong (V : Spacetime → Spacetime) (u : Spacetime → F) : Spacetime → F :=
   fun p ↦ fderiv ℝ u p (V p)
 
-theorem derivAlong_apply (V : Spacetime → Spacetime) (u : Spacetime → ℝ) (p : Spacetime) :
+theorem derivAlong_apply (V : Spacetime → Spacetime) (u : Spacetime → F) (p : Spacetime) :
     derivAlong V u p = fderiv ℝ u p (V p) :=
   rfl
 
-theorem derivAlong_eq_of_hasFDerivAt {L : Spacetime →L[ℝ] ℝ} (h : HasFDerivAt u L p) :
+theorem derivAlong_eq_of_hasFDerivAt {L : Spacetime →L[ℝ] F} (h : HasFDerivAt u L p) :
     derivAlong V u p = L (V p) := by
   rw [derivAlong_apply, h.fderiv]
 
-/-- `V (c u) = c (V u)`, without any differentiability assumption. -/
-theorem derivAlong_smul (V : Spacetime → Spacetime) (c : ℝ) (u : Spacetime → ℝ) :
+/-- `V (c u) = c (V u)` for `c : ℝ`, without any differentiability assumption. -/
+theorem derivAlong_smul (V : Spacetime → Spacetime) (c : ℝ) (u : Spacetime → F) :
     derivAlong V (c • u) = c • derivAlong V u := by
   funext p
   simp [derivAlong_apply, fderiv_const_smul_field]
 
-/-- `V (c u) = c (V u)`, with the product written pointwise. -/
+/-- `V (c u) = c (V u)` for a scalar `c : R` acting on `F` (for instance `c : ℂ` when `F = ℂ`),
+without any differentiability assumption. -/
+theorem derivAlong_const_smul_field (V : Spacetime → Spacetime) (c : R) (u : Spacetime → F) :
+    derivAlong V (c • u) = c • derivAlong V u := by
+  funext p
+  simp [derivAlong_apply, fderiv_const_smul_field]
+
+/-- `V (c u) = c (V u)` for a real-valued `u`, with the product written pointwise. -/
 theorem derivAlong_const_mul (V : Spacetime → Spacetime) (c : ℝ) (u : Spacetime → ℝ) :
     derivAlong V (fun q ↦ c * u q) = fun q ↦ c * derivAlong V u q :=
   derivAlong_smul V c u
@@ -117,7 +139,7 @@ theorem derivAlong_add (V : Spacetime → Spacetime) (hu : DifferentiableAt ℝ 
   simp [derivAlong_apply, fderiv_add hu hv]
 
 @[simp]
-theorem derivAlong_const (V : Spacetime → Spacetime) (c : ℝ) :
+theorem derivAlong_const (V : Spacetime → Spacetime) (c : F) :
     derivAlong V (fun _ ↦ c) = fun _ ↦ 0 := by
   funext p
   simp [derivAlong_apply]
@@ -149,6 +171,24 @@ theorem contDiffAt_derivAlong (hV : ContDiffAt ℝ n V p) (hu : ContDiffAt ℝ (
 theorem contDiff_derivAlong (hV : ContDiff ℝ n V) (hu : ContDiff ℝ (n + 1) u) :
     ContDiff ℝ n (derivAlong V u) :=
   (hu.fderiv_right le_rfl).clm_apply hV
+
+/-- `V (T ∘ u) = T (V u)` for a continuous linear map `T`, at a point where `u` is
+differentiable. The eta-expanded form `fun_derivAlong_comp_left` is about
+`fun q ↦ T (u q)`. -/
+@[to_fun]
+theorem derivAlong_comp_left (V : Spacetime → Spacetime) (T : F →L[ℝ] G)
+    (hu : DifferentiableAt ℝ u p) : derivAlong V (T ∘ u) p = T (derivAlong V u p) := by
+  rw [derivAlong_eq_of_hasFDerivAt (T.hasFDerivAt.comp p hu.hasFDerivAt)]
+  rfl
+
+/-- `V (e ∘ u) = e ∘ V u` for a continuous linear equivalence `e`, without any differentiability
+assumption: `e ∘ u` is differentiable exactly where `u` is. -/
+@[to_fun]
+theorem derivAlong_comp_left_equiv (V : Spacetime → Spacetime) (e : F ≃L[ℝ] G)
+    (u : Spacetime → F) : derivAlong V (e ∘ u) = e ∘ derivAlong V u := by
+  funext p
+  rw [derivAlong_apply, e.comp_fderiv]
+  rfl
 
 /-- For a constant component field `W ≡ w`, the second derivative `V (W u)` at `p` is the second
 Fréchet derivative `D²u(p) (V p) w`. -/
@@ -187,64 +227,75 @@ theorem coordField_eq_const (α : Fin 4) (p : Spacetime) : coordField α p = coo
   cases α using Fin.cases <;> rfl
 
 /-- The time derivative `∂_t u`. -/
-def timeDeriv : (Spacetime → ℝ) → Spacetime → ℝ :=
+def timeDeriv : (Spacetime → F) → Spacetime → F :=
   derivAlong timeField
 
 /-- The spatial derivative `∂_a u` for `a : Fin 3` (the mathematical index is `a + 1`). -/
-def spaceDeriv (a : Fin 3) : (Spacetime → ℝ) → Spacetime → ℝ :=
+def spaceDeriv (a : Fin 3) : (Spacetime → F) → Spacetime → F :=
   derivAlong (spaceField a)
 
 /-- The spacetime derivative `∂_α u` for `α : Fin 4`, with `∂_0 = ∂_t` and `∂_{a+1} = ∂_a`. -/
-def partialDeriv (α : Fin 4) : (Spacetime → ℝ) → Spacetime → ℝ :=
+def partialDeriv (α : Fin 4) : (Spacetime → F) → Spacetime → F :=
   derivAlong (coordField α)
 
 @[inherit_doc] scoped notation "∂ₜ" => timeDeriv
 @[inherit_doc] scoped notation "∂ₓ[" a "]" => spaceDeriv a
 @[inherit_doc] scoped notation "∂[" α "]" => partialDeriv α
 
-theorem timeDeriv_apply (u : Spacetime → ℝ) (p : Spacetime) :
+theorem timeDeriv_apply (u : Spacetime → F) (p : Spacetime) :
     ∂ₜ u p = fderiv ℝ u p (1, 0) :=
   rfl
 
-theorem spaceDeriv_apply (a : Fin 3) (u : Spacetime → ℝ) (p : Spacetime) :
+theorem spaceDeriv_apply (a : Fin 3) (u : Spacetime → F) (p : Spacetime) :
     ∂ₓ[a] u p = fderiv ℝ u p (0, EuclideanSpace.single a 1) :=
   rfl
 
-theorem partialDeriv_apply (α : Fin 4) (u : Spacetime → ℝ) (p : Spacetime) :
+theorem partialDeriv_apply (α : Fin 4) (u : Spacetime → F) (p : Spacetime) :
     ∂[α] u p = fderiv ℝ u p (coordField α p) :=
   rfl
 
 @[simp]
-theorem partialDeriv_zero : ∂[0] = ∂ₜ :=
+theorem partialDeriv_zero : (∂[0] : (Spacetime → F) → Spacetime → F) = ∂ₜ :=
   rfl
 
 @[simp]
-theorem partialDeriv_succ (a : Fin 3) : ∂[a.succ] = ∂ₓ[a] :=
+theorem partialDeriv_succ (a : Fin 3) : (∂[a.succ] : (Spacetime → F) → Spacetime → F) = ∂ₓ[a] :=
   rfl
 
 @[simp]
-theorem partialDeriv_one : ∂[1] = ∂ₓ[0] :=
+theorem partialDeriv_one : (∂[1] : (Spacetime → F) → Spacetime → F) = ∂ₓ[0] :=
   rfl
 
 @[simp]
-theorem partialDeriv_two : ∂[2] = ∂ₓ[1] :=
+theorem partialDeriv_two : (∂[2] : (Spacetime → F) → Spacetime → F) = ∂ₓ[1] :=
   rfl
 
 @[simp]
-theorem partialDeriv_three : ∂[3] = ∂ₓ[2] :=
+theorem partialDeriv_three : (∂[3] : (Spacetime → F) → Spacetime → F) = ∂ₓ[2] :=
   rfl
 
 /-! #### Linearity -/
 
-theorem timeDeriv_smul (c : ℝ) (u : Spacetime → ℝ) : ∂ₜ (c • u) = c • ∂ₜ u :=
+theorem timeDeriv_smul (c : ℝ) (u : Spacetime → F) : ∂ₜ (c • u) = c • ∂ₜ u :=
   derivAlong_smul _ c u
 
-theorem spaceDeriv_smul (a : Fin 3) (c : ℝ) (u : Spacetime → ℝ) : ∂ₓ[a] (c • u) = c • ∂ₓ[a] u :=
+theorem spaceDeriv_smul (a : Fin 3) (c : ℝ) (u : Spacetime → F) : ∂ₓ[a] (c • u) = c • ∂ₓ[a] u :=
   derivAlong_smul _ c u
 
-theorem partialDeriv_smul (α : Fin 4) (c : ℝ) (u : Spacetime → ℝ) :
+theorem partialDeriv_smul (α : Fin 4) (c : ℝ) (u : Spacetime → F) :
     ∂[α] (c • u) = c • ∂[α] u :=
   derivAlong_smul _ c u
+
+theorem timeDeriv_const_smul_field (c : R) (u : Spacetime → F) : ∂ₜ (c • u) = c • ∂ₜ u :=
+  derivAlong_const_smul_field _ c u
+
+theorem spaceDeriv_const_smul_field (a : Fin 3) (c : R) (u : Spacetime → F) :
+    ∂ₓ[a] (c • u) = c • ∂ₓ[a] u :=
+  derivAlong_const_smul_field _ c u
+
+theorem partialDeriv_const_smul_field (α : Fin 4) (c : R) (u : Spacetime → F) :
+    ∂[α] (c • u) = c • ∂[α] u :=
+  derivAlong_const_smul_field _ c u
 
 theorem timeDeriv_add (hu : DifferentiableAt ℝ u p) (hv : DifferentiableAt ℝ v p) :
     ∂ₜ (u + v) p = ∂ₜ u p + ∂ₜ v p :=
@@ -258,18 +309,50 @@ theorem partialDeriv_add (α : Fin 4) (hu : DifferentiableAt ℝ u p)
     (hv : DifferentiableAt ℝ v p) : ∂[α] (u + v) p = ∂[α] u p + ∂[α] v p :=
   derivAlong_add _ hu hv
 
+/-! #### Commutation with continuous linear maps -/
+
+@[to_fun]
+theorem timeDeriv_comp_left (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+    ∂ₜ (T ∘ u) p = T (∂ₜ u p) :=
+  derivAlong_comp_left _ T hu
+
+@[to_fun]
+theorem spaceDeriv_comp_left (a : Fin 3) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+    ∂ₓ[a] (T ∘ u) p = T (∂ₓ[a] u p) :=
+  derivAlong_comp_left _ T hu
+
+@[to_fun]
+theorem partialDeriv_comp_left (α : Fin 4) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+    ∂[α] (T ∘ u) p = T (∂[α] u p) :=
+  derivAlong_comp_left _ T hu
+
+@[to_fun]
+theorem timeDeriv_comp_left_equiv (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    ∂ₜ (e ∘ u) = e ∘ ∂ₜ u :=
+  derivAlong_comp_left_equiv _ e u
+
+@[to_fun]
+theorem spaceDeriv_comp_left_equiv (a : Fin 3) (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    ∂ₓ[a] (e ∘ u) = e ∘ ∂ₓ[a] u :=
+  derivAlong_comp_left_equiv _ e u
+
+@[to_fun]
+theorem partialDeriv_comp_left_equiv (α : Fin 4) (e : F ≃L[ℝ] G) (u : Spacetime → F) :
+    ∂[α] (e ∘ u) = e ∘ ∂[α] u :=
+  derivAlong_comp_left_equiv _ e u
+
 /-! #### Values on constants and coordinates -/
 
 @[simp]
-theorem timeDeriv_const (c : ℝ) : ∂ₜ (fun _ ↦ c) = fun _ ↦ 0 :=
+theorem timeDeriv_const (c : F) : ∂ₜ (fun _ ↦ c) = fun _ ↦ 0 :=
   derivAlong_const _ c
 
 @[simp]
-theorem spaceDeriv_const (a : Fin 3) (c : ℝ) : ∂ₓ[a] (fun _ ↦ c) = fun _ ↦ 0 :=
+theorem spaceDeriv_const (a : Fin 3) (c : F) : ∂ₓ[a] (fun _ ↦ c) = fun _ ↦ 0 :=
   derivAlong_const _ c
 
 @[simp]
-theorem partialDeriv_const (α : Fin 4) (c : ℝ) : ∂[α] (fun _ ↦ c) = fun _ ↦ 0 :=
+theorem partialDeriv_const (α : Fin 4) (c : F) : ∂[α] (fun _ ↦ c) = fun _ ↦ 0 :=
   derivAlong_const _ c
 
 /-- `∂_t t = 1`. -/
