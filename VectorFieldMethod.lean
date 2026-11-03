@@ -1,5 +1,7 @@
 module
 
+public import VectorFieldMethod.Analysis.HyperboloidalSobolev
+public import VectorFieldMethod.Analysis.LocalSobolev
 public import VectorFieldMethod.ForMathlib.Analysis.Calculus.LineDeriv.IntegrationByParts
 public import VectorFieldMethod.ForMathlib.Analysis.Calculus.SpatialDivergence
 public import VectorFieldMethod.ForMathlib.Geometry.Manifold.PartitionOfUnity
