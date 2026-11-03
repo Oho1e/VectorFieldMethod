@@ -297,12 +297,12 @@ The section "Sanity checks" at the end of the file contains the following `examp
 
 | Statement | Line |
 | --- | --- |
-| $`u = t`$, $`U = \mathbb{R}^{1+3}`$: the hypotheses of `exists_klainermanSobolev_hyperboloid` hold (its right side is $`\infty`$, since $`t|_{H_s} = \varphi_s`$ is not square integrable) | [L282](https://github.com/Oho1e/VectorFieldMethod/blob/2fcdc00e1cdab9bb1b21c64faef9e13641de6e87/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L282) |
+| $`u = t`$, $`U = \mathbb{R}^{1+3}`$: the hypotheses of `exists_klainermanSobolev_hyperboloid` hold (its right side is $`\infty`$, since $`t\vert_{H_s} = \varphi_s`$ is not square integrable) | [L282](https://github.com/Oho1e/VectorFieldMethod/blob/2fcdc00e1cdab9bb1b21c64faef9e13641de6e87/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L282) |
 | $`u = 1/t`$, $`U = \{t \gt 0\}`$: the hypotheses hold with an open set $`U`$ smaller than spacetime, for a function singular at $`t = 0`$ | [L296](https://github.com/Oho1e/VectorFieldMethod/blob/2fcdc00e1cdab9bb1b21c64faef9e13641de6e87/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L296) |
 | A smooth bump function $`u`$ on spacetime (equal to $`1`$ on the closed unit ball for the max norm, compactly supported): at the point $`(1, 0)`$ of $`H_1`$ the left side is $`1`$, and the right side is finite | [L317](https://github.com/Oho1e/VectorFieldMethod/blob/2fcdc00e1cdab9bb1b21c64faef9e13641de6e87/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L317) |
-| $`v = t`$, computed independently of the restriction formula: $`\Lambda_a \varphi_s = x^a`$ and $`(L_a t)|_{H_s} = x^a`$ | [L344](https://github.com/Oho1e/VectorFieldMethod/blob/2fcdc00e1cdab9bb1b21c64faef9e13641de6e87/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L344) |
+| $`v = t`$, computed independently of the restriction formula: $`\Lambda_a \varphi_s = x^a`$ and $`(L_a t)\vert_{H_s} = x^a`$ | [L344](https://github.com/Oho1e/VectorFieldMethod/blob/2fcdc00e1cdab9bb1b21c64faef9e13641de6e87/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L344) |
 | $`v = t`$: the restriction formula applies ($`t`$ is differentiable) and gives $`\Lambda_a \varphi_s(x) = x^a`$ | [L354](https://github.com/Oho1e/VectorFieldMethod/blob/2fcdc00e1cdab9bb1b21c64faef9e13641de6e87/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L354) |
-| $`u = t`$, second order, computed independently: $`\Lambda_a \Lambda_b \varphi_s = \varphi_s\, \delta_{ab}`$ and $`(L_a L_b t)|_{H_s} = \varphi_s\, \delta_{ab}`$ | [L365](https://github.com/Oho1e/VectorFieldMethod/blob/2fcdc00e1cdab9bb1b21c64faef9e13641de6e87/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L365) |
+| $`u = t`$, second order, computed independently: $`\Lambda_a \Lambda_b \varphi_s = \varphi_s\, \delta_{ab}`$ and $`(L_a L_b t)\vert_{H_s} = \varphi_s\, \delta_{ab}`$ | [L365](https://github.com/Oho1e/VectorFieldMethod/blob/2fcdc00e1cdab9bb1b21c64faef9e13641de6e87/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L365) |
 
 The first three examples show that the hypotheses of `exists_klainermanSobolev_hyperboloid` can
 hold simultaneously; the third one shows moreover that the inequality is not trivial, for a
