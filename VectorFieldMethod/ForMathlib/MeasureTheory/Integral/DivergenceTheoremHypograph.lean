@@ -26,6 +26,8 @@ measure appear.
 
 ## Main statements
 
+* `MeasureTheory.integral_divergence_hypograph`: the divergence theorem on the hypograph of a `C¹`
+  function, for a compactly supported `C¹` vector field.
 * `MeasureTheory.integral_fderiv_apply_eq_zero`: the integral of a directional derivative of a
   compactly supported `C¹` function vanishes.
 * `MeasureTheory.integral_trace_fderiv_eq_zero`: the integral of the divergence of a compactly
@@ -172,5 +174,96 @@ theorem integral_trace_fderiv_eq_zero {V : E → E} (hV : ContDiff ℝ 1 V)
     _ = 0 := by rw [h0, map_zero]
 
 end DivergenceFree
+
+variable {φ : E → ℝ} {X₀ : E × ℝ → ℝ} {X : E × ℝ → E}
+
+/-- **Divergence theorem on the region below a graph.** Let `φ : E → ℝ` be `C¹`, and let
+`X₀ : E × ℝ → ℝ` and `X : E × ℝ → E` be compactly supported `C¹` functions, the time and space
+components of a vector field on spacetime `E × ℝ`. Then the integral of its divergence
+`∂ₜ X₀ + div_x X` over the hypograph `{(x, t) | t ≤ φ x}` equals the flux
+`∫ x, X₀ (x, φ x) - Dφ(x) (X (x, φ x)) ∂μ` through the graph of `φ`. -/
+theorem integral_divergence_hypograph (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDiff ℝ 1 X₀)
+    (hX₀c : HasCompactSupport X₀) (hX : ContDiff ℝ 1 X) (hXc : HasCompactSupport X) :
+    ∫ p in {p : E × ℝ | p.2 ≤ φ p.1},
+        (deriv (fun t ↦ X₀ (p.1, t)) p.2 + spatialDivergence X p) ∂μ.prod volume =
+      ∫ x, (X₀ (x, φ x) - fderiv ℝ φ x (X (x, φ x))) ∂μ := by
+  set S := Homeomorph.shear hφ.continuous with hS
+  -- the time derivatives of the components, the sheared spatial component, and the time part of
+  -- the pulled back integrand
+  set T₀ : E × ℝ → ℝ := fun p ↦ deriv (fun t ↦ X₀ (p.1, t)) p.2 with hT₀
+  set T : E × ℝ → E := fun p ↦ deriv (fun t ↦ X (p.1, t)) p.2 with hT
+  set Y : E × ℝ → E := fun q ↦ X (q.1, q.2 + φ q.1) with hY
+  set G : E × ℝ → ℝ := fun q ↦ T₀ (S q) - fderiv ℝ φ q.1 (T (S q)) with hG
+  have hYd : ContDiff ℝ 1 Y :=
+    hX.comp (contDiff_fst.prodMk (contDiff_snd.add (hφ.comp contDiff_fst)))
+  have hYc : HasCompactSupport Y := hXc.comp_homeomorph S
+  have hGc : Continuous G :=
+    (hX₀.continuous_deriv_comp_prodMk_right.comp S.continuous).sub
+      (((hφ.continuous_fderiv one_ne_zero).comp continuous_fst).clm_apply
+        (hX.continuous_deriv_comp_prodMk_right.comp S.continuous))
+  have hGs : HasCompactSupport G := by
+    refine (hX₀c.deriv_comp_prodMk_right.comp_homeomorph S).sub
+      ((hXc.deriv_comp_prodMk_right.comp_homeomorph S).mono fun q hq ↦ ?_)
+    contrapose hq
+    simp only [mem_support, not_not, comp_apply] at hq ⊢
+    have hq' : T (S q) = 0 := hq
+    rw [hq', map_zero]
+  have hGi : Integrable G (μ.prod volume) := hGc.integrable_of_hasCompactSupport hGs
+  have hYi : Integrable (spatialDivergence Y) (μ.prod volume) :=
+    hYd.continuous_spatialDivergence.integrable_of_hasCompactSupport hYc.spatialDivergence
+  -- change of variables along the shear, which maps the lower half-space onto the hypograph
+  have hpre : (fun q : E × ℝ ↦ (q.1, q.2 + φ q.1)) ⁻¹' {p : E × ℝ | p.2 ≤ φ p.1} =
+      univ ×ˢ Iic 0 := by
+    ext q
+    simp
+  rw [← (measurePreserving_shear hφ.continuous.measurable).setIntegral_preimage_emb
+    S.measurableEmbedding, hpre]
+  -- the pulled back integrand splits into a time part and a space part
+  have hpt : ∀ q : E × ℝ, T₀ (S q) + spatialDivergence X (S q) = G q + spatialDivergence Y q := by
+    rintro ⟨x, τ⟩
+    have h := spatialDivergence_shear (hφ.differentiable one_ne_zero x)
+      (hX.differentiable one_ne_zero (x, τ + φ x))
+    simp only [hG, hY, hT₀, hT, hS, Homeomorph.shear_apply] at h ⊢
+    rw [h]
+    ring
+  -- the time part: the fundamental theorem of calculus in `τ`, for each `x`
+  have h₂ : ∫ q in univ ×ˢ Iic (0 : ℝ), G q ∂μ.prod volume =
+      ∫ x, (X₀ (x, φ x) - fderiv ℝ φ x (X (x, φ x))) ∂μ := by
+    rw [setIntegral_prod _ hGi.integrableOn, Measure.restrict_univ]
+    refine integral_congr_ae (Eventually.of_forall fun x ↦ ?_)
+    set g : ℝ → ℝ := fun τ ↦ X₀ (x, τ + φ x) - fderiv ℝ φ x (X (x, τ + φ x)) with hg
+    have hxt : ContDiff ℝ 1 fun τ : ℝ ↦ (x, τ + φ x) :=
+      contDiff_const.prodMk (contDiff_id.add contDiff_const)
+    have hgd : ContDiff ℝ 1 g :=
+      (hX₀.comp hxt).sub ((fderiv ℝ φ x).contDiff.comp (hX.comp hxt))
+    have hgc : HasCompactSupport g := by
+      have h : HasCompactSupport fun p : E × ℝ ↦ X₀ p - fderiv ℝ φ x (X p) :=
+        hX₀c.sub (hXc.comp_left (g := fderiv ℝ φ x) (map_zero _))
+      exact (h.comp_homeomorph S).comp_prodMkRight x
+    have hg' : ∀ τ, deriv g τ = G (x, τ) := by
+      intro τ
+      have h₀ : HasDerivAt (fun τ ↦ X₀ (x, τ + φ x)) (T₀ (x, τ + φ x)) τ :=
+        ((hX₀.comp (contDiff_const.prodMk contDiff_id)).differentiable one_ne_zero
+          (τ + φ x)).hasDerivAt.comp_add_const τ (φ x)
+      have h₁ : HasDerivAt (fun τ ↦ X (x, τ + φ x)) (T (x, τ + φ x)) τ :=
+        ((hX.comp (contDiff_const.prodMk contDiff_id)).differentiable one_ne_zero
+          (τ + φ x)).hasDerivAt.comp_add_const τ (φ x)
+      exact (h₀.sub ((fderiv ℝ φ x).hasFDerivAt.comp_hasDerivAt τ h₁)).deriv
+    simp_rw [← hg']
+    rw [hgc.integral_Iic_deriv_eq hgd 0]
+    simp [hg]
+  -- the space part: for each `τ`, the divergence of the compactly supported field `Y (·, τ)`
+  -- integrates to zero
+  have h₃ : ∫ q in univ ×ˢ Iic (0 : ℝ), spatialDivergence Y q ∂μ.prod volume = 0 := by
+    have hYi' : Integrable (spatialDivergence Y) (μ.prod (volume.restrict (Iic 0))) := by
+      have h := hYi.integrableOn (s := univ ×ˢ Iic (0 : ℝ))
+      rwa [IntegrableOn, ← Measure.prod_restrict, Measure.restrict_univ] at h
+    rw [← Measure.prod_restrict, Measure.restrict_univ, integral_prod_symm _ hYi']
+    refine integral_eq_zero_of_ae (Eventually.of_forall fun τ ↦ ?_)
+    exact integral_trace_fderiv_eq_zero (μ := μ) (V := fun y ↦ Y (y, τ))
+      (hYd.comp (contDiff_id.prodMk contDiff_const)) (hYc.comp_prodMkLeft τ)
+  calc _ = ∫ q in univ ×ˢ Iic (0 : ℝ), (G q + spatialDivergence Y q) ∂μ.prod volume :=
+        integral_congr_ae (Eventually.of_forall hpt)
+    _ = _ := by rw [integral_add hGi.integrableOn hYi.integrableOn, h₂, h₃, add_zero]
 
 end MeasureTheory
