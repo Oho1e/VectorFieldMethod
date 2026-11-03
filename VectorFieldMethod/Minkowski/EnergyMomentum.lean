@@ -7,6 +7,7 @@ module
 
 public import VectorFieldMethod.Minkowski.WaveOperator
 public import Mathlib.Analysis.InnerProductSpace.Calculus
+public import Mathlib.Analysis.SpecialFunctions.ExpDeriv
 public import Mathlib.LinearAlgebra.Matrix.Symmetric
 
 /-!
@@ -29,8 +30,8 @@ For a field `u : Spacetime → F` with values in a real inner product space `F` 
 
 * `derivAlong_inner`, `derivAlong_norm_sq`: the Leibniz rules `V ⟪u, v⟫ = ⟪V u, v⟫ + ⟪u, V v⟫`
   and `V ‖u‖² = 2 ⟪u, V u⟫` at a point where `u` and `v` are differentiable.
-* `energyMomentum_swap`: `T_{βα} = T_{αβ}`.
-* `sum_minkowskiMetric_mul_partialDeriv_energyMomentum`: the divergence identity
+* `energyMomentum_swap`: `T_{αβ} = T_{βα}`.
+* `sum_sum_minkowskiMetric_mul_partialDeriv_energyMomentum`: the divergence identity
   `η^{αγ} ∂_γ T_{αβ} = ⟪□u - m² u, ∂_β u⟫` at a point where `u` is `C²`.
 * `spacetimeDiv_energyCurrent`: the energy identity `∂_α P^α = -⟪□u - m² u, ∂_t u⟫` at a point
   where `u` is `C²`, and `spacetimeDiv_energyCurrent_eq_zero`: `∂_α P^α = 0` at `p` if moreover
@@ -43,9 +44,9 @@ For a field `u : Spacetime → F` with values in a real inner product space `F` 
 
 The tensor carries the factor `½`, so that the energy density is
 `P^0 = T_{00} = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²)`. Texts that define the energy density
-without the factor `½`, as `‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²`, have a tensor, a current and an
-energy that are twice the ones of this file; the identities of this file hold for them after
-multiplying both sides by `2`.
+without the factor `½`, as `‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²`, use the tensor `2 T_{αβ}` and the
+current `2 P^α`, which differ from the ones of this file by the factor `2`; their versions of the
+identities below are the ones of this file multiplied by `2`.
 
 ## Conventions
 
@@ -129,20 +130,21 @@ theorem energyCurrent_apply (m : ℝ) (u : Spacetime → F) (α : Fin 4) (p : Sp
 
 /-! ### Symmetry -/
 
-/-- The energy-momentum tensor is symmetric: `T_{βα} = T_{αβ}`. -/
+/-- The energy-momentum tensor is symmetric: `T_{αβ} = T_{βα}`. -/
 theorem energyMomentum_swap (m : ℝ) (u : Spacetime → F) (α β : Fin 4) :
-    energyMomentum m u β α = energyMomentum m u α β := by
+    energyMomentum m u α β = energyMomentum m u β α := by
   funext p
-  rw [energyMomentum_apply, energyMomentum_apply, real_inner_comm (∂[α] u p),
-    Matrix.IsSymm.apply transpose_minkowskiMetric α β]
+  rw [energyMomentum_apply, energyMomentum_apply, real_inner_comm (∂[β] u p),
+    Matrix.IsSymm.apply transpose_minkowskiMetric β α]
 
 /-! ### Sums against the diagonal metric -/
 
+/-- The off-diagonal entries of `η` vanish. -/
 theorem minkowskiMetric_apply_of_ne {α β : Fin 4} (h : α ≠ β) : η α β = 0 :=
   Matrix.diagonal_apply_ne _ h
 
 /-- `η_{αα}² = 1`. -/
-theorem minkowskiMetric_mul_minkowskiMetric_self (α : Fin 4) : η α α * η α α = 1 := by
+theorem minkowskiMetric_self_mul_self (α : Fin 4) : η α α * η α α = 1 := by
   cases α using Fin.cases <;> simp [minkowskiMetric_zero_zero, minkowskiMetric_succ_succ]
 
 /-- `η` is diagonal: `∑ γ, η_{αγ} f_γ = η_{αα} f_α`, for `f` with values in a real vector space. -/
@@ -187,13 +189,13 @@ theorem partialDeriv_energyMomentum (m : ℝ) (α β γ : Fin 4) (hu : ContDiffA
 
 /-- The divergence identity `η^{αγ} ∂_γ T_{αβ} = ⟪□u - m² u, ∂_β u⟫` at a point where `u` is
 `C²`. -/
-theorem sum_minkowskiMetric_mul_partialDeriv_energyMomentum (m : ℝ) (β : Fin 4)
+theorem sum_sum_minkowskiMetric_mul_partialDeriv_energyMomentum (m : ℝ) (β : Fin 4)
     (hu : ContDiffAt ℝ 2 u p) :
     ∑ α, ∑ γ, η α γ * ∂[γ] (energyMomentum m u α β) p = ⟪kleinGordon m u p, ∂[β] u p⟫ := by
   have hdiag (f : Fin 4 → ℝ) : ∑ α, η α α * (η α β * f α) = f β := by
     rw [Fintype.sum_eq_single β fun α hα ↦ by
         rw [minkowskiMetric_apply_of_ne hα, zero_mul, mul_zero],
-      ← mul_assoc, minkowskiMetric_mul_minkowskiMetric_self, one_mul]
+      ← mul_assoc, minkowskiMetric_self_mul_self, one_mul]
   have hsymm : ∑ α, η α α * ⟪∂[α] u p, ∂[α] (∂[β] u) p⟫ =
       ∑ α, η α α * ⟪∂[α] u p, ∂[β] (∂[α] u) p⟫ :=
     Finset.sum_congr rfl fun α _ ↦ by rw [partialDeriv_comm_apply α β hu]
@@ -214,7 +216,7 @@ theorem energyCurrent_eq (m : ℝ) (u : Spacetime → F) (α : Fin 4) :
 /-- The energy identity `∂_α P^α = -⟪□u - m² u, ∂_t u⟫` at a point where `u` is `C²`. -/
 theorem spacetimeDiv_energyCurrent (m : ℝ) (hu : ContDiffAt ℝ 2 u p) :
     spacetimeDiv (energyCurrent m u) p = -⟪kleinGordon m u p, ∂ₜ u p⟫ := by
-  rw [← partialDeriv_zero, ← sum_minkowskiMetric_mul_partialDeriv_energyMomentum m 0 hu]
+  rw [← partialDeriv_zero, ← sum_sum_minkowskiMetric_mul_partialDeriv_energyMomentum m 0 hu]
   simp only [spacetimeDiv_apply, energyCurrent_eq, partialDeriv, derivAlong_const_mul,
     sum_minkowskiMetric_mul]
   simp only [neg_mul, Finset.sum_neg_distrib]
@@ -308,5 +310,46 @@ example (m : ℝ) (p : Spacetime) :
     ring
   · rw [energyCurrent_succ, ht, hs]
     simp
+
+/-- The plane wave `u = e^{-imt}` (`F = ℂ`) solves `□u - m² u = 0` for every mass `m`, so the
+hypotheses of `spacetimeDiv_energyCurrent_eq_zero` hold for it and its energy current is
+divergence free; its energy density is `P^0 = m²`. -/
+example (m : ℝ) (p : Spacetime) :
+    spacetimeDiv (energyCurrent m fun q ↦ Complex.exp (-(m * timeCoord q) • Complex.I)) p = 0 ∧
+      energyCurrent m (fun q ↦ Complex.exp (-(m * timeCoord q) • Complex.I)) 0 p = m ^ 2 := by
+  set u : Spacetime → ℂ := fun q ↦ Complex.exp (-(m * timeCoord q) • Complex.I)
+  have hd (V : Spacetime → Spacetime) (q : Spacetime) :
+      derivAlong V u q = (-(m * (V q).1)) • Complex.I * u q := by
+    have h := HasFDerivAt.cexp
+      ((((hasFDerivAt_timeCoord q).const_mul m).fun_neg).smul_const Complex.I)
+    rw [derivAlong_eq_of_hasFDerivAt h]
+    simp [u]
+    ring
+  have ht : ∂ₜ u = (-m • Complex.I) • u := by
+    funext q
+    rw [timeDeriv, hd]
+    simp [timeField]
+  have hs (a : Fin 3) : ∂ₓ[a] u = fun _ ↦ 0 := by
+    funext q
+    rw [spaceDeriv, hd]
+    simp [spaceField]
+  have hnorm (q : Spacetime) : ‖u q‖ = 1 := by
+    simp only [u, Complex.real_smul]
+    exact Complex.norm_exp_ofReal_mul_I _
+  have hKG : kleinGordon m u = 0 := by
+    funext q
+    rw [kleinGordon_apply, dAlembertian_eq, ht, timeDeriv_const_smul_field, ht]
+    simp only [hs, spaceDeriv_const, Finset.sum_const_zero, add_zero, Pi.smul_apply,
+      smul_eq_mul, Pi.zero_apply, Complex.real_smul]
+    push_cast
+    linear_combination (-(m : ℂ) ^ 2 * u q) * Complex.I_sq
+  have hu : ContDiffAt ℝ 2 u p := by
+    simp only [u]
+    fun_prop
+  refine ⟨spacetimeDiv_energyCurrent_eq_zero m hu (Eventually.of_forall fun q ↦ congrFun hKG q),
+    ?_⟩
+  rw [energyCurrent_zero, ht]
+  simp [hs, hnorm]
+  ring
 
 end VectorFieldMethod.Minkowski
