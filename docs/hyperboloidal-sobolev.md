@@ -97,8 +97,7 @@ where `J` runs over the 13 ordered multi-indices of length at most 2.
   here works on the ball `B(x₀, φ_s(x₀)/3)` whatever the support is.
 * `Λ_a` depends on `s` through the weight `φ_s`, while `L_a` does not.
 
-The formalization of the lemma and of the consequence on `H_s` is left for a
-later session.
+The lemma and the consequence on `H_s` are left for later formalization.
 
 ## Proofs
 
@@ -129,9 +128,9 @@ neither polar coordinates nor cut-off functions. Write `|B|` for the volume of
 4. *Conclusion* (`exists_abs_le_eLpNorm_ball`). Divide by
    `|B| = ρ³ |B(0, 1)|`.
 
-In step 3 the suggested route first changed variables `z = t(y - x₀)`, exchanged
-the integrals a second time and applied Cauchy–Schwarz against the weight
-`|z|^{-1}`, which requires `∫_{B(0, ρ)} |z|^{-2} dz ≤ Cρ`. Applying
+In step 3, another classical approach first changes variables `z = t(y - x₀)`,
+exchanges the integrals a second time and applies Cauchy–Schwarz against the
+weight `|z|^{-1}`, which requires `∫_{B(0, ρ)} |z|^{-2} dz ≤ Cρ`. Applying
 Cauchy–Schwarz in `y` for each fixed `t` instead needs only one exchange of
 integrals, no singular weight, and the elementary integral `∫₀¹ t^{-1/2} dt = 2`.
 

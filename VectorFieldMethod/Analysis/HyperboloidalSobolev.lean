@@ -72,9 +72,10 @@ namespace VectorFieldMethod.EuclideanSobolev
 local notation "ℝ³" => EuclideanSpace ℝ (Fin 3)
 
 /-- The hyperboloidal weighted derivative `Λ_a w = φ_s ∂_a w` on `ℝ³`, where
-`φ_s x = √(s ^ 2 + ‖x‖ ^ 2)` and `∂_a w x = fderiv ℝ w x (EuclideanSpace.single a 1)`. If
-`w x = u (√(s ^ 2 + ‖x‖ ^ 2), x)` is the restriction of a spacetime function `u` to the hyperboloid
-`t = φ_s x`, then `Λ_a w` is the restriction of the boost `L_a u = t ∂_a u + x_a ∂_t u`. -/
+`φ_s x = √(s ^ 2 + ‖x‖ ^ 2)` and `∂_a w x = fderiv ℝ w x (EuclideanSpace.single a 1)`. Let
+`s ≠ 0` (so that `φ_s` is smooth) and let `w x = u (√(s ^ 2 + ‖x‖ ^ 2), x)` be the restriction
+to the hyperboloid `t = φ_s x` of a spacetime function `u` that is `C¹` on a neighbourhood of the
+hyperboloid. Then `Λ_a w` is the restriction of the boost `L_a u = t ∂_a u + x_a ∂_t u`. -/
 def hyperboloidalWeightedDeriv (s : ℝ) (a : Fin 3) (w : EuclideanSpace ℝ (Fin 3) → ℝ) :
     EuclideanSpace ℝ (Fin 3) → ℝ :=
   fun x ↦ √(s ^ 2 + ‖x‖ ^ 2) * fderiv ℝ w x (EuclideanSpace.single a 1)
