@@ -19,12 +19,15 @@ Besides the four translations `∂_α` (`partialDeriv`), the vector field method
 
 This gives `4 + 3 + 3 + 1 = 11` vector fields. Each is `derivAlong` applied to a named component
 field (`rotationField`, `boostField`, `scalingField`). Spatial indices are raised and lowered
-without changing the value, `x_a = x^a`.
+without changing the value, `x_a = x^a`. Like `derivAlong`, the operators act on functions
+`Spacetime → F` with values in an arbitrary real normed space `F`; the coefficients `t`, `x_a`
+are real and act by scalar multiplication.
 
 ## Main statements
 
 * `rotation_eq`, `boost_eq`, `scaling_eq`: the defining formulas in terms of `∂_t`, `∂_a`.
-* Linearity (`*_smul`, `*_add`) and smoothness (`contDiff_*`, `contDiff_infty_*`).
+* Linearity (`*_smul`, `*_add`), smoothness (`contDiff_*`, `contDiff_infty_*`) and commutation
+  with continuous linear maps (`*_clm_comp`).
 * Values on the coordinates: `rotation_spaceCoord`, `boost_timeCoord`, `scaling_spaceCoord`, etc.
 * `rotation_swap`: `Ω_ba = -Ω_ab`.
 -/
@@ -35,7 +38,9 @@ open scoped ContDiff
 
 namespace VectorFieldMethod.Minkowski
 
-variable {u v : Spacetime → ℝ} {p : Spacetime} {n : ℕ∞ω}
+variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
+variable {G : Type*} [NormedAddCommGroup G] [NormedSpace ℝ G]
+variable {u v : Spacetime → F} {p : Spacetime} {n : ℕ∞ω}
 
 /-! ### Definitions -/
 
@@ -46,7 +51,7 @@ def rotationField (a b : Fin 3) : Spacetime → Spacetime :=
     (0, spaceCoord a p • EuclideanSpace.single b 1 - spaceCoord b p • EuclideanSpace.single a 1)
 
 /-- The rotation `Ω_ab u = x_a ∂_b u - x_b ∂_a u`, for `a b : Fin 3`. -/
-def rotation (a b : Fin 3) : (Spacetime → ℝ) → Spacetime → ℝ :=
+def rotation (a b : Fin 3) : (Spacetime → F) → Spacetime → F :=
   derivAlong (rotationField a b)
 
 /-- The component field of the boost `L_a = t ∂_a + x_a ∂_t`: `p ↦ (x_a, t e_a)`. -/
@@ -54,7 +59,7 @@ def boostField (a : Fin 3) : Spacetime → Spacetime :=
   fun p ↦ (spaceCoord a p, timeCoord p • EuclideanSpace.single a 1)
 
 /-- The Lorentz boost `L_a u = t ∂_a u + x_a ∂_t u`, for `a : Fin 3`. -/
-def boost (a : Fin 3) : (Spacetime → ℝ) → Spacetime → ℝ :=
+def boost (a : Fin 3) : (Spacetime → F) → Spacetime → F :=
   derivAlong (boostField a)
 
 /-- The component field of the scaling field `S = t ∂_t + ∑ a, x_a ∂_a`: its components at
@@ -63,18 +68,18 @@ def scalingField : Spacetime → Spacetime :=
   fun p ↦ p
 
 /-- The scaling vector field `S u = t ∂_t u + ∑ a, x_a ∂_a u`. -/
-def scaling : (Spacetime → ℝ) → Spacetime → ℝ :=
+def scaling : (Spacetime → F) → Spacetime → F :=
   derivAlong scalingField
 
-theorem rotation_apply (a b : Fin 3) (u : Spacetime → ℝ) (p : Spacetime) :
+theorem rotation_apply (a b : Fin 3) (u : Spacetime → F) (p : Spacetime) :
     rotation a b u p = fderiv ℝ u p (rotationField a b p) :=
   rfl
 
-theorem boost_apply (a : Fin 3) (u : Spacetime → ℝ) (p : Spacetime) :
+theorem boost_apply (a : Fin 3) (u : Spacetime → F) (p : Spacetime) :
     boost a u p = fderiv ℝ u p (boostField a p) :=
   rfl
 
-theorem scaling_apply (u : Spacetime → ℝ) (p : Spacetime) :
+theorem scaling_apply (u : Spacetime → F) (p : Spacetime) :
     scaling u p = fderiv ℝ u p p :=
   rfl
 
@@ -96,22 +101,22 @@ theorem scalingField_eq (p : Spacetime) :
       Finset.sum_apply, Pi.single_apply, mul_ite]
 
 /-- `Ω_ab u = x_a ∂_b u - x_b ∂_a u`. -/
-theorem rotation_eq (a b : Fin 3) (u : Spacetime → ℝ) (p : Spacetime) :
-    rotation a b u p = spaceCoord a p * ∂ₓ[b] u p - spaceCoord b p * ∂ₓ[a] u p := by
+theorem rotation_eq (a b : Fin 3) (u : Spacetime → F) (p : Spacetime) :
+    rotation a b u p = spaceCoord a p • ∂ₓ[b] u p - spaceCoord b p • ∂ₓ[a] u p := by
   rw [rotation_apply, rotationField_eq, map_sub, map_smul, map_smul]
   rfl
 
 /-- `L_a u = t ∂_a u + x_a ∂_t u`. -/
-theorem boost_eq (a : Fin 3) (u : Spacetime → ℝ) (p : Spacetime) :
-    boost a u p = timeCoord p * ∂ₓ[a] u p + spaceCoord a p * ∂ₜ u p := by
+theorem boost_eq (a : Fin 3) (u : Spacetime → F) (p : Spacetime) :
+    boost a u p = timeCoord p • ∂ₓ[a] u p + spaceCoord a p • ∂ₜ u p := by
   rw [boost_apply, boostField_eq, map_add, map_smul, map_smul]
   rfl
 
 /-- `S u = t ∂_t u + ∑ a, x_a ∂_a u`. -/
-theorem scaling_eq (u : Spacetime → ℝ) (p : Spacetime) :
-    scaling u p = timeCoord p * ∂ₜ u p + ∑ a, spaceCoord a p * ∂ₓ[a] u p := by
+theorem scaling_eq (u : Spacetime → F) (p : Spacetime) :
+    scaling u p = timeCoord p • ∂ₜ u p + ∑ a, spaceCoord a p • ∂ₓ[a] u p := by
   rw [scaling, derivAlong_apply, scalingField_eq, map_add, map_smul, map_sum]
-  simp only [map_smul, smul_eq_mul]
+  simp only [map_smul]
   rfl
 
 /-! ### Antisymmetry of the rotations -/
@@ -121,26 +126,26 @@ theorem rotationField_swap (a b : Fin 3) : rotationField b a = -rotationField a 
   ext <;> simp [rotationField]
 
 /-- `Ω_ba = -Ω_ab`. -/
-theorem rotation_swap (a b : Fin 3) (u : Spacetime → ℝ) : rotation b a u = -rotation a b u := by
+theorem rotation_swap (a b : Fin 3) (u : Spacetime → F) : rotation b a u = -rotation a b u := by
   funext p
   rw [rotation_apply, rotationField_swap, Pi.neg_apply, map_neg]
   rfl
 
 /-- `Ω_aa = 0`. -/
-theorem rotation_self (a : Fin 3) (u : Spacetime → ℝ) : rotation a a u = fun _ ↦ 0 := by
+theorem rotation_self (a : Fin 3) (u : Spacetime → F) : rotation a a u = fun _ ↦ 0 := by
   funext p
   simp [rotation_apply, rotationField, Prod.mk_zero_zero]
 
 /-! ### Linearity -/
 
-theorem rotation_smul (a b : Fin 3) (c : ℝ) (u : Spacetime → ℝ) :
+theorem rotation_smul (a b : Fin 3) (c : ℝ) (u : Spacetime → F) :
     rotation a b (c • u) = c • rotation a b u :=
   derivAlong_smul _ c u
 
-theorem boost_smul (a : Fin 3) (c : ℝ) (u : Spacetime → ℝ) : boost a (c • u) = c • boost a u :=
+theorem boost_smul (a : Fin 3) (c : ℝ) (u : Spacetime → F) : boost a (c • u) = c • boost a u :=
   derivAlong_smul _ c u
 
-theorem scaling_smul (c : ℝ) (u : Spacetime → ℝ) : scaling (c • u) = c • scaling u :=
+theorem scaling_smul (c : ℝ) (u : Spacetime → F) : scaling (c • u) = c • scaling u :=
   derivAlong_smul _ c u
 
 theorem rotation_add (a b : Fin 3) (hu : DifferentiableAt ℝ u p) (hv : DifferentiableAt ℝ v p) :
@@ -155,18 +160,32 @@ theorem scaling_add (hu : DifferentiableAt ℝ u p) (hv : DifferentiableAt ℝ v
     scaling (u + v) p = scaling u p + scaling v p :=
   derivAlong_add _ hu hv
 
+/-! ### Commutation with continuous linear maps -/
+
+theorem rotation_clm_comp (a b : Fin 3) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+    rotation a b (T ∘ u) p = T (rotation a b u p) :=
+  derivAlong_clm_comp _ T hu
+
+theorem boost_clm_comp (a : Fin 3) (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+    boost a (T ∘ u) p = T (boost a u p) :=
+  derivAlong_clm_comp _ T hu
+
+theorem scaling_clm_comp (T : F →L[ℝ] G) (hu : DifferentiableAt ℝ u p) :
+    scaling (T ∘ u) p = T (scaling u p) :=
+  derivAlong_clm_comp _ T hu
+
 /-! ### Values on constants and coordinates -/
 
 @[simp]
-theorem rotation_const (a b : Fin 3) (c : ℝ) : rotation a b (fun _ ↦ c) = fun _ ↦ 0 :=
+theorem rotation_const (a b : Fin 3) (c : F) : rotation a b (fun _ ↦ c) = fun _ ↦ 0 :=
   derivAlong_const _ c
 
 @[simp]
-theorem boost_const (a : Fin 3) (c : ℝ) : boost a (fun _ ↦ c) = fun _ ↦ 0 :=
+theorem boost_const (a : Fin 3) (c : F) : boost a (fun _ ↦ c) = fun _ ↦ 0 :=
   derivAlong_const _ c
 
 @[simp]
-theorem scaling_const (c : ℝ) : scaling (fun _ ↦ c) = fun _ ↦ 0 :=
+theorem scaling_const (c : F) : scaling (fun _ ↦ c) = fun _ ↦ 0 :=
   derivAlong_const _ c
 
 /-- `Ω_ab t = 0`. -/

@@ -27,6 +27,9 @@ through `r² = ∑ a, x_a²` (`radius_sq`).
 * `boost_timeCoord_sq_sub_radius_sq`: `L_a (t² - r²) = 0`.
 * `rotation_radius_sq`: `Ω_ab (r²) = 0`.
 * `scaling_timeCoord_sq_sub_radius_sq`: `S (t² - r²) = 2 (t² - r²)`.
+
+These computations are for real-valued functions (`F = ℝ`). The section "Sanity checks" at the end
+applies the operators to complex-valued and vector-valued functions.
 -/
 
 @[expose] public noncomputable section
@@ -146,5 +149,61 @@ theorem scaling_timeCoord_sq_sub_radius_sq :
   rw [radius_sq]
   simp only [scalingField, sq, timeCoord, spaceCoord]
   ring
+
+/-! ### Sanity checks
+
+The operators act on functions with values in an arbitrary real normed space `F`. The first
+examples apply them to complex-valued and vector-valued functions, through the commutation with
+continuous linear maps (`dAlembertian_clm_comp`, `kleinGordon_clm_comp`). The last examples check
+that for `F = ℝ`, where `•` is multiplication, the definitions and the defining formulas are the
+real-valued ones, by `rfl` or by the general lemma itself. -/
+
+/-- `□ (t²) = -2` for `t²` as a complex-valued function. -/
+example : □ (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ)) = fun _ ↦ -2 := by
+  funext p
+  have h : (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ)) = Complex.ofRealCLM ∘ fun p ↦ timeCoord p ^ 2 :=
+    rfl
+  rw [h, dAlembertian_clm_comp _ (by fun_prop), dAlembertian_timeCoord_sq, Complex.ofRealCLM_apply]
+  push_cast
+  rfl
+
+/-- `KG_m (t²) = -2 - m² t²` for `t²` as a complex-valued function. -/
+example (m : ℝ) :
+    kleinGordon m (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ)) =
+      fun p ↦ -2 - m ^ 2 • ((timeCoord p ^ 2 : ℝ) : ℂ) := by
+  funext p
+  have h : (fun p ↦ ((timeCoord p ^ 2 : ℝ) : ℂ)) = Complex.ofRealCLM ∘ fun p ↦ timeCoord p ^ 2 :=
+    rfl
+  rw [h, kleinGordon_clm_comp m _ (by fun_prop), kleinGordon_apply, dAlembertian_timeCoord_sq,
+    map_sub, map_smul, Complex.ofRealCLM_apply, Complex.ofRealCLM_apply]
+  push_cast
+  rfl
+
+/-- `□ (t² w) = -2 w` for a fixed vector `w` of any real normed space `F`. -/
+example {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F] (w : F) :
+    □ (fun p ↦ timeCoord p ^ 2 • w) = fun _ ↦ (-2 : ℝ) • w := by
+  funext p
+  have h : (fun p ↦ timeCoord p ^ 2 • w) =
+      ContinuousLinearMap.toSpanSingleton ℝ w ∘ fun p ↦ timeCoord p ^ 2 :=
+    rfl
+  rw [h, dAlembertian_clm_comp _ (by fun_prop), dAlembertian_timeCoord_sq,
+    ContinuousLinearMap.toSpanSingleton_apply]
+
+/-- For `F = ℝ`, `□` is the original `∑ α, ∑ β, η α β * ∂[α] (∂[β] u) p`. -/
+example (u : Spacetime → ℝ) (p : Spacetime) :
+    □ u p = ∑ α, ∑ β, η α β * ∂[α] (∂[β] u) p :=
+  rfl
+
+/-- For `F = ℝ`, the Klein–Gordon operator is the original `□ u p - m ^ 2 * u p`. -/
+example (m : ℝ) (u : Spacetime → ℝ) (p : Spacetime) :
+    kleinGordon m u p = □ u p - m ^ 2 * u p :=
+  rfl
+
+/-- For `F = ℝ`, `rotation_eq`, `boost_eq` and `scaling_eq` give the formulas with products. -/
+example (a b : Fin 3) (u : Spacetime → ℝ) (p : Spacetime) :
+    rotation a b u p = spaceCoord a p * ∂ₓ[b] u p - spaceCoord b p * ∂ₓ[a] u p ∧
+      boost a u p = timeCoord p * ∂ₓ[a] u p + spaceCoord a p * ∂ₜ u p ∧
+      scaling u p = timeCoord p * ∂ₜ u p + ∑ c, spaceCoord c p * ∂ₓ[c] u p :=
+  ⟨rotation_eq a b u p, boost_eq a u p, scaling_eq u p⟩
 
 end VectorFieldMethod.Minkowski
