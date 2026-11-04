@@ -6,7 +6,9 @@ Authors: VectorFieldMethod contributors
 module
 
 public import VectorFieldMethod.Minkowski.HyperboloidalEnergyIdentity
+public import VectorFieldMethod.Minkowski.KlainermanSobolev
 public import Mathlib.MeasureTheory.Function.JacobianOneDim
+public import Mathlib.MeasureTheory.Function.L2Space
 
 /-!
 # The hyperboloidal energy estimate for the Klein–Gordon field
@@ -30,6 +32,12 @@ Write `φ_s(x) = √(s ^ 2 + ‖x‖ ^ 2)`, so that the hyperboloid `H_s` is the
   hold on the region between `H_{s₀}` and `H_S`, they hold between any two intermediate
   hyperboloids `H_{s₁}`, `H_{s₂}` (`regionBetweenHyperboloids_inter_cone_subset_of_le`,
   `regionBetweenHyperboloids_inter_tsupport_subset_of_le`), and the energy identity holds there.
+* `sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity`: on `H_s`,
+  `(s / t)² ‖∂_t u‖² ≤ e_m[u]`.
+* `abs_integral_mul_inner_timeDeriv_le`: by Cauchy–Schwarz,
+  `|∫_{ℝ³} (s / t) ⟪f, ∂_t u⟫(φ_s(x), x) dx| ≤ ‖f‖_{L²_f(H_s)} E_m(s, u)^{1/2}`, where
+  `‖f‖_{L²_f(H_s)} = (∫_{ℝ³} ‖f(φ_s(x), x)‖² dx)^{1/2}` is the `L²` norm on `H_s` for the flat
+  measure `dx` (`eLpNorm (restrictHyperboloid s f) 2 volume`).
 
 ## Implementation notes
 
@@ -232,6 +240,83 @@ theorem hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le (m : ℝ) {s₀ S : �
     (regionBetweenHyperboloids_inter_cone_subset_of_le hs₀.le h₀₁ h₁₂.le h₂S hDU) hu
     (regionBetweenHyperboloids_inter_tsupport_subset_of_le hs₀.le h₀₁ h₁₂.le h₂S hsupp)
 
+/-! ### Cauchy–Schwarz on a hyperboloid -/
+
+/-- On the hyperboloid `H_s` (`s ≠ 0`), at the point `(t, x)` with `t = √(s ^ 2 + ‖x‖ ^ 2)`:
+`(s / t)² ‖∂_t u‖² ≤ e_m[u]`. This follows from the form
+`e_m[u] = ∑ a, ‖∂̲_a u‖² + (s² / t²) ‖∂_t u‖² + m² ‖u‖²` of the energy density on `H_s`. -/
+theorem sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity (m : ℝ) (u : Spacetime → F)
+    {s : ℝ} (hs : s ≠ 0) (x : EuclideanSpace ℝ (Fin 3)) :
+    (s / √(s ^ 2 + ‖x‖ ^ 2)) ^ 2 * ‖∂ₜ u (√(s ^ 2 + ‖x‖ ^ 2), x)‖ ^ 2 ≤
+      hyperboloidalEnergyDensity m u (√(s ^ 2 + ‖x‖ ^ 2), x) := by
+  rw [hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid m u hs x, div_pow]
+  have h1 : 0 ≤ ∑ a, ‖semiHyperboloidalDeriv a u (√(s ^ 2 + ‖x‖ ^ 2), x)‖ ^ 2 :=
+    Finset.sum_nonneg fun a _ ↦ sq_nonneg _
+  have h2 : 0 ≤ m ^ 2 * ‖u (√(s ^ 2 + ‖x‖ ^ 2), x)‖ ^ 2 := by positivity
+  linarith
+
+/-- **Cauchy–Schwarz on a hyperboloid.** Let `s ≠ 0`, `t = √(s ^ 2 + ‖x‖ ^ 2)`, and
+`f : Spacetime → F` with `f|_{H_s}` square integrable. If `∂_t u|_{H_s}` is (a.e. strongly)
+measurable and the energy density `e_m[u]` is integrable on `H_s`, then
+`|∫_{ℝ³} (s / t) ⟪f, ∂_t u⟫(t, x) dx| ≤ ‖f‖_{L²_f(H_s)} E_m(s, u)^{1/2}`, where
+`‖f‖_{L²_f(H_s)} = (∫_{ℝ³} ‖f(t, x)‖² dx)^{1/2}` is the `L²` norm on `H_s` for the flat
+measure `dx`.
+
+The proof is Cauchy–Schwarz (Hölder with `p = q = 2`) for `f` and `(s / t) ∂_t u` on `H_s`,
+together with `(s / t)² ‖∂_t u‖² ≤ e_m[u]`. -/
+theorem abs_integral_mul_inner_timeDeriv_le (m : ℝ) {s : ℝ} (hs : s ≠ 0) {f : Spacetime → F}
+    (hf : MemLp (restrictHyperboloid s f) 2 volume)
+    (hu : AEStronglyMeasurable (restrictHyperboloid s (∂ₜ u)) volume)
+    (he : Integrable fun x : EuclideanSpace ℝ (Fin 3) ↦
+      hyperboloidalEnergyDensity m u (√(s ^ 2 + ‖x‖ ^ 2), x)) :
+    |∫ x : EuclideanSpace ℝ (Fin 3),
+        s / √(s ^ 2 + ‖x‖ ^ 2) * ⟪f (√(s ^ 2 + ‖x‖ ^ 2), x), ∂ₜ u (√(s ^ 2 + ‖x‖ ^ 2), x)⟫| ≤
+      (eLpNorm (restrictHyperboloid s f) 2 volume).toReal * √(hyperboloidalEnergy m s u) := by
+  -- `G x = (s / t) ∂_t u (t, x)` on `H_s`, with `‖G‖² ≤ e_m[u]`
+  set G : EuclideanSpace ℝ (Fin 3) → F :=
+    fun x ↦ (s / √(s ^ 2 + ‖x‖ ^ 2)) • ∂ₜ u (√(s ^ 2 + ‖x‖ ^ 2), x) with hGdef
+  have hGm : AEStronglyMeasurable G volume :=
+    (continuous_const.div (by fun_prop) fun x ↦ (Real.sqrt_pos.2 (by positivity)).ne' :
+      Continuous fun x : EuclideanSpace ℝ (Fin 3) ↦
+        s / √(s ^ 2 + ‖x‖ ^ 2)).aestronglyMeasurable.smul hu
+  have hGe (x : EuclideanSpace ℝ (Fin 3)) :
+      ‖G x‖ ^ 2 ≤ hyperboloidalEnergyDensity m u (√(s ^ 2 + ‖x‖ ^ 2), x) := by
+    rw [hGdef, norm_smul, mul_pow, Real.norm_eq_abs, sq_abs]
+    exact sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity m u hs x
+  have hG2 : Integrable fun x ↦ ‖G x‖ ^ 2 :=
+    he.mono' (hGm.norm.pow 2) (ae_of_all _ fun x ↦ by
+      rw [Real.norm_of_nonneg (by positivity)]; exact hGe x)
+  have hG : MemLp G 2 volume := (memLp_two_iff_integrable_sq_norm hGm).2 hG2
+  -- Cauchy–Schwarz pointwise, then Hölder
+  have hpt (x : EuclideanSpace ℝ (Fin 3)) :
+      |s / √(s ^ 2 + ‖x‖ ^ 2) * ⟪f (√(s ^ 2 + ‖x‖ ^ 2), x), ∂ₜ u (√(s ^ 2 + ‖x‖ ^ 2), x)⟫| ≤
+        ‖restrictHyperboloid s f x‖ * ‖G x‖ := by
+    rw [← real_inner_smul_right]
+    exact abs_real_inner_le_norm _ _
+  have hprod : Integrable fun x ↦ ‖restrictHyperboloid s f x‖ * ‖G x‖ :=
+    hf.norm.integrable_mul hG.norm
+  have hHolder := integral_mul_norm_le_Lp_mul_Lq (μ := volume) Real.HolderConjugate.two_two
+    (f := restrictHyperboloid s f) (g := G) (by simpa using hf) (by simpa using hG)
+  have hf' : (eLpNorm (restrictHyperboloid s f) 2 volume).toReal =
+      (∫ x, ‖restrictHyperboloid s f x‖ ^ (2 : ℝ)) ^ (1 / (2 : ℝ)) := by
+    rw [hf.eLpNorm_eq_integral_rpow_norm two_ne_zero ENNReal.ofNat_ne_top,
+      ENNReal.toReal_ofReal (by positivity)]
+    norm_num
+  have hG' : (∫ x, ‖G x‖ ^ (2 : ℝ)) ^ (1 / (2 : ℝ)) ≤ √(hyperboloidalEnergy m s u) := by
+    rw [Real.sqrt_eq_rpow, hyperboloidalEnergy_apply]
+    refine Real.rpow_le_rpow (integral_nonneg fun x ↦ by positivity) ?_ (by norm_num)
+    simp only [Real.rpow_two]
+    exact integral_mono hG2 he hGe
+  calc _ ≤ ∫ x, |s / √(s ^ 2 + ‖x‖ ^ 2) *
+          ⟪f (√(s ^ 2 + ‖x‖ ^ 2), x), ∂ₜ u (√(s ^ 2 + ‖x‖ ^ 2), x)⟫| :=
+        abs_integral_le_integral_abs
+    _ ≤ ∫ x, ‖restrictHyperboloid s f x‖ * ‖G x‖ :=
+        integral_mono_of_nonneg (ae_of_all _ fun x ↦ abs_nonneg _) hprod (ae_of_all _ hpt)
+    _ ≤ _ := hHolder
+    _ ≤ _ := by
+        rw [← hf']
+        exact mul_le_mul_of_nonneg_left hG' ENNReal.toReal_nonneg
+
 /-! ### Sanity checks
 
 The examples below use a smooth bump function `u : Spacetime → ℝ` centered at `(t, x) = (4, 0)`,
@@ -290,6 +375,24 @@ example (m : ℝ) :
     isOpen_univ (subset_univ _) estimateBump.contDiff.contDiffOn
     (inter_subset_right.trans tsupport_estimateBump_subset) (by norm_num) (by norm_num)
     (by norm_num)
+
+/-- The Cauchy–Schwarz bound on a hyperboloid applies with `f = u =` the bump function on `H_4`:
+`f|_{H_4}` is continuous with compact support, `∂_t u|_{H_4}` is continuous, and the energy
+density of `u` on `H_4` is integrable. -/
+example (m : ℝ) :
+    |∫ x : EuclideanSpace ℝ (Fin 3), 4 / √(4 ^ 2 + ‖x‖ ^ 2) *
+        ⟪(estimateBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x),
+          ∂ₜ (estimateBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x)⟫| ≤
+      (eLpNorm (restrictHyperboloid 4 (estimateBump : Spacetime → ℝ)) 2 volume).toReal *
+        √(hyperboloidalEnergy m 4 (estimateBump : Spacetime → ℝ)) :=
+  abs_integral_mul_inner_timeDeriv_le m (by norm_num)
+    ((continuous_restrictHyperboloid 4 estimateBump.continuous).memLp_of_hasCompactSupport
+      (hasCompactSupport_restrictHyperboloid 4 estimateBump.hasCompactSupport))
+    (continuous_restrictHyperboloid 4
+      (contDiff_infty_timeDeriv estimateBump.contDiff).continuous).aestronglyMeasurable
+    (integrable_hyperboloidalEnergyDensity m (s₁ := 2) (s₂ := 4) (by norm_num)
+      ⟨by norm_num, le_rfl⟩ isOpen_univ (subset_univ _) estimateBump.contDiff.contDiffOn
+      (inter_subset_right.trans tsupport_estimateBump_subset))
 
 end SanityChecks
 
