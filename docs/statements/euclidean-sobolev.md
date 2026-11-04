@@ -3,10 +3,8 @@
 Layer: `VectorFieldMethod/Analysis/` (files `LocalSobolev.lean` and `HyperboloidalSobolev.lean`).
 All declarations are in the namespace `VectorFieldMethod.EuclideanSobolev`. The links below
 point to commit
-[`5bab5e9`](https://github.com/Oho1e/VectorFieldMethod/tree/5bab5e988f2044abef0c446057feb6533891f221)
-of the pull request branch of this layer, made after merging `main`; the Lean files of the layer
-are unchanged since that commit. The links are to be replaced by a `main` commit once the pull
-request is merged. How to read the entries: [`README.md`](README.md). Background, including the
+[`65434c1`](https://github.com/Oho1e/VectorFieldMethod/tree/65434c138668e720ea41dbd287fb6c1298ad00f9)
+of `main`. How to read the entries: [`README.md`](README.md). Background, including the
 passage to the hyperboloid, and the proofs:
 [`../hyperboloidal-sobolev.md`](../hyperboloidal-sobolev.md).
 
@@ -36,7 +34,7 @@ so `volume` and `eLpNorm` below are `MeasureTheory.volume` and `MeasureTheory.eL
   \Lambda_a w(x) = \sqrt{s^2 + \lvert x\rvert^2}\, \partial_a w(x), \qquad \partial_a w(x) = Dw(x)\, e_a .
   ```
 - **Hypotheses.** None: this is a definition, for every real $`s`$ and every function $`w`$.
-- **Lean.** `VectorFieldMethod.EuclideanSobolev.hyperboloidalWeightedDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/5bab5e988f2044abef0c446057feb6533891f221/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L79)
+- **Lean.** `VectorFieldMethod.EuclideanSobolev.hyperboloidalWeightedDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L79)
 
 ```lean
 def hyperboloidalWeightedDeriv (s : ℝ) (a : Fin 3) (w : EuclideanSpace ℝ (Fin 3) → ℝ) :
@@ -47,11 +45,15 @@ def hyperboloidalWeightedDeriv (s : ℝ) (a : Fin 3) (w : EuclideanSpace ℝ (Fi
 - **Notes.** For `a : Fin 3`, `hyperboloidalWeightedDeriv s a w` is $`\Lambda_{a+1} w`$.
   `fderiv` is `0` where `w` is not differentiable, so $`\Lambda_a w`$ is defined for every `w`;
   the theorems below assume that `w` is `C²`. $`\Lambda_a`$ depends on $`s`$. If
-  $`s \neq 0`$ and $`u`$ is a spacetime function of class $`C^1`$ on a neighbourhood of the
-  hyperboloid $`t = \sqrt{s^2 + \lvert x\rvert^2}`$, then $`\Lambda_a`$ of the restriction of
-  $`u`$ to the hyperboloid is the restriction of the boost
-  $`L_a u = t\,\partial_a u + x_a\,\partial_t u`$ (see `docs/hyperboloidal-sobolev.md`; not
-  formalized).
+  $`s \neq 0`$ and a spacetime function $`v`$ is differentiable at the points of the hyperboloid
+  $`t = \sqrt{s^2 + \lvert x\rvert^2}`$, then $`\Lambda_a`$ of the restriction of $`v`$ to the
+  hyperboloid is the restriction of the boost $`L_a v = t\,\partial_a v + x_a\,\partial_t v`$.
+  This is proved in the Klainerman–Sobolev layer: *The restriction formula at a point* and *The
+  restriction formula as an equality of functions* of
+  [`klainerman-sobolev.md`](klainerman-sobolev.md)
+  (`VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_restrictHyperboloid_apply`,
+  `VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_restrictHyperboloid`); background in
+  [`../hyperboloidal-sobolev.md`](../hyperboloidal-sobolev.md).
 
 ### The local Sobolev bound on balls (proposition)
 
@@ -63,7 +65,7 @@ def hyperboloidalWeightedDeriv (s : ℝ) (a : Fin 3) (w : EuclideanSpace ℝ (Fi
   ```
 - **Hypotheses.** Inside the proposition: $`\rho \gt 0`$ and $`f`$ is $`C^2`$ on the open ball
   $`B(x_0, \rho)`$.
-- **Lean.** `VectorFieldMethod.EuclideanSobolev.LocalSobolevBound`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/5bab5e988f2044abef0c446057feb6533891f221/VectorFieldMethod/Analysis/LocalSobolev.lean#L76)
+- **Lean.** `VectorFieldMethod.EuclideanSobolev.LocalSobolevBound`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/LocalSobolev.lean#L76)
 
 ```lean
 def LocalSobolevBound : Prop :=
@@ -93,7 +95,7 @@ def LocalSobolevBound : Prop :=
   ```
 - **Hypotheses.** $`\rho \gt 0`$ and $`f`$ is $`C^2`$ on the open ball $`B(x_0, \rho)`$; there
   is no integrability, boundedness or support assumption.
-- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_abs_le_eLpNorm_ball`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/5bab5e988f2044abef0c446057feb6533891f221/VectorFieldMethod/Analysis/LocalSobolev.lean#L352)
+- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_abs_le_eLpNorm_ball`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/LocalSobolev.lean#L352)
 
 ```lean
 theorem exists_abs_le_eLpNorm_ball :
@@ -126,7 +128,7 @@ theorem exists_abs_le_eLpNorm_ball :
 
 - **Math.** The proposition of the entry *The local Sobolev bound on balls* holds.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.EuclideanSobolev.localSobolevBound_holds`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/5bab5e988f2044abef0c446057feb6533891f221/VectorFieldMethod/Analysis/LocalSobolev.lean#L447)
+- **Lean.** `VectorFieldMethod.EuclideanSobolev.localSobolevBound_holds`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/LocalSobolev.lean#L447)
 
 ```lean
 theorem localSobolevBound_holds : LocalSobolevBound
@@ -144,7 +146,7 @@ theorem localSobolevBound_holds : LocalSobolevBound
   \varphi_0^{3/2}\, \lvert w(x_0)\rvert \le C \Big( \lVert w\rVert_{L^2(B)} + \sum_{a=1}^{3} \lVert \Lambda_a w\rVert_{L^2(B)} + \sum_{a=1}^{3} \sum_{b=1}^{3} \lVert \Lambda_a \Lambda_b w\rVert_{L^2(B)} \Big).
   ```
 - **Hypotheses.** $`s \gt 0`$ and $`w`$ is $`C^2`$ on all of $`\mathbb{R}^3`$.
-- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev_ball`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/5bab5e988f2044abef0c446057feb6533891f221/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L427)
+- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev_ball`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L427)
 
 ```lean
 theorem exists_hyperboloidalSobolev_ball :
@@ -184,7 +186,7 @@ theorem exists_hyperboloidalSobolev_ball :
   where $`L^2 = L^2(\mathbb{R}^3)`$.
 - **Hypotheses.** $`s \gt 0`$ and $`w`$ is $`C^2`$ on all of $`\mathbb{R}^3`$; there is no
   integrability, decay or support assumption.
-- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/5bab5e988f2044abef0c446057feb6533891f221/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L441)
+- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L441)
 
 ```lean
 theorem exists_hyperboloidalSobolev :
@@ -209,12 +211,17 @@ theorem exists_hyperboloidalSobolev :
   - The exponent `(3 / 2 : ℝ)` is real. The right side has $`1 + 3 + 9 = 13`$ terms, over all
     ordered pairs $`(a, b)`$; the term without $`\Lambda`$ carries no weight.
   - It is `exists_hyperboloidalSobolev_of_localSobolevBound` applied to `localSobolevBound_holds`.
-  - Corollary on the hyperboloid (not formalized). Let $`u`$ be a spacetime function of class
-    $`C^2`$ on a neighbourhood of $`H_s = \{t = \sqrt{s^2 + \lvert x\rvert^2}\}`$, and
-    $`w(x) = u(\sqrt{s^2 + \lvert x\rvert^2}, x)`$. Then $`w \in C^2(\mathbb{R}^3)`$,
+  - Corollary on the hyperboloid: the Klainerman–Sobolev inequality. Let $`u`$ be a spacetime
+    function of class $`C^2`$ on an open set containing $`H_s = \{t = \sqrt{s^2 + \lvert x\rvert^2}\}`$,
+    and $`w(x) = u(\sqrt{s^2 + \lvert x\rvert^2}, x)`$. Then $`w \in C^2(\mathbb{R}^3)`$,
     $`\Lambda^J w = (L^J u)\vert_{H_s}`$ for $`\lvert J\rvert \le 2`$, and the theorem gives
     $`\sup_{H_s} t^{3/2} \lvert u\rvert \le C \sum_{\lvert J\rvert \le 2} \lVert L^J u\rVert_{L^2_f(H_s)}`$,
-    where $`L^2_f(H_s)`$ uses the flat measure $`dx`$; see `docs/hyperboloidal-sobolev.md`.
+    where $`L^2_f(H_s)`$ uses the flat measure $`dx`$. This corollary is proved:
+    `VectorFieldMethod.Minkowski.exists_klainermanSobolev_hyperboloid`, entry *The
+    Klainerman–Sobolev inequality on hyperboloids* of
+    [`klainerman-sobolev.md`](klainerman-sobolev.md), whose proof takes the constant $`C`$ of this
+    theorem; see also
+    [`../hyperboloidal-sobolev.md`](../hyperboloidal-sobolev.md).
 
 ## Reductions from the local Sobolev bound
 
@@ -224,7 +231,7 @@ theorem exists_hyperboloidalSobolev :
   proposition `LocalSobolevBound` holds.
 - **Hypotheses.** `h : LocalSobolevBound`; inside the statement, $`s \gt 0`$ and
   $`w \in C^2(\mathbb{R}^3)`$.
-- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev_ball_of_localSobolevBound`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/5bab5e988f2044abef0c446057feb6533891f221/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L335)
+- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev_ball_of_localSobolevBound`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L335)
 
 ```lean
 theorem exists_hyperboloidalSobolev_ball_of_localSobolevBound (h : LocalSobolevBound) :
@@ -247,7 +254,7 @@ theorem exists_hyperboloidalSobolev_ball_of_localSobolevBound (h : LocalSobolevB
   `LocalSobolevBound` holds.
 - **Hypotheses.** `h : LocalSobolevBound`; inside the statement, $`s \gt 0`$ and
   $`w \in C^2(\mathbb{R}^3)`$.
-- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev_of_localSobolevBound`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/5bab5e988f2044abef0c446057feb6533891f221/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L408)
+- **Lean.** `VectorFieldMethod.EuclideanSobolev.exists_hyperboloidalSobolev_of_localSobolevBound`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/HyperboloidalSobolev.lean#L408)
 
 ```lean
 theorem exists_hyperboloidalSobolev_of_localSobolevBound (h : LocalSobolevBound) :

@@ -7,10 +7,29 @@ definition and theorem of the project says.
 
 - **One file per layer.** Every `.md` file in this directory other than this README documents one
   layer of the library. At present:
-  - [`minkowski.md`](minkowski.md): the Minkowski coordinate layer, `VectorFieldMethod/Minkowski/`;
-  - [`euclidean-sobolev.md`](euclidean-sobolev.md): the Sobolev inequality layer;
-  - [`divergence.md`](divergence.md): the divergence theorem on regions bounded by graphs,
-    `VectorFieldMethod/ForMathlib/`.
+  - [`minkowski.md`](minkowski.md): the Minkowski coordinate layer (`Spacetime.lean`,
+    `Derivative.lean`, `WaveOperator.lean`, `VectorFields.lean`, `Computations.lean` in
+    `VectorFieldMethod/Minkowski/`): coordinates, metric, coordinate derivatives, the wave and
+    Klein–Gordon operators, and the rotations, boosts and scaling;
+  - [`divergence.md`](divergence.md): the divergence theorem below a graph, between two graphs and
+    between two hyperboloids, `VectorFieldMethod/ForMathlib/`;
+  - [`euclidean-sobolev.md`](euclidean-sobolev.md): the local Sobolev bound $`H^2 \subset L^\infty`$
+    on balls of $`\mathbb{R}^3`$ and the hyperboloidal (weighted) Sobolev inequality on
+    $`\mathbb{R}^3`$ (`LocalSobolev.lean`, `HyperboloidalSobolev.lean` in
+    `VectorFieldMethod/Analysis/`);
+  - [`commutators.md`](commutators.md): the commutators of the Minkowski vector fields with each
+    other and with $`\Box`$ and the Klein–Gordon operator (`Commutators.lean`,
+    `WaveCommutators.lean`);
+  - [`energy-momentum.md`](energy-momentum.md): the energy-momentum tensor of the Klein–Gordon
+    field, the energy current and its divergence identity (`EnergyMomentum.lean`);
+  - [`hyperboloidal-energy.md`](hyperboloidal-energy.md): the semi-hyperboloidal frame, the
+    hyperboloidal energy and the hyperboloidal energy identity (`HyperboloidalEnergy.lean`,
+    `HyperboloidalEnergyIdentity.lean`);
+  - [`hyperboloidal-energy-estimate.md`](hyperboloidal-energy-estimate.md): the foliation of the
+    region between two hyperboloids, the square-root Grönwall inequality and the hyperboloidal
+    energy estimate (`HyperboloidalEnergyEstimate.lean`, `Analysis/SqrtGronwall.lean`);
+  - [`klainerman-sobolev.md`](klainerman-sobolev.md): restriction to a hyperboloid and the
+    Klainerman–Sobolev inequality on hyperboloids (`KlainermanSobolev.lean`).
 - **Only main results.** Each file contains the main definitions and the main theorems of its
   layer. Auxiliary lemmas (unfolding lemmas, intermediate steps of proofs, technical
   measurability or support statements) are left out.
@@ -58,7 +77,7 @@ argument is a hypothesis or a quantified variable:
 | `tsupport f` | the closed support $`\overline{\{x : f(x) \neq 0\}}`$ |
 | `HasCompactSupport f` | `tsupport f` is compact |
 | `E →L[ℝ] F`, `E →ₗ[ℝ] F` | continuous linear maps, linear maps. A cast `(L : E →ₗ[ℝ] E)` only forgets continuity |
-| `LinearMap.trace ℝ E A` | the trace $`\operatorname{tr} A`$ of a linear map $`A : E \to E`$; it is $`0`$ if $`E`$ is infinite-dimensional |
+| `LinearMap.trace ℝ E A` | the trace $`\mathrm{tr}\, A`$ of a linear map $`A : E \to E`$; it is $`0`$ if $`E`$ is infinite-dimensional |
 | `⟪x, v⟫` | the real inner product $`\langle x, v\rangle`$ |
 | `∇ φ x` | the gradient $`\nabla\varphi(x)`$, the vector with $`\langle \nabla\varphi(x), v\rangle = D\varphi(x)\,v`$ (it is $`0`$ if $`\varphi`$ is not differentiable at $`x`$) |
 | `‖x‖` | the norm. On `EuclideanSpace` it is the Euclidean norm; on a product `A × B` it is the max norm $`\max(\lVert a\rVert, \lVert b\rVert)`$ |
@@ -122,10 +141,30 @@ they change how statements must be written and read.
   `s₁ < s₂`) makes the radicand positive and `φ x ≥ s > 0`, so no junk value occurs. Similarly
   a matrix inverse `A⁻¹` is defined for every matrix (it is a junk value when `A` is singular);
   `inv_minkowskiMetric : η⁻¹ = η` is about the genuine inverse because `η * η = 1`.
-- **`ENNReal.toReal` sends `∞` to `0`.** Measures take values in $`[0, \infty]`$ (`ENNReal`), and
-  `(μ s).toReal` is $`0`$ when $`\mu(s) = \infty`$. A statement that uses `(μ s).toReal` therefore
-  needs $`\mu(s) \lt \infty`$ to mean what it seems to. (The main statements of the Minkowski and
-  divergence layers do not use `toReal`.)
+- **`Real.sqrt` is `0` on negative numbers, so some nonnegativity hypotheses can be dropped.**
+  Since `√x = 0` for $`x \lt 0`$, a statement about square roots can remain true, and is then
+  stated, without the nonnegativity hypotheses of its textbook form. The square-root Grönwall
+  inequality `sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral`
+  ([`hyperboloidal-energy-estimate.md`](hyperboloidal-energy-estimate.md)) assumes neither
+  $`E \ge 0`$ nor $`A \ge 0`$: where $`E(s)`$ or $`A`$ is negative, its square root is $`0`$, and
+  the statement is still true. When reading such a statement, `√x` for a possibly negative `x`
+  is the junk value $`0`$, not a complex or undefined square root; where the theorem is applied (for instance to the energy
+  $`E_m(s, u) \ge 0`$), the radicand is nonnegative and `√` is the genuine square root.
+- **`ENNReal.toReal` sends `∞` to `0`.** Measures and `eLpNorm` take values in $`[0, \infty]`$
+  (`ENNReal`), and `(μ s).toReal` is $`0`$ when $`\mu(s) = \infty`$. A statement that uses `toReal`
+  therefore needs the quantity to be finite to mean what it seems to. Among the main statements,
+  `toReal` occurs only in the real-valued statements of the hyperboloidal energy estimate
+  ([`hyperboloidal-energy-estimate.md`](hyperboloidal-energy-estimate.md)), as
+  `(eLpNorm (restrictHyperboloid s f) 2 volume).toReal`, the flat $`L^2`$ norm on a hyperboloid:
+  in `abs_integral_mul_inner_timeDeriv_le`, `continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon`,
+  `hyperboloidalEnergy_le_add_two_mul_integral` and `sqrt_hyperboloidalEnergy_le_add_integral`.
+  No junk value enters there: the first theorem assumes `MemLp (restrictHyperboloid s f) 2 volume`,
+  so the norm is finite; in the other three $`f = \mathrm{KG}_m u`$ and $`s \in [s_0, S]`$, and the
+  companion lemma `memLp_restrictHyperboloid_kleinGordon` proves, under the same hypotheses, that
+  the norm is finite for these $`s`$. The main form of the estimate,
+  `ofReal_sqrt_hyperboloidalEnergy_le`, is stated in `ENNReal` without `toReal`, and
+  `lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top` proves that its right-hand side is
+  finite. The main statements of the other layers do not use `toReal` (some proofs do).
 - **The Bochner integral of a non-integrable function is `0`.** An identity
   `∫ f ∂μ = ∫ g ∂ν` could hold for the trivial reason that both sides are junk zeros. When
   reading an integral identity, check that its hypotheses make every integrand integrable: in
@@ -146,7 +185,8 @@ they change how statements must be written and read.
   Fractional powers must be written with a real exponent, `x ^ (3 / 2 : ℝ)` (`Real.rpow`), and
   then `Real.rpow` has its own junk values for negative bases. Natural-number subtraction also
   truncates (`2 - 3 = 0` in `ℕ`). The Minkowski and divergence layers only use squares `^ 2`; the
-  Sobolev inequality layer uses real exponents such as `^ (3 / 2 : ℝ)`.
+  Sobolev inequality layer and the Klainerman–Sobolev layer use real exponents such as
+  `^ (3 / 2 : ℝ)`.
 - **Order of quantifiers: `∃ C, ∀ x, ...` versus `∀ x, ∃ C, ...`.** The first gives one constant
   for all `x` (a uniform estimate), the second lets the constant depend on `x`, which is usually
   much weaker. Check the order in every estimate. In the current files the same distinction
@@ -190,8 +230,12 @@ Rules for writing entries:
 
 - **Math.** Display formulas go in ` ```math ` blocks (GitHub renders them; they are more robust
   than `$$ … $$`, whose backslashes can be eaten by Markdown). Inline formulas are written
-  ``$`…`$``. In inline formulas write `\lt`, `\gt` instead of `<`, `>` (GitHub escapes them
-  twice there). Inside table cells, avoid the character `|` (use `\lvert … \rvert`, `\mid`).
+  ``$`…`$``. In inline formulas do not use the characters `<` and `>`: write `\lt`, `\gt` instead
+  (GitHub escapes them twice there). Do not use the LaTeX macro `operatorname`, which GitHub's
+  renderer rejects ("The following macros are not allowed: operatorname"); write `\mathrm`
+  instead, for instance `\mathrm{supp}\, u`, `\mathrm{div}_x\, X`, `\mathrm{tr}\, A` (the thin
+  space `\,` replaces the spacing that `operatorname` would add). Inside table cells, avoid the
+  character `|` (use `\lvert … \rvert`, `\mid`).
 - **Lean link.** The permalink points to a fixed commit, preferably a commit of `main`; the line
   is the line of the `theorem` / `def` keyword. If the declaration is added in the same pull
   request, use that pull request's head commit and replace it by a `main` commit later.

@@ -7,12 +7,8 @@ Layer: `VectorFieldMethod/ForMathlib/` (main files `Analysis/Calculus/SpatialDiv
 contain auxiliary lemmas). The declarations are in Mathlib-style namespaces, not in
 `VectorFieldMethod`: `spatialDivergence` and `spatialDivergence_euclideanSpace` are in the root
 namespace, the integral theorems in `MeasureTheory`. The links below point to commit
-[`3fac872`](https://github.com/Oho1e/VectorFieldMethod/tree/3fac872e390477a31fdbf56d88d4cc6989748e1e)
-of `main`. The links for `integral_divergence_between_hyperboloids_of_contDiffOn` (its entry, and
-its `variable` lines in the *Context* section) point instead to commit
-[`7ca4341`](https://github.com/Oho1e/VectorFieldMethod/tree/7ca43418f81ff26d99e3f5f9801646fa70fd1a74)
-of the pull request that adds it, and are to be replaced by a `main` commit later. How to read the
-entries: [`README.md`](README.md).
+[`65434c1`](https://github.com/Oho1e/VectorFieldMethod/tree/65434c138668e720ea41dbd287fb6c1298ad00f9)
+of `main`. How to read the entries: [`README.md`](README.md).
 
 ## Coordinates: time is the second coordinate here
 
@@ -36,16 +32,16 @@ $`X : E \times \mathbb{R} \to E`$. We write
 
 - $`\partial_t X_0(x, t)`$ for the derivative of $`s \mapsto X_0(x, s)`$ at $`s = t`$ (Lean
   `deriv (fun s ↦ X₀ (x, s)) t`, or `deriv (fun t ↦ X₀ (p.1, t)) p.2` at $`p = (x, t)`$);
-- $`\operatorname{div}_x X(x, t)`$ for the spatial divergence (`spatialDivergence X (x, t)`,
+- $`\mathrm{div}_x\, X(x, t)`$ for the spatial divergence (`spatialDivergence X (x, t)`,
   defined below);
 - $`C^1_c`$ for $`C^1`$ functions with compact (closed) support, and
-  $`\operatorname{supp} f = \overline{\{f \neq 0\}}`$ (Lean `tsupport f`).
+  $`\mathrm{supp}\, f = \overline{\{f \neq 0\}}`$ (Lean `tsupport f`).
 
 ## Context
 
 These `variable` lines supply the ambient hypotheses of the theorems below them.
 
-[`SpatialDivergence.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/Analysis/Calculus/SpatialDivergence.lean#L49)
+[`SpatialDivergence.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/Analysis/Calculus/SpatialDivergence.lean#L49)
 ($`E`$ is a real normed space; `F` is not used by the entries below):
 
 ```lean
@@ -53,9 +49,9 @@ variable {E F : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [NormedAddComm
   [NormedSpace ℝ F]
 ```
 
-[`DivergenceTheoremHypograph.lean`, section `NormedSpace`](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L100)
+[`DivergenceTheoremHypograph.lean`, section `NormedSpace`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L103)
 ($`E`$ a finite-dimensional real normed space with its Borel $`\sigma`$-algebra, $`\mu`$ an
-additive Haar measure on $`E`$), followed by the `variable` line 225 of the same file:
+additive Haar measure on $`E`$), followed by the `variable` line 228 of the same file:
 
 ```lean
 variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimensional ℝ E]
@@ -65,7 +61,7 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimension
 variable {φ₁ φ₂ : E → ℝ}
 ```
 
-[`DivergenceTheoremHypograph.lean`, section `InnerProductSpace`](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L319)
+[`DivergenceTheoremHypograph.lean`, section `InnerProductSpace`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L322)
 (the same, with $`E`$ a real inner product space):
 
 ```lean
@@ -74,7 +70,7 @@ variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E] [FiniteDim
   {φ : E → ℝ} {X₀ : E × ℝ → ℝ} {X : E × ℝ → E}
 ```
 
-[`DivergenceTheoremLocal.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremLocal.lean#L75)
+[`DivergenceTheoremLocal.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremLocal.lean#L77)
 (as in the `NormedSpace` section):
 
 ```lean
@@ -83,11 +79,9 @@ variable {E : Type*} [NormedAddCommGroup E] [NormedSpace ℝ E] [FiniteDimension
   {φ₁ φ₂ : E → ℝ} {X₀ : E × ℝ → ℝ} {X : E × ℝ → E}
 ```
 
-[`DivergenceTheoremHyperboloid.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L38)
-(lines 38 and 57–58: $`E`$ a finite-dimensional real inner product space with its Borel
-$`\sigma`$-algebra, $`\mu`$ an additive Haar measure; at commit
-[`7ca4341`](https://github.com/Oho1e/VectorFieldMethod/blob/7ca43418f81ff26d99e3f5f9801646fa70fd1a74/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L62),
-used by the localized hyperboloid entry, the same two `variable` lines are lines 62 and 103–104):
+[`DivergenceTheoremHyperboloid.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L62)
+(lines 62 and 103–104: $`E`$ a finite-dimensional real inner product space with its Borel
+$`\sigma`$-algebra, $`\mu`$ an additive Haar measure):
 
 ```lean
 variable {E : Type*} [NormedAddCommGroup E] [InnerProductSpace ℝ E]
@@ -103,12 +97,12 @@ variable [FiniteDimensional ℝ E] [MeasurableSpace E] [BorelSpace E] {μ : Meas
 - **Math.** Let $`E`$ be a real normed space and $`X : E \times \mathbb{R} \to E`$. For
   $`p = (x, t)`$,
   ```math
-  \operatorname{div}_x X(x, t) = \operatorname{tr} \big( D[X(\cdot, t)](x) \big),
+  \mathrm{div}_x\, X(x, t) = \mathrm{tr}\, \big( D[X(\cdot, t)](x) \big),
   ```
   the trace of the derivative at $`x`$ of the map $`y \mapsto X(y, t)`$.
 - **Hypotheses.** $`E`$ is a real normed space (from the `variable` line); no hypothesis on
   $`X`$.
-- **Lean.** `spatialDivergence` (root namespace), [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/Analysis/Calculus/SpatialDivergence.lean#L84)
+- **Lean.** `spatialDivergence` (root namespace), [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/Analysis/Calculus/SpatialDivergence.lean#L84)
 
 ```lean
 def spatialDivergence (X : E × ℝ → E) (p : E × ℝ) : ℝ :=
@@ -116,7 +110,7 @@ def spatialDivergence (X : E × ℝ → E) (p : E × ℝ) : ℝ :=
 ```
 
 - **Notes.** Junk values: if $`y \mapsto X(y, t)`$ is not differentiable at $`x`$, the derivative
-  is $`0`$ and so is $`\operatorname{div}_x X(x, t)`$; if $`E`$ is infinite-dimensional, the trace
+  is $`0`$ and so is $`\mathrm{div}_x\, X(x, t)`$; if $`E`$ is infinite-dimensional, the trace
   and hence `spatialDivergence` are identically $`0`$ (all theorems below assume
   `[FiniteDimensional ℝ E]`). Only the spatial derivative enters, not the time derivative. In
   coordinates on $`\mathbb{R}^n`$ it is $`\sum_i \partial X^i / \partial x^i`$
@@ -131,12 +125,12 @@ def spatialDivergence (X : E × ℝ → E) (p : E × ℝ) : ℝ :=
   $`X_0 \in C^1_c(E \times \mathbb{R}; \mathbb{R})`$ and $`X \in C^1_c(E \times \mathbb{R}; E)`$.
   Then
   ```math
-  \int_{\{(x, t) \,:\, t \le \varphi(x)\}} \big( \partial_t X_0 + \operatorname{div}_x X \big)\, d(\mu \otimes \mathcal{L}^1)
+  \int_{\{(x, t) \,:\, t \le \varphi(x)\}} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)\, d(\mu \otimes \mathcal{L}^1)
   = \int_E \Big( X_0\big(x, \varphi(x)\big) - D\varphi(x)\, X\big(x, \varphi(x)\big) \Big)\, d\mu(x).
   ```
 - **Hypotheses.** $`E`$ finite-dimensional real normed space, Borel; $`\mu`$ additive Haar;
   $`\varphi`$ is $`C^1`$; $`X_0`$ and $`X`$ are $`C^1`$ with compact support.
-- **Lean.** `MeasureTheory.integral_divergence_hypograph`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L109)
+- **Lean.** `MeasureTheory.integral_divergence_hypograph`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L112)
 
 ```lean
 theorem integral_divergence_hypograph (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDiff ℝ 1 X₀)
@@ -154,23 +148,23 @@ theorem integral_divergence_hypograph (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDif
   the coordinate order $`(x, t)`$ (see also the gradient version below). Both integrands are
   continuous with compact support, so both integrals are genuine (not junk zeros). The same $`\mu`$
   appears on both sides, so the normalization of the Haar measure does not matter.
-  The "Sanity checks" section of the file (added after the linked commit) applies the theorem with
+  The "Sanity checks" section of the file applies the theorem with
   $`E = \mathbb{R}`$, $`\mu`$ = `volume`, $`\varphi = 0`$, $`X = 0`$ and
   $`X_0(x, t) = \psi(x)\,\psi(t)`$, where $`\psi`$ is a smooth bump function equal to $`1`$ on
   $`[-1/4, 1/4]`$ and vanishing outside $`(-1/2, 1/2)`$: both sides equal
-  $`\int_{\mathbb{R}} \psi > 0`$, and the last `example` there proves that the right-hand side is
+  $`\int_{\mathbb{R}} \psi \gt 0`$, and the last `example` there proves that the right-hand side is
   positive.
 
 ### Divergence theorem below a graph (iterated)
 
 - **Math.** Under the hypotheses of the previous entry,
   ```math
-  \int_E \left( \int_{-\infty}^{\varphi(x)} \big( \partial_t X_0 + \operatorname{div}_x X \big)(x, t)\, dt \right) d\mu(x)
+  \int_E \left( \int_{-\infty}^{\varphi(x)} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)(x, t)\, dt \right) d\mu(x)
   = \int_E \Big( X_0\big(x, \varphi(x)\big) - D\varphi(x)\, X\big(x, \varphi(x)\big) \Big)\, d\mu(x).
   ```
 - **Hypotheses.** $`E`$ finite-dimensional real normed space, Borel; $`\mu`$ additive Haar;
   $`\varphi`$ is $`C^1`$; $`X_0`$ and $`X`$ are $`C^1`$ with compact support.
-- **Lean.** `MeasureTheory.integral_setIntegral_Iic_divergence`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L205)
+- **Lean.** `MeasureTheory.integral_setIntegral_Iic_divergence`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L208)
 
 ```lean
 theorem integral_setIntegral_Iic_divergence (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDiff ℝ 1 X₀)
@@ -184,8 +178,8 @@ theorem integral_setIntegral_Iic_divergence (hφ : ContDiff ℝ 1 φ) (hX₀ : C
   (`Iic (φ x)`) for each $`x`$, then over $`x`$. The integrand is continuous with compact support,
   so for every $`x`$ the inner integral is a genuine integral, and it is an integrable function of
   $`x`$. The versions between two graphs are deduced from this form. The "Sanity checks" section of
-  the file (added after the linked commit) applies it to the data of the sanity check of
-  `integral_divergence_hypograph`, for which both sides equal $`\int_{\mathbb{R}} \psi > 0`$.
+  the file applies it to the data of the sanity check of
+  `integral_divergence_hypograph`, for which both sides equal $`\int_{\mathbb{R}} \psi \gt 0`$.
 
 ### Divergence theorem between two graphs (iterated, oriented)
 
@@ -193,7 +187,7 @@ theorem integral_setIntegral_Iic_divergence (hφ : ContDiff ℝ 1 φ) (hX₀ : C
   order), $`X_0 \in C^1_c(E \times \mathbb{R}; \mathbb{R})`$, $`X \in C^1_c(E \times \mathbb{R}; E)`$.
   Then
   ```math
-  \int_E \left( \int_{\varphi_1(x)}^{\varphi_2(x)} \big( \partial_t X_0 + \operatorname{div}_x X \big)(x, t)\, dt \right) d\mu(x)
+  \int_E \left( \int_{\varphi_1(x)}^{\varphi_2(x)} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)(x, t)\, dt \right) d\mu(x)
   = \Phi_{\varphi_2} - \Phi_{\varphi_1},
   ```
   where the inner integral is oriented ($`\int_a^b = -\int_b^a`$) and
@@ -203,7 +197,7 @@ theorem integral_setIntegral_Iic_divergence (hφ : ContDiff ℝ 1 φ) (hX₀ : C
 - **Hypotheses.** $`E`$ finite-dimensional real normed space, Borel; $`\mu`$ additive Haar;
   $`\varphi_1, \varphi_2`$ are $`C^1`$; $`X_0, X`$ are $`C^1`$ with compact support. No order
   between $`\varphi_1`$ and $`\varphi_2`$.
-- **Lean.** `MeasureTheory.integral_intervalIntegral_divergence`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L231)
+- **Lean.** `MeasureTheory.integral_intervalIntegral_divergence`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L234)
 
 ```lean
 theorem integral_intervalIntegral_divergence (hφ₁ : ContDiff ℝ 1 φ₁) (hφ₂ : ContDiff ℝ 1 φ₂)
@@ -216,10 +210,10 @@ theorem integral_intervalIntegral_divergence (hφ₁ : ContDiff ℝ 1 φ₁) (h�
 
 - **Notes.** `∫ t in a..b` is the oriented integral for Lebesgue measure (see the README). Where
   $`\varphi_1(x) \gt \varphi_2(x)`$ the inner integral counts negatively.
-  The "Sanity checks" section of the file (added after the linked commit) applies it to the field of
+  The "Sanity checks" section of the file applies it to the field of
   the sanity check of `integral_divergence_hypograph` with $`\varphi_1 = -1`$ and
   $`\varphi_2 = 0`$: the flux through $`t = -1`$ vanishes, so both sides equal
-  $`\int_{\mathbb{R}} \psi > 0`$ (the last `example` there proves that the flux through $`t = 0`$
+  $`\int_{\mathbb{R}} \psi \gt 0`$ (the last `example` there proves that the flux through $`t = 0`$
   is positive and the one through $`t = -1`$ is $`0`$).
 
 ### Divergence theorem on the closed region between two graphs
@@ -227,14 +221,14 @@ theorem integral_intervalIntegral_divergence (hφ₁ : ContDiff ℝ 1 φ₁) (h�
 - **Math.** Let $`E, \mu, X_0, X`$ be as above and $`\varphi_1, \varphi_2 \in C^1(E; \mathbb{R})`$
   with $`\varphi_1(x) \le \varphi_2(x)`$ for all $`x`$. Then
   ```math
-  \int_{\{(x, t) \,:\, \varphi_1(x) \le t \le \varphi_2(x)\}} \big( \partial_t X_0 + \operatorname{div}_x X \big)\, d(\mu \otimes \mathcal{L}^1)
+  \int_{\{(x, t) \,:\, \varphi_1(x) \le t \le \varphi_2(x)\}} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)\, d(\mu \otimes \mathcal{L}^1)
   = \Phi_{\varphi_2} - \Phi_{\varphi_1},
   ```
   with $`\Phi_{\varphi_i}`$ as in the previous entry.
 - **Hypotheses.** $`E`$ finite-dimensional real normed space, Borel; $`\mu`$ additive Haar;
   $`\varphi_1, \varphi_2`$ are $`C^1`$ and $`\varphi_1 \le \varphi_2`$ pointwise; $`X_0, X`$ are
   $`C^1`$ with compact support.
-- **Lean.** `MeasureTheory.integral_divergence_region_between_cc`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L257)
+- **Lean.** `MeasureTheory.integral_divergence_region_between_cc`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L260)
 
 ```lean
 theorem integral_divergence_region_between_cc (hφ₁ : ContDiff ℝ 1 φ₁) (hφ₂ : ContDiff ℝ 1 φ₂)
@@ -248,23 +242,23 @@ theorem integral_divergence_region_between_cc (hφ₁ : ContDiff ℝ 1 φ₁) (h
 
 - **Notes.** `hφ : φ₁ ≤ φ₂` is the pointwise order of functions. Without it the region would be
   empty over the set where $`\varphi_1 \gt \varphi_2`$ while the right-hand side would still count it.
-  The "Sanity checks" section of the file (added after the linked commit) applies it to the field of
+  The "Sanity checks" section of the file applies it to the field of
   the sanity check of `integral_divergence_hypograph` with $`\varphi_1 = -1`$ and
   $`\varphi_2 = 0`$: the flux through $`t = -1`$ vanishes, so both sides equal
-  $`\int_{\mathbb{R}} \psi > 0`$ (the last `example` there proves that the flux through $`t = 0`$
+  $`\int_{\mathbb{R}} \psi \gt 0`$ (the last `example` there proves that the flux through $`t = 0`$
   is positive and the one through $`t = -1`$ is $`0`$).
 
 ### Divergence theorem on the open region between two graphs
 
 - **Math.** Under the hypotheses of the previous entry,
   ```math
-  \int_{\{(x, t) \,:\, \varphi_1(x) < t < \varphi_2(x)\}} \big( \partial_t X_0 + \operatorname{div}_x X \big)\, d(\mu \otimes \mathcal{L}^1)
+  \int_{\{(x, t) \,:\, \varphi_1(x) < t < \varphi_2(x)\}} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)\, d(\mu \otimes \mathcal{L}^1)
   = \Phi_{\varphi_2} - \Phi_{\varphi_1}.
   ```
 - **Hypotheses.** $`E`$ finite-dimensional real normed space, Borel; $`\mu`$ additive Haar;
   $`\varphi_1, \varphi_2`$ are $`C^1`$ and $`\varphi_1 \le \varphi_2`$ pointwise; $`X_0, X`$ are
   $`C^1`$ with compact support.
-- **Lean.** `MeasureTheory.integral_divergence_regionBetween`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L279)
+- **Lean.** `MeasureTheory.integral_divergence_regionBetween`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L282)
 
 ```lean
 theorem integral_divergence_regionBetween (hφ₁ : ContDiff ℝ 1 φ₁) (hφ₂ : ContDiff ℝ 1 φ₂)
@@ -279,10 +273,10 @@ theorem integral_divergence_regionBetween (hφ₁ : ContDiff ℝ 1 φ₁) (hφ�
 - **Notes.** Mathlib's `regionBetween φ₁ φ₂ univ` is
   $`\{(x, t) : x \in E,\ \varphi_1(x) \lt t \lt \varphi_2(x)\}`$. The open and closed regions differ by
   the two graphs, which are null sets.
-  The "Sanity checks" section of the file (added after the linked commit) applies it to the field of
+  The "Sanity checks" section of the file applies it to the field of
   the sanity check of `integral_divergence_hypograph` with $`\varphi_1 = -1`$ and
   $`\varphi_2 = 0`$: the flux through $`t = -1`$ vanishes, so both sides equal
-  $`\int_{\mathbb{R}} \psi > 0`$ (the last `example` there proves that the flux through $`t = 0`$
+  $`\int_{\mathbb{R}} \psi \gt 0`$ (the last `example` there proves that the flux through $`t = 0`$
   is positive and the one through $`t = -1`$ is $`0`$).
 
 ### Divergence theorem below a graph, gradient form
@@ -291,12 +285,12 @@ theorem integral_divergence_regionBetween (hφ₁ : ContDiff ℝ 1 φ₁) (hφ�
   $`\sigma`$-algebra, $`\mu`$ an additive Haar measure, $`\varphi \in C^1(E; \mathbb{R})`$,
   $`X_0 \in C^1_c(E \times \mathbb{R}; \mathbb{R})`$, $`X \in C^1_c(E \times \mathbb{R}; E)`$. Then
   ```math
-  \int_{\{(x, t) \,:\, t \le \varphi(x)\}} \big( \partial_t X_0 + \operatorname{div}_x X \big)\, d(\mu \otimes \mathcal{L}^1)
+  \int_{\{(x, t) \,:\, t \le \varphi(x)\}} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)\, d(\mu \otimes \mathcal{L}^1)
   = \int_E \Big( X_0\big(x, \varphi(x)\big) - \big\langle \nabla\varphi(x),\, X\big(x, \varphi(x)\big) \big\rangle \Big)\, d\mu(x).
   ```
 - **Hypotheses.** $`E`$ finite-dimensional real inner product space, Borel; $`\mu`$ additive Haar;
   $`\varphi`$ is $`C^1`$; $`X_0, X`$ are $`C^1`$ with compact support.
-- **Lean.** `MeasureTheory.integral_divergence_hypograph_gradient`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L327)
+- **Lean.** `MeasureTheory.integral_divergence_hypograph_gradient`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L330)
 
 ```lean
 theorem integral_divergence_hypograph_gradient (hφ : ContDiff ℝ 1 φ) (hX₀ : ContDiff ℝ 1 X₀)
@@ -308,8 +302,8 @@ theorem integral_divergence_hypograph_gradient (hφ : ContDiff ℝ 1 φ) (hX₀ 
 
 - **Notes.** Same statement as `integral_divergence_hypograph`, with
   $`D\varphi(x)\,v = \langle \nabla\varphi(x), v\rangle`$. The "Sanity checks" section of the file
-  (added after the linked commit) applies it to the data of the sanity check of
-  `integral_divergence_hypograph`, for which both sides equal $`\int_{\mathbb{R}} \psi > 0`$.
+  applies it to the data of the sanity check of
+  `integral_divergence_hypograph`, for which both sides equal $`\int_{\mathbb{R}} \psi \gt 0`$.
 
 ### Divergence theorem below a graph, time first
 
@@ -319,13 +313,13 @@ theorem integral_divergence_hypograph_gradient (hφ : ContDiff ℝ 1 φ) (hX₀ 
   $`X_0 \in C^1_c(\mathbb{R} \times E; \mathbb{R})`$ and $`X \in C^1_c(\mathbb{R} \times E; E)`$.
   Then
   ```math
-  \int_{\{(t, x) \,:\, t \le \varphi(x)\}} \Big( \partial_t X_0(t, x) + \operatorname{tr}\big( D[X(t, \cdot)](x) \big) \Big)\, d(\mathcal{L}^1 \otimes \mu)(t, x)
+  \int_{\{(t, x) \,:\, t \le \varphi(x)\}} \Big( \partial_t X_0(t, x) + \mathrm{tr}\big( D[X(t, \cdot)](x) \big) \Big)\, d(\mathcal{L}^1 \otimes \mu)(t, x)
   = \int_E \Big( X_0\big(\varphi(x), x\big) - D\varphi(x)\, X\big(\varphi(x), x\big) \Big)\, d\mu(x).
   ```
 - **Hypotheses.** $`E`$ finite-dimensional real normed space, Borel; $`\mu`$ additive Haar;
   $`\varphi`$ is $`C^1`$; $`X_0, X`$ (now defined on $`\mathbb{R} \times E`$) are $`C^1`$ with
   compact support.
-- **Lean.** `MeasureTheory.integral_divergence_hypograph_swap`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L302)
+- **Lean.** `MeasureTheory.integral_divergence_hypograph_swap`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHypograph.lean#L305)
 
 ```lean
 theorem integral_divergence_hypograph_swap {X₀ : ℝ × E → ℝ} {X : ℝ × E → E}
@@ -344,21 +338,21 @@ theorem integral_divergence_hypograph_swap {X₀ : ℝ × E → ℝ} {X : ℝ ×
   `integral_divergence_hypograph`. With $`E`$ = `EuclideanSpace ℝ (Fin 3)` and $`\mu`$ = `volume`
   it is a statement on `Spacetime` with its Lebesgue measure. All other divergence theorems of this
   layer (listed in the section *Coordinates* above) exist only in the time-second form. The
-  "Sanity checks" section of the file (added after the linked commit) applies it with
+  "Sanity checks" section of the file applies it with
   $`E = \mathbb{R}`$, $`\mu`$ = `volume`, $`\varphi = 0`$, $`X = 0`$ and
   $`X_0(t, x) = \psi(t)\,\psi(x)`$, with $`\psi`$ as in the sanity check of
-  `integral_divergence_hypograph`, for which both sides equal $`\int_{\mathbb{R}} \psi > 0`$.
+  `integral_divergence_hypograph`, for which both sides equal $`\int_{\mathbb{R}} \psi \gt 0`$.
 
 ### Spatial divergence in Euclidean coordinates
 
 - **Math.** Let $`n \in \mathbb{N}`$, $`X : \mathbb{R}^n \times \mathbb{R} \to \mathbb{R}^n`$ and
   $`p = (x, t)`$ such that $`y \mapsto X(y, t)`$ is differentiable at $`x`$. Then
   ```math
-  \operatorname{div}_x X(x, t) = \sum_{i=1}^{n} \frac{\partial X^i}{\partial x^i}(x, t),
+  \mathrm{div}_x\, X(x, t) = \sum_{i=1}^{n} \frac{\partial X^i}{\partial x^i}(x, t),
   ```
   where $`\frac{\partial X^i}{\partial x^i}(x, t) = D[X^i(\cdot, t)](x)\, e_i`$.
 - **Hypotheses.** $`y \mapsto X(y, t)`$ is differentiable at $`x`$.
-- **Lean.** `spatialDivergence_euclideanSpace` (root namespace), [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/Analysis/Calculus/SpatialDivergence.lean#L195)
+- **Lean.** `spatialDivergence_euclideanSpace` (root namespace), [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/Analysis/Calculus/SpatialDivergence.lean#L195)
 
 ```lean
 theorem spatialDivergence_euclideanSpace {n : ℕ}
@@ -382,9 +376,9 @@ theorem spatialDivergence_euclideanSpace {n : ℕ}
   ```
   Assume $`D \subseteq U`$, $`X_0 : E \times \mathbb{R} \to \mathbb{R}`$ and
   $`X : E \times \mathbb{R} \to E`$ are $`C^1`$ on $`U`$, and
-  $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X)`$ is compact. Then
+  $`D \cap (\mathrm{supp}\, X_0 \cup \mathrm{supp}\, X)`$ is compact. Then
   ```math
-  \int_E \left( \int_{\varphi_1(x)}^{\varphi_2(x)} \big( \partial_t X_0 + \operatorname{div}_x X \big)(x, t)\, dt \right) d\mu(x)
+  \int_E \left( \int_{\varphi_1(x)}^{\varphi_2(x)} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)(x, t)\, dt \right) d\mu(x)
   = \Phi_{\varphi_2} - \Phi_{\varphi_1},
   \qquad
   \Phi_{\varphi_i} = \int_E \Big( X_0\big(x, \varphi_i(x)\big) - D\varphi_i(x)\, X\big(x, \varphi_i(x)\big) \Big)\, d\mu(x),
@@ -392,8 +386,8 @@ theorem spatialDivergence_euclideanSpace {n : ℕ}
   with the oriented inner integral.
 - **Hypotheses.** $`E`$ finite-dimensional real normed space, Borel; $`\mu`$ additive Haar; $`U`$
   open; $`\varphi_1, \varphi_2`$ are $`C^1`$ on $`E`$; $`D \subseteq U`$; $`X_0, X`$ are $`C^1`$ on
-  $`U`$; $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X)`$ is compact.
-- **Lean.** `MeasureTheory.integral_intervalIntegral_divergence_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremLocal.lean#L84)
+  $`U`$; $`D \cap (\mathrm{supp}\, X_0 \cup \mathrm{supp}\, X)`$ is compact.
+- **Lean.** `MeasureTheory.integral_intervalIntegral_divergence_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremLocal.lean#L86)
 
 ```lean
 theorem integral_intervalIntegral_divergence_of_contDiffOn {U : Set (E × ℝ)} (hU : IsOpen U)
@@ -410,12 +404,12 @@ theorem integral_intervalIntegral_divergence_of_contDiffOn {U : Set (E × ℝ)} 
   compact support of $`X_0, X`$, and their values outside $`U`$ are arbitrary. The supports are the
   closed supports `tsupport`. Everything in the conclusion is evaluated on $`D`$, where $`X_0, X`$
   are $`C^1`$, so the derivatives in the integrands are genuine. The "Sanity checks" section of
-  `DivergenceTheoremLocal.lean` (added after the linked commit) applies it with
+  `DivergenceTheoremLocal.lean` applies it with
   $`E = \mathbb{R}`$, $`\mu`$ = `volume`, $`U = \mathbb{R}^2`$, $`\varphi_1 = -1`$,
   $`\varphi_2 = 0`$, $`X = 0`$ and $`X_0(x, t) = \psi(x)\,(t + 2)`$, where $`\psi`$ is a smooth bump
   function equal to $`1`$ near $`0`$: this field is not compactly supported, so
   `integral_intervalIntegral_divergence` does not apply to it, and both sides equal
-  $`\int_{\mathbb{R}} \psi > 0`$ (the fluxes are $`2 \int_{\mathbb{R}} \psi`$ and
+  $`\int_{\mathbb{R}} \psi \gt 0`$ (the fluxes are $`2 \int_{\mathbb{R}} \psi`$ and
   $`\int_{\mathbb{R}} \psi`$; the last `example` there proves that the right-hand side is positive).
 
 ### Divergence theorem on the closed region between two graphs, locally defined field
@@ -423,18 +417,18 @@ theorem integral_intervalIntegral_divergence_of_contDiffOn {U : Set (E × ℝ)} 
 - **Math.** Let $`E, \mu`$ be as in `integral_divergence_hypograph`, $`U \subseteq E \times \mathbb{R}`$
   open, $`\varphi_1, \varphi_2 \in C^1(E; \mathbb{R})`$ with $`\varphi_1 \le \varphi_2`$ pointwise,
   and $`D = \{(x, t) : \varphi_1(x) \le t \le \varphi_2(x)\}`$. Assume $`D \subseteq U`$, $`X_0`$ and
-  $`X`$ are $`C^1`$ on $`U`$, and $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X)`$ is
+  $`X`$ are $`C^1`$ on $`U`$, and $`D \cap (\mathrm{supp}\, X_0 \cup \mathrm{supp}\, X)`$ is
   compact. Then
   ```math
-  \int_{D} \big( \partial_t X_0 + \operatorname{div}_x X \big)\, d(\mu \otimes \mathcal{L}^1)
+  \int_{D} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)\, d(\mu \otimes \mathcal{L}^1)
   = \Phi_{\varphi_2} - \Phi_{\varphi_1},
   ```
   with $`\Phi_{\varphi_i}`$ as in the previous entry.
 - **Hypotheses.** $`E`$ finite-dimensional real normed space, Borel; $`\mu`$ additive Haar; $`U`$
   open; $`\varphi_1, \varphi_2`$ are $`C^1`$ and $`\varphi_1 \le \varphi_2`$; $`D \subseteq U`$;
-  $`X_0, X`$ are $`C^1`$ on $`U`$; $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X)`$ is
+  $`X_0, X`$ are $`C^1`$ on $`U`$; $`D \cap (\mathrm{supp}\, X_0 \cup \mathrm{supp}\, X)`$ is
   compact.
-- **Lean.** `MeasureTheory.integral_divergence_region_between_cc_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremLocal.lean#L112)
+- **Lean.** `MeasureTheory.integral_divergence_region_between_cc_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremLocal.lean#L114)
 
 ```lean
 theorem integral_divergence_region_between_cc_of_contDiffOn {U : Set (E × ℝ)} (hU : IsOpen U)
@@ -450,11 +444,11 @@ theorem integral_divergence_region_between_cc_of_contDiffOn {U : Set (E × ℝ)}
 
 - **Notes.** Generalizes `integral_divergence_region_between_cc` in the same way as the previous
   entry. It is the form used for the hyperboloids below: the localized hyperboloid theorem applies
-  it with the open set $`U \cup (\operatorname{supp} X_0 \cup \operatorname{supp} X)^c`$, and hence
+  it with the open set $`U \cup (\mathrm{supp}\, X_0 \cup \mathrm{supp}\, X)^c`$, and hence
   the global one with $`E \times \mathbb{R}`$. The "Sanity checks" section of
-  `DivergenceTheoremLocal.lean` (added after the linked commit) applies it to the data of the
+  `DivergenceTheoremLocal.lean` applies it to the data of the
   sanity check of the previous entry, for which $`\varphi_1 \le \varphi_2`$ and both sides equal
-  $`\int_{\mathbb{R}} \psi > 0`$.
+  $`\int_{\mathbb{R}} \psi \gt 0`$.
 
 ### Divergence theorem between two hyperboloids, global version
 
@@ -468,14 +462,14 @@ theorem integral_divergence_region_between_cc_of_contDiffOn {U : Set (E × ℝ)}
   ```
   Then
   ```math
-  \int_{\{(x, t) \,:\, \varphi_1(x) \le t \le \varphi_2(x)\}} \big( \partial_t X_0 + \operatorname{div}_x X \big)\, d(\mu \otimes \mathcal{L}^1)
+  \int_{\{(x, t) \,:\, \varphi_1(x) \le t \le \varphi_2(x)\}} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)\, d(\mu \otimes \mathcal{L}^1)
   = \int_E \Big( X_0\big(x, \varphi_2(x)\big) - \frac{\langle x, X(x, \varphi_2(x)) \rangle}{\varphi_2(x)} \Big)\, d\mu(x)
   - \int_E \Big( X_0\big(x, \varphi_1(x)\big) - \frac{\langle x, X(x, \varphi_1(x)) \rangle}{\varphi_1(x)} \Big)\, d\mu(x).
   ```
 - **Hypotheses.** $`E`$ finite-dimensional real inner product space, Borel; $`\mu`$ additive Haar;
   $`0 \lt s_1`$ and $`s_1 \lt s_2`$; $`X_0, X`$ are $`C^1`$ on $`E \times \mathbb{R}`$; their supports,
   on all of $`E \times \mathbb{R}`$, are contained in $`\{\lvert x\rvert \le t - 1\}`$.
-- **Lean.** `MeasureTheory.integral_divergence_between_hyperboloids`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/3fac872e390477a31fdbf56d88d4cc6989748e1e/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L66)
+- **Lean.** `MeasureTheory.integral_divergence_between_hyperboloids`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L183)
 
 ```lean
 theorem integral_divergence_between_hyperboloids {s₁ s₂ : ℝ} (hs₁ : 0 < s₁) (hs₁₂ : s₁ < s₂)
@@ -497,9 +491,8 @@ theorem integral_divergence_between_hyperboloids {s₁ s₂ : ℝ} (hs₁ : 0 < 
   $`X_0`$ and $`X`$ vanish identically for $`t \lt 1`$; for instance, it excludes every solution of a
   wave equation that does not vanish at some time $`t \lt 1`$. A field that satisfies the cone
   condition only on the region between the hyperboloids is covered by the localized version (next
-  entry). Since the pull request that adds the localized version, this version is deduced from it
-  with $`U = E \times \mathbb{R}`$; at the linked commit `3fac872` the statement is the same, but the
-  proof is direct. The intersection of the
+  entry). This version is deduced from the localized one with $`U = E \times \mathbb{R}`$. The
+  intersection of the
   cone with the region between the hyperboloids is compact, so all integrands are integrable and the
   identity is not a junk $`0 = 0`$. A point of this intersection satisfies
   $`(\lvert x\rvert + 1)^2 \le t^2 \le s_2^2 + \lvert x\rvert^2`$, i.e.
@@ -524,18 +517,18 @@ theorem integral_divergence_between_hyperboloids {s₁ s₂ : ℝ} (hs₁ : 0 < 
   with $`D \cap C \subseteq U`$, and let $`X_0 : E \times \mathbb{R} \to \mathbb{R}`$ and
   $`X : E \times \mathbb{R} \to E`$ be $`C^1`$ on $`U`$, with
   ```math
-  D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X) \subseteq C.
+  D \cap (\mathrm{supp}\, X_0 \cup \mathrm{supp}\, X) \subseteq C.
   ```
   Then
   ```math
-  \int_{D} \big( \partial_t X_0 + \operatorname{div}_x X \big)\, d(\mu \otimes \mathcal{L}^1)
+  \int_{D} \big( \partial_t X_0 + \mathrm{div}_x\, X \big)\, d(\mu \otimes \mathcal{L}^1)
   = \int_E \Big( X_0\big(x, \varphi_2(x)\big) - \frac{\langle x, X(x, \varphi_2(x)) \rangle}{\varphi_2(x)} \Big)\, d\mu(x)
   - \int_E \Big( X_0\big(x, \varphi_1(x)\big) - \frac{\langle x, X(x, \varphi_1(x)) \rangle}{\varphi_1(x)} \Big)\, d\mu(x).
   ```
 - **Hypotheses.** $`E`$ finite-dimensional real inner product space, Borel; $`\mu`$ additive Haar;
   $`0 \lt s_1`$ and $`s_1 \lt s_2`$; $`U`$ open; $`D \cap C \subseteq U`$; $`X_0, X`$ are $`C^1`$ on
-  $`U`$; $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X) \subseteq C`$.
-- **Lean.** `MeasureTheory.integral_divergence_between_hyperboloids_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/7ca43418f81ff26d99e3f5f9801646fa70fd1a74/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L120)
+  $`U`$; $`D \cap (\mathrm{supp}\, X_0 \cup \mathrm{supp}\, X) \subseteq C`$.
+- **Lean.** `MeasureTheory.integral_divergence_between_hyperboloids_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean#L120)
 
 ```lean
 theorem integral_divergence_between_hyperboloids_of_contDiffOn {s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
@@ -565,8 +558,8 @@ theorem integral_divergence_between_hyperboloids_of_contDiffOn {s₁ s₂ : ℝ}
   $`\{X_0 \neq 0\} \cup \{X \neq 0\}`$ outside $`D`$), whereas in the global version the cone is closed
   and the two conditions are equivalent. $`D \cap C`$ is compact
   (`isCompact_region_between_hyperboloids_inter_cone`), hence so is
-  $`D \cap (\operatorname{supp} X_0 \cup \operatorname{supp} X)`$; the proof enlarges $`U`$ to the open
-  set $`U \cup (\operatorname{supp} X_0 \cup \operatorname{supp} X)^c`$, which contains $`D`$ and on which
+  $`D \cap (\mathrm{supp}\, X_0 \cup \mathrm{supp}\, X)`$; the proof enlarges $`U`$ to the open
+  set $`U \cup (\mathrm{supp}\, X_0 \cup \mathrm{supp}\, X)^c`$, which contains $`D`$ and on which
   the field is $`C^1`$, and applies `integral_divergence_region_between_cc_of_contDiffOn`. In
   particular all integrands are integrable and the identity is not a junk $`0 = 0`$. As in the
   global version, the cone meets $`D`$ only if $`s_2 \ge 1`$ (and only at $`(0, 1)`$ if $`s_2 = 1`$),

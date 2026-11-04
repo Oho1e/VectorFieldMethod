@@ -8,9 +8,8 @@ the divergence theorems, the energy identity). The layer is built on the Minkows
 ([`energy-momentum.md`](energy-momentum.md)) and the localized divergence theorem between two
 hyperboloids ([`divergence.md`](divergence.md)). All declarations are in the namespace
 `VectorFieldMethod.Minkowski`. The links below point to commit
-[`fb00a91`](https://github.com/Oho1e/VectorFieldMethod/tree/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb) of the pull request that
-adds this layer, the last commit that changes its Lean files (they are identical at the head of the
-branch); they are to be replaced by a `main` commit later. How to read the entries:
+[`65434c1`](https://github.com/Oho1e/VectorFieldMethod/tree/65434c138668e720ea41dbd287fb6c1298ad00f9)
+of `main`. How to read the entries:
 [`README.md`](README.md).
 
 ## Conventions
@@ -28,10 +27,10 @@ branch); they are to be replaced by a `main` commit later. How to read the entri
   ```
   in Lean `regionBetweenHyperboloids s₁ s₂`, and the closed solid cone is
   $`K = \{(t, x) : \lvert x\rvert \le t - 1\}`$, in Lean `cone` (both are defined in
-  `HyperboloidalEnergyIdentity.lean`, see *Definitions*; LeFloch–Ma's cone $`\{r \lt t - 1\}`$
-  has closure $`K`$).
+  `HyperboloidalEnergyIdentity.lean`, see *Definitions*; LeFloch–Ma's cone $`\{r \lt t - 1\}`$,
+  (2.1.2) of arXiv:1411.4910, has closure $`K`$).
 - **Normalization: no factor $`\tfrac12`$.** Quoted from the module docstring of
-  [`HyperboloidalEnergy.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L45):
+  [`HyperboloidalEnergy.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L45):
 
   > The energy density and the energy carry no factor `½`, as in LeFloch–Ma: apart from the cross
   > terms `2 ∑ a, (x_a / t) ⟪∂_a u, ∂_t u⟫`, the energy density is
@@ -44,11 +43,14 @@ branch); they are to be replaced by a `main` commit later. How to read the entri
   flux density of $`P`$ through the hyperboloids.
 - **Notation, and correspondence with LeFloch–Ma.** In this file the subscript of $`e_m[u]`$ and
   $`E_m(s, u)`$ is the mass $`m`$: $`E_m(s, u)`$ is `hyperboloidalEnergy m s u`. LeFloch–Ma,
-  *The Hyperboloidal Foliation Method* (World Scientific, 2014; arXiv:1411.4910, §2.3, (2.3.2)),
-  write the energy of a field of mass $`c`$ as $`E_{m,c}(s, u)`$, where the subscript $`m`$ refers
-  to Minkowski spacetime, not to the mass, and write $`E_m(s, u) := E_{m,0}(s, u)`$ for the massless
-  energy. So **`hyperboloidalEnergy c s u` is their $`E_{m,c}(s, u)`$, and
-  `hyperboloidalEnergy 0 s u` is their $`E_m(s, u)`$.** For a real field,
+  *The Hyperboloidal Foliation Method* (World Scientific, 2014; arXiv:1411.4910), define the
+  hyperboloidal energy in (2.1.11) (§2.1, where the mass is denoted $`\sigma`$), and in §2.3,
+  (2.3.2), write the energy of a field of mass $`c`$ as $`E_{m,c}(s, u)`$, where the subscript
+  $`m`$ refers to Minkowski spacetime, not to the mass, and $`E_m(s, u) := E_{m,0}(s, u)`$ for the
+  massless energy. So **`hyperboloidalEnergy c s u` is their $`E_{m,c}(s, u)`$, and
+  `hyperboloidalEnergy 0 s u` is their $`E_m(s, u)`$.** Their energy estimate (2.1.10) is
+  formalized in the next layer, [`hyperboloidal-energy-estimate.md`](hyperboloidal-energy-estimate.md).
+  For a real field,
   ```math
   E_{m,c}(s, u) = \int_{H_s} \Big( (\partial_t u)^2 + \sum_a (\partial_a u)^2 + 2 \sum_a \frac{x^a}{t}\, \partial_t u\, \partial_a u + c^2 u^2 \Big)\, dx
   = \int_{H_s} \Big( \sum_a (\underline{\partial}_a u)^2 + \Big(\frac{s}{t}\Big)^2 (\partial_t u)^2 + c^2 u^2 \Big)\, dx ,
@@ -57,12 +59,14 @@ branch); they are to be replaced by a `main` commit later. How to read the entri
   For a general $`F`$ the products are replaced by inner products and the squares by squared
   norms. The second form is `hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid`.
 - **Signs.** The Klein–Gordon operator of this project is $`\mathrm{KG}_m u = \Box u - m^2 u`$
-  (`kleinGordon m u`) with $`\Box = -\partial_t^2 + \Delta`$. LeFloch–Ma's Klein–Gordon operator
-  for the mass $`c`$, written $`\Box u + c^2 u`$ with their $`\Box = \partial_t^2 - \Delta`$, is
-  $`-\mathrm{KG}_c u`$ (see [`minkowski.md`](minkowski.md)). In their notation the energy identity
+  (`kleinGordon m u`) with $`\Box = -\partial_t^2 + \Delta`$. LeFloch–Ma's wave operator has the
+  opposite sign, $`\partial_t^2 - \Delta`$, and their Klein–Gordon operator for the mass $`c`$ is
+  $`(\partial_t^2 - \Delta + c^2) u = -\mathrm{KG}_c u`$ (see [`minkowski.md`](minkowski.md)). To
+  avoid the clash of notation, this file writes their operator as $`(\partial_t^2 - \Delta + c^2) u`$
+  or $`-\mathrm{KG}_c u`$, never with the symbol $`\Box`$. In their notation the energy identity
   below reads
-  $`E_{m,c}(s_2, u) - E_{m,c}(s_1, u) = 2 \int_D (\Box u + c^2 u)\, \partial_t u\, dx\, dt`$; see the
-  notes of *The hyperboloidal energy identity* for the forms in which they state it.
+  $`E_{m,c}(s_2, u) - E_{m,c}(s_1, u) = 2 \int_D \big((\partial_t^2 - \Delta + c^2) u\big)\, \partial_t u\, dx\, dt = -2 \int_D (\mathrm{KG}_c u)\, \partial_t u\, dx\, dt`$;
+  see the notes of *The hyperboloidal energy identity* for the forms in which they state it.
 - **Measures.** On `EuclideanSpace ℝ (Fin 3)`, `volume` is Lebesgue measure on $`\mathbb{R}^3`$
   (Mathlib's measure on a finite-dimensional inner product space, normalized by orthonormal bases).
   On `Spacetime`, `volume` is the product measure `volume.prod volume`, i.e. $`dt\, dx`$ (Mathlib's
@@ -78,7 +82,7 @@ $`\partial_t, \partial_a, L_a, \Box`$ are the operators of the Minkowski layer, 
 convention that derivatives at points of non-differentiability are $`0`$ (see the README).
 $`P^\alpha`$ is the energy current `energyCurrent m u α` of the energy-momentum layer,
 $`P^0 = \tfrac12 (\lVert \partial_t u\rVert^2 + \sum_a \lVert \partial_a u\rVert^2 + m^2 \lVert u\rVert^2)`$,
-$`P^a = -\langle \partial_a u, \partial_t u\rangle`$. $`\operatorname{supp} f`$ is the closed support
+$`P^a = -\langle \partial_a u, \partial_t u\rangle`$. $`\mathrm{supp}\, f`$ is the closed support
 `tsupport f`.
 
 ## Context
@@ -87,14 +91,14 @@ The `variable` lines of the two files. Their only hypotheses are structural: $`F
 product space (no completeness or finite dimension is assumed; all integrals are integrals of
 real-valued functions).
 
-[`HyperboloidalEnergy.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L69):
+[`HyperboloidalEnergy.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L69):
 
 ```lean
 variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]
 variable {u : Spacetime → F} {p : Spacetime}
 ```
 
-[`HyperboloidalEnergyIdentity.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L156):
+[`HyperboloidalEnergyIdentity.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L156):
 
 ```lean
 variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]
@@ -113,7 +117,7 @@ inferred from the hypotheses.
   \underline{\partial}_a u(t, x) = \partial_a u(t, x) + \frac{x^a}{t}\, \partial_t u(t, x) \qquad (t \neq 0).
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`u`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.semiHyperboloidalDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L76)
+- **Lean.** `VectorFieldMethod.Minkowski.semiHyperboloidalDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L76)
 
 ```lean
 def semiHyperboloidalDeriv (a : Fin 3) (u : Spacetime → F) : Spacetime → F :=
@@ -136,7 +140,7 @@ def semiHyperboloidalDeriv (a : Fin 3) (u : Spacetime → F) : Spacetime → F :
     + 2 \sum_{a=1}^{3} \frac{x^a}{t}\, \langle \partial_a u(p), \partial_t u(p) \rangle + m^2 \lVert u(p) \rVert^2 .
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`m`$ and $`u`$ are arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L106)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L106)
 
 ```lean
 def hyperboloidalEnergyDensity (m : ℝ) (u : Spacetime → F) : Spacetime → ℝ :=
@@ -157,7 +161,7 @@ def hyperboloidalEnergyDensity (m : ℝ) (u : Spacetime → F) : Spacetime → �
   E_m(s, u) = \int_{\mathbb{R}^3} e_m[u]\big(\sqrt{s^2 + |x|^2}, x\big)\, dx .
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`m`$, $`s`$, $`u`$ are arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L124)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L124)
 
 ```lean
 def hyperboloidalEnergy (m s : ℝ) (u : Spacetime → F) : ℝ :=
@@ -180,7 +184,7 @@ def hyperboloidalEnergy (m s : ℝ) (u : Spacetime → F) : ℝ :=
   D = \{(t, x) \in \mathbb{R}^{1+3} : \sqrt{s_1^2 + |x|^2} \le t \le \sqrt{s_2^2 + |x|^2}\}.
   ```
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.regionBetweenHyperboloids`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L131)
+- **Lean.** `VectorFieldMethod.Minkowski.regionBetweenHyperboloids`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L131)
 
 ```lean
 def regionBetweenHyperboloids (s₁ s₂ : ℝ) : Set Spacetime :=
@@ -198,17 +202,17 @@ def regionBetweenHyperboloids (s₁ s₂ : ℝ) : Set Spacetime :=
 
 - **Math.** $`K = \{(t, x) \in \mathbb{R}^{1+3} : \lvert x\rvert \le t - 1\}`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.cone`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L136)
+- **Lean.** `VectorFieldMethod.Minkowski.cone`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L136)
 
 ```lean
 def cone : Set Spacetime :=
   {p | ‖p.2‖ ≤ p.1 - 1}
 ```
 
-- **Notes.** The closed solid cone with vertex $`(1, 0)`$; LeFloch–Ma's cone $`\{r \lt t - 1\}`$ has
-  closure $`K`$. Membership: `mem_cone` (`p ∈ cone ↔ ‖p.2‖ ≤ p.1 - 1`, by definition); closedness:
-  `isClosed_cone`. The set $`D \cap K`$ is compact
-  (`isCompact_regionBetweenHyperboloids_inter_cone`).
+- **Notes.** The closed solid cone with vertex $`(1, 0)`$; LeFloch–Ma's cone $`\{r \lt t - 1\}`$
+  ((2.1.2) of arXiv:1411.4910) has closure $`K`$. Membership: `mem_cone`
+  (`p ∈ cone ↔ ‖p.2‖ ≤ p.1 - 1`, by definition); closedness: `isClosed_cone`. The set
+  $`D \cap K`$ is compact (`isCompact_regionBetweenHyperboloids_inter_cone`).
 
 ## Main theorems
 
@@ -218,7 +222,7 @@ def cone : Set Spacetime :=
   $`t \neq 0`$. Then $`L_a u(p) = t\, \underline{\partial}_a u(p)`$.
 - **Hypotheses.** $`F`$ is a real inner product space; $`t \neq 0`$ (`timeCoord p ≠ 0`); no
   regularity of $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.boost_eq_timeCoord_smul_semiHyperboloidalDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L85)
+- **Lean.** `VectorFieldMethod.Minkowski.boost_eq_timeCoord_smul_semiHyperboloidalDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L85)
 
 ```lean
 theorem boost_eq_timeCoord_smul_semiHyperboloidalDeriv (a : Fin 3) (u : Spacetime → F)
@@ -237,7 +241,7 @@ theorem boost_eq_timeCoord_smul_semiHyperboloidalDeriv (a : Fin 3) (u : Spacetim
   e_m[u](p) = \sum_{a=1}^{3} \lVert \underline{\partial}_a u(p) \rVert^2 + \frac{t^2 - r^2}{t^2}\, \lVert \partial_t u(p) \rVert^2 + m^2 \lVert u(p) \rVert^2 .
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`t \neq 0`$; no regularity of $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L136)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L136)
 
 ```lean
 theorem hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv (m : ℝ) (u : Spacetime → F)
@@ -259,7 +263,7 @@ theorem hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv (m : ℝ) (u : 
   e_m[u](t, x) = \sum_{a=1}^{3} \lVert \underline{\partial}_a u(t, x) \rVert^2 + \frac{s^2}{t^2}\, \lVert \partial_t u(t, x) \rVert^2 + m^2 \lVert u(t, x) \rVert^2 .
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`s \neq 0`$; no regularity of $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L148)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L148)
 
 ```lean
 theorem hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid (m : ℝ)
@@ -281,8 +285,8 @@ theorem hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid 
   $`E_m(s, u) \ge 0`$ for every $`s \in \mathbb{R}`$.
 - **Hypotheses.** $`F`$ is a real inner product space; $`\lvert x\rvert \le \lvert t\rvert`$
   (`radius p ≤ |timeCoord p|`) and $`t \neq 0`$; no regularity of $`u`$. For the energy: none.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity_nonneg`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L161),
-  and `VectorFieldMethod.Minkowski.hyperboloidalEnergy_nonneg`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L175)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity_nonneg`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L161),
+  and `VectorFieldMethod.Minkowski.hyperboloidalEnergy_nonneg`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L175)
 
 ```lean
 theorem hyperboloidalEnergyDensity_nonneg (m : ℝ) (u : Spacetime → F)
@@ -310,7 +314,7 @@ theorem hyperboloidalEnergy_nonneg (m s : ℝ) (u : Spacetime → F) :
   e_m[u](p) = 2 \Big( P^0(p) - \sum_{a=1}^{3} \frac{x^a}{t}\, P^a(p) \Big).
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; no hypothesis on $`u`$ or $`p`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity_eq_energyCurrent`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L193)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergyDensity_eq_energyCurrent`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L193)
 
 ```lean
 theorem hyperboloidalEnergyDensity_eq_energyCurrent (m : ℝ) (u : Spacetime → F) (p : Spacetime) :
@@ -326,7 +330,7 @@ theorem hyperboloidalEnergyDensity_eq_energyCurrent (m : ℝ) (u : Spacetime →
   the proof does not use would moreover be reported by the unused-variables linter, an error in CI).
   The flux of $`P`$ through $`H_s`$ in the parametrization of the divergence theorems is
   $`P^0 - \langle x, \sum_a P^a e_a\rangle / t = e_m[u] / 2`$ (`energyCurrent_sub_inner_div_eq`,
-  [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L199)), which is how the energy enters the proof of
+  [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L199)), which is how the energy enters the proof of
   the energy identity.
 
 ### Regularity of the energy current
@@ -335,7 +339,7 @@ theorem hyperboloidalEnergyDensity_eq_energyCurrent (m : ℝ) (u : Spacetime →
   Then $`P^\alpha \in C^1(U)`$ for every $`\alpha \in \{0, 1, 2, 3\}`$.
 - **Hypotheses.** $`F`$ is a real inner product space; $`U`$ is open; $`u`$ is $`C^2`$ on $`U`$
   (`ContDiffOn ℝ 2 u U`).
-- **Lean.** `VectorFieldMethod.Minkowski.contDiffOn_energyCurrent`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L214)
+- **Lean.** `VectorFieldMethod.Minkowski.contDiffOn_energyCurrent`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L214)
 
 ```lean
 theorem contDiffOn_energyCurrent (m : ℝ) {U : Set Spacetime} (hU : IsOpen U)
@@ -343,25 +347,25 @@ theorem contDiffOn_energyCurrent (m : ℝ) {U : Set Spacetime} (hU : IsOpen U)
 ```
 
 - **Notes.** The pointwise version (`ContDiffAt ℝ 2 u p` gives `ContDiffAt ℝ 1 (energyCurrent m u α) p`)
-  is `contDiffAt_energyCurrent` ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L203)). For open $`U`$,
+  is `contDiffAt_energyCurrent` ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L203)). For open $`U`$,
   `ContDiffOn` is the usual notion and the values of $`u`$ outside $`U`$ play no role.
 
 ### Support of the energy current
 
 - **Math.** For every $`m \in \mathbb{R}`$, $`u : \mathbb{R}^{1+3} \to F`$ and $`\alpha`$,
-  $`\operatorname{supp} P^\alpha \subseteq \operatorname{supp} u`$ (closed supports).
+  $`\mathrm{supp}\, P^\alpha \subseteq \mathrm{supp}\, u`$ (closed supports).
 - **Hypotheses.** $`F`$ is a real inner product space; no hypothesis on $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.tsupport_energyCurrent_subset`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L229)
+- **Lean.** `VectorFieldMethod.Minkowski.tsupport_energyCurrent_subset`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L229)
 
 ```lean
 theorem tsupport_energyCurrent_subset (m : ℝ) (u : Spacetime → F) (α : Fin 4) :
     tsupport (energyCurrent m u α) ⊆ tsupport u
 ```
 
-- **Notes.** Outside $`\operatorname{supp} u`$ both $`u`$ and $`Du`$ vanish
+- **Notes.** Outside $`\mathrm{supp}\, u`$ both $`u`$ and $`Du`$ vanish
   (`derivAlong_of_notMem_tsupport`). The same argument gives
-  $`\{e_m[u] \neq 0\} \subseteq \operatorname{supp} u`$ (`support_hyperboloidalEnergyDensity_subset`) and
-  $`\mathrm{KG}_m u = 0`$ outside $`\operatorname{supp} u`$ (`kleinGordon_of_notMem_tsupport`).
+  $`\{e_m[u] \neq 0\} \subseteq \mathrm{supp}\, u`$ (`support_hyperboloidalEnergyDensity_subset`) and
+  $`\mathrm{KG}_m u = 0`$ outside $`\mathrm{supp}\, u`$ (`kleinGordon_of_notMem_tsupport`).
 
 ### Divergence in the coordinates of the divergence theorems
 
@@ -371,10 +375,10 @@ theorem tsupport_energyCurrent_subset (m : ℝ) (u : Spacetime → F) (α : Fin 
   $`x \in \mathbb{R}^3`$, $`t \in \mathbb{R}`$, and assume that every $`J^\alpha`$ is differentiable
   at $`(t, x)`$. Then
   ```math
-  \partial_t X_0(x, t) + \operatorname{div}_x X(x, t) = \sum_{\alpha=0}^{3} \partial_\alpha J^\alpha(t, x).
+  \partial_t X_0(x, t) + \mathrm{div}_x\, X(x, t) = \sum_{\alpha=0}^{3} \partial_\alpha J^\alpha(t, x).
   ```
 - **Hypotheses.** Each $`J^\alpha`$ is differentiable at $`(t, x)`$.
-- **Lean.** `VectorFieldMethod.Minkowski.deriv_add_spatialDivergence_eq_spacetimeDiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L75)
+- **Lean.** `VectorFieldMethod.Minkowski.deriv_add_spatialDivergence_eq_spacetimeDiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L75)
 
 ```lean
 theorem deriv_add_spatialDivergence_eq_spacetimeDiv (J : Fin 4 → Spacetime → ℝ)
@@ -397,7 +401,7 @@ theorem deriv_add_spatialDivergence_eq_spacetimeDiv (J : Fin 4 → Spacetime →
   measure $`dx \otimes dt`$ to $`\mathbb{R} \times \mathbb{R}^3`$ with Lebesgue measure
   $`dt \otimes dx`$ is measure preserving.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.measurePreserving_swap_spacetime`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L114)
+- **Lean.** `VectorFieldMethod.Minkowski.measurePreserving_swap_spacetime`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L114)
 
 ```lean
 theorem measurePreserving_swap_spacetime :
@@ -417,7 +421,7 @@ theorem measurePreserving_swap_spacetime :
   \int_S f(t, x)\, d(t, x) = \int_{\{(x, t) \,:\, (t, x) \in S\}} f(t, x)\, d(x, t).
   ```
 - **Hypotheses.** $`G`$ is a real normed space; no hypothesis on $`f`$ or $`S`$.
-- **Lean.** `VectorFieldMethod.Minkowski.setIntegral_spacetime_eq_setIntegral_swap`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L121)
+- **Lean.** `VectorFieldMethod.Minkowski.setIntegral_spacetime_eq_setIntegral_swap`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L121)
 
 ```lean
 theorem setIntegral_spacetime_eq_setIntegral_swap {G : Type*} [NormedAddCommGroup G]
@@ -434,13 +438,13 @@ theorem setIntegral_spacetime_eq_setIntegral_swap {G : Type*} [NormedAddCommGrou
 - **Math.** Let $`F`$ be a real inner product space, $`m \in \mathbb{R}`$, $`0 \lt s_1 \lt s_2`$,
   $`D`$ and $`K`$ as in *Conventions*, $`U \subseteq \mathbb{R}^{1+3}`$ open with
   $`D \cap K \subseteq U`$, and $`u : \mathbb{R}^{1+3} \to F`$ of class $`C^2`$ on $`U`$ with
-  $`D \cap \operatorname{supp} u \subseteq K`$. Then
+  $`D \cap \mathrm{supp}\, u \subseteq K`$. Then
   ```math
   E_m(s_2, u) - E_m(s_1, u) = -2 \int_D \big\langle (\Box u - m^2 u)(t, x),\ \partial_t u(t, x) \big\rangle\, dt\, dx .
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`0 \lt s_1`$ and $`s_1 \lt s_2`$; $`U`$ is
-  open; $`D \cap K \subseteq U`$; $`u`$ is $`C^2`$ on $`U`$; $`D \cap \operatorname{supp} u \subseteq K`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_sub_hyperboloidalEnergy`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L296)
+  open; $`D \cap K \subseteq U`$; $`u`$ is $`C^2`$ on $`U`$; $`D \cap \mathrm{supp}\, u \subseteq K`$.
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_sub_hyperboloidalEnergy`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L296)
 
 ```lean
 theorem hyperboloidalEnergy_sub_hyperboloidalEnergy (m : ℝ) {s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
@@ -453,14 +457,15 @@ theorem hyperboloidalEnergy_sub_hyperboloidalEnergy (m : ℝ) {s₁ s₂ : ℝ} 
 
 - **Notes.** This is LeFloch–Ma's energy identity. In their notation, for a field of mass $`c`$
   (`m = c` here), it reads
-  $`E_{m,c}(s_2, u) - E_{m,c}(s_1, u) = 2 \int_D (\Box u + c^2 u)\, \partial_t u`$ (see *Conventions*).
+  $`E_{m,c}(s_2, u) - E_{m,c}(s_1, u) = 2 \int_D \big((\partial_t^2 - \Delta + c^2) u\big)\, \partial_t u`$,
+  where $`(\partial_t^2 - \Delta + c^2) u = -\mathrm{KG}_c u`$ (see *Conventions*).
   LeFloch–Ma state it in differential form, for $`\frac{d}{ds} E_{m,c}(s, u)`$, and in integrated
   form ((2.3.8) of arXiv:1411.4910). The volume integral over $`D`$ used here is equivalent to these
   forms: at fixed $`x`$, the change of variables $`t = \sqrt{s^2 + \lvert x\rvert^2}`$,
   $`dt = (s / t)\, ds`$ maps $`s \in [s_1, s_2]`$ onto the segment of $`D`$ above $`x`$, so the
   identity is the integral over $`s \in [s_1, s_2]`$ of
   ```math
-  \frac{d}{ds} E_{m,c}(s, u) = 2 \int_{\mathbb{R}^3} \Big( \frac{s}{t}\, \partial_t u\, (\Box u + c^2 u) \Big)\big(\sqrt{s^2 + |x|^2}, x\big)\, dx .
+  \frac{d}{ds} E_{m,c}(s, u) = 2 \int_{\mathbb{R}^3} \Big( \frac{s}{t}\, \partial_t u\, (\partial_t^2 - \Delta + c^2) u \Big)\big(\sqrt{s^2 + |x|^2}, x\big)\, dx .
   ```
   - *Proof.* The divergence theorem between two hyperboloids
     (`integral_divergence_between_hyperboloids_of_contDiffOn` of
@@ -489,11 +494,11 @@ theorem hyperboloidalEnergy_sub_hyperboloidalEnergy (m : ℝ) {s₁ s₂ : ℝ} 
 ### Integrability of $`\langle \mathrm{KG}_m u, \partial_t u \rangle`$ on $`D`$
 
 - **Math.** Let $`m, s_1, s_2 \in \mathbb{R}`$, $`D`$, $`K`$ as in *Conventions*, $`U`$ open with
-  $`D \cap K \subseteq U`$, $`u \in C^2(U; F)`$ with $`D \cap \operatorname{supp} u \subseteq K`$. Then
+  $`D \cap K \subseteq U`$, $`u \in C^2(U; F)`$ with $`D \cap \mathrm{supp}\, u \subseteq K`$. Then
   $`(t, x) \mapsto \langle (\Box u - m^2 u)(t, x), \partial_t u(t, x)\rangle`$ is integrable on $`D`$.
 - **Hypotheses.** $`F`$ is a real inner product space; $`U`$ is open; $`D \cap K \subseteq U`$; $`u`$
-  is $`C^2`$ on $`U`$; $`D \cap \operatorname{supp} u \subseteq K`$. No condition on $`s_1, s_2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.integrableOn_inner_kleinGordon_timeDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L220)
+  is $`C^2`$ on $`U`$; $`D \cap \mathrm{supp}\, u \subseteq K`$. No condition on $`s_1, s_2`$.
+- **Lean.** `VectorFieldMethod.Minkowski.integrableOn_inner_kleinGordon_timeDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L220)
 
 ```lean
 theorem integrableOn_inner_kleinGordon_timeDeriv (m : ℝ) {s₁ s₂ : ℝ} {U : Set Spacetime}
@@ -514,8 +519,8 @@ theorem integrableOn_inner_kleinGordon_timeDeriv (m : ℝ) {s₁ s₂ : ℝ} {U 
   $`\mathbb{R}^3`$. In particular the integrands of $`E_m(s_1, u)`$ and $`E_m(s_2, u)`$ are
   integrable.
 - **Hypotheses.** $`F`$ is a real inner product space; $`0 \lt s_1`$; $`s_1 \le s \le s_2`$; $`U`$ is
-  open; $`D \cap K \subseteq U`$; $`u`$ is $`C^2`$ on $`U`$; $`D \cap \operatorname{supp} u \subseteq K`$.
-- **Lean.** `VectorFieldMethod.Minkowski.integrable_hyperboloidalEnergyDensity`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L247)
+  open; $`D \cap K \subseteq U`$; $`u`$ is $`C^2`$ on $`U`$; $`D \cap \mathrm{supp}\, u \subseteq K`$.
+- **Lean.** `VectorFieldMethod.Minkowski.integrable_hyperboloidalEnergyDensity`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L247)
 
 ```lean
 theorem integrable_hyperboloidalEnergyDensity (m : ℝ) {s₁ s₂ s : ℝ} (hs₁ : 0 < s₁)
@@ -536,7 +541,7 @@ theorem integrable_hyperboloidalEnergyDensity (m : ℝ) {s₁ s₂ s : ℝ} (hs�
   $`\Box u - m^2 u = 0`$ on $`D \cap K`$, then $`E_m(s_1, u) = E_m(s_2, u)`$.
 - **Hypotheses.** Those of the energy identity, and $`(\Box u - m^2 u)(p) = 0`$ for every
   $`p \in D \cap K`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_eq_of_kleinGordon_eq_zero`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L366)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_eq_of_kleinGordon_eq_zero`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L366)
 
 ```lean
 theorem hyperboloidalEnergy_eq_of_kleinGordon_eq_zero (m : ℝ) {s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
@@ -562,11 +567,11 @@ cone $`K`$ (there $`t \ge 7/2`$), and it meets $`H_4`$ near $`(4, 0)`$.
 
 | Statement | Line |
 | --- | --- |
-| `hyperboloidalEnergyDensity_nonneg` applies at $`(t, x) = (1, 0)`$, for every $`u`$ | [L261](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L261) |
-| The energy identity applies to the bump function with $`s_1 = 2`$, $`s_2 = 4`$, $`U = \mathbb{R}^{1+3}`$, every $`m`$ | [L438](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L438) |
-| Both integrability statements apply to the same data ($`s = 2`$ and $`s = 4`$) | [L449](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L449) |
-| For $`m \neq 0`$ and the same data: $`E_m(2, u) = 0`$, $`E_m(4, u) \gt 0`$ and, by the identity, $`\int_D \langle \mathrm{KG}_m u, \partial_t u\rangle \neq 0`$, so both sides of the identity are nonzero | [L471](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L471) |
-| The conservation law applies to the bump function with $`s_1 = 5`$, $`s_2 = 6`$. Degenerate: $`D`$ does not meet the closed support of $`u`$, and for this theorem that is equivalent to $`u = 0`$ (both energies are $`0`$) | [L533](https://github.com/Oho1e/VectorFieldMethod/blob/fb00a913b0cebb5f4c88289a5cba4b856d3b5cbb/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L533) |
+| `hyperboloidalEnergyDensity_nonneg` applies at $`(t, x) = (1, 0)`$, for every $`u`$ | [L261](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergy.lean#L261) |
+| The energy identity applies to the bump function with $`s_1 = 2`$, $`s_2 = 4`$, $`U = \mathbb{R}^{1+3}`$, every $`m`$ | [L438](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L438) |
+| Both integrability statements apply to the same data ($`s = 2`$ and $`s = 4`$) | [L449](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L449) |
+| For $`m \neq 0`$ and the same data: $`E_m(2, u) = 0`$, $`E_m(4, u) \gt 0`$ and, by the identity, $`\int_D \langle \mathrm{KG}_m u, \partial_t u\rangle \neq 0`$, so both sides of the identity are nonzero | [L471](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L471) |
+| The conservation law applies to the bump function with $`s_1 = 5`$, $`s_2 = 6`$. Degenerate: $`D`$ does not meet the closed support of $`u`$, and for this theorem that is equivalent to $`u = 0`$ (both energies are $`0`$) | [L533](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyIdentity.lean#L533) |
 
 The second, third and fourth examples show that the hypotheses of the energy identity and of the
 integrability statements can hold simultaneously for a field that is not identically zero on $`D`$,

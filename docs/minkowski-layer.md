@@ -120,8 +120,8 @@ docstring says that these are the entries of `η^{αβ}`.
   which does not match the `Fin 4` indexing with time at `0`; reindexing it
   would add an equivalence to every index computation.
 * A bilinear or quadratic form (`LinearMap.BilinForm`, `QuadraticForm`): more
-  structure than needed now; `□` and later the energy-momentum tensor only need
-  the coefficients. It can be added on top of the matrix later.
+  structure than needed; `□` and the energy-momentum tensor (`EnergyMomentum.lean`)
+  only need the coefficients. It can be added on top of the matrix later.
 * A literal matrix `!![-1, 0, 0, 0; ...]`: less structural; `Fin.cons` lets
   proofs split into the time index and the spatial indices with `Fin.cases`.
 
@@ -141,8 +141,10 @@ locality (`derivAlong_congr_of_eventuallyEq`), values on the coordinates
 (`derivAlong_timeCoord`, `derivAlong_spaceCoord`), and computing through a
 `HasFDerivAt` (`derivAlong_eq_of_hasFDerivAt`). Representing vector fields by
 component functions `E → E` is also Mathlib's convention in
-`Mathlib.Analysis.Calculus.VectorField`, so `VectorField.lieBracket ℝ V W`
-(`= DW(V) - DV(W)`) can be used for commutators later.
+`Mathlib.Analysis.Calculus.VectorField`, so the commutator layer
+(`Commutators.lean`, see "Later layers" below) uses `VectorField.lieBracket ℝ V W`
+(`= DW(V) - DV(W)`) directly: `[V, W] u = V (W u) - W (V u) = derivAlong (lieBracket ℝ V W) u`
+for differentiable `V`, `W` and `u` of class `C²`.
 
 *Linearity.* `fderiv` is `0` at points where `u` is not differentiable, so
 `derivAlong V (u + v) p = derivAlong V u p + derivAlong V v p` is false in
@@ -162,8 +164,11 @@ statement with the product written pointwise, `fun q ↦ c * u q`; it is about
 *Values in `F`.* The value space `F` is a real normed space, with no inner
 product or complex structure assumed: `fderiv ℝ` only uses the real linear
 structure, and complex or spinor fields are then functions into `ℂ` or `ℂ⁴`
-viewed as real normed spaces. Statements that need more structure on `F` will
-assume it where they are made.
+viewed as real normed spaces. Statements that need more structure on `F`
+assume it where they are made: the energy layers (`EnergyMomentum.lean` and the
+hyperboloidal energy files) declare
+`{F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]` on their own, never
+`[InnerProductSpace ℝ F]` on top of an existing `[NormedSpace ℝ F]`.
 
 *Commutation with continuous linear maps.* For `T : F →L[ℝ] G`,
 `derivAlong_comp_left : derivAlong V (T ∘ u) p = T (derivAlong V u p)` at a point
@@ -373,3 +378,39 @@ rather than as the notation followed by a projection (write
 scaling: tokens such as `Ω[`, `L[` or `S` would clash with Mathlib's
 `Ω[S⁄R]` (Kähler differentials), list indexing `L[i]`, and every identifier
 `S`.
+
+## Later layers
+
+The following layers are built on the definitions of this layer. Each has a
+statement file in `docs/statements/` with the mathematical statement and the
+verbatim Lean statement of its main results.
+
+* **Commutators** (`Minkowski/Commutators.lean`, `Minkowski/WaveCommutators.lean`;
+  [statements](statements/commutators.md)): the commutator of two first-order
+  operators is `derivAlong` of the Lie bracket of their component fields, the
+  Lie brackets of the 11 vector fields, and their commutators with `□` and the
+  Klein–Gordon operator (`∂_α`, `Ω_ab`, `L_a` commute with both,
+  `[S, □] = -2 □`).
+* **Energy-momentum tensor** (`Minkowski/EnergyMomentum.lean`;
+  [statements](statements/energy-momentum.md)): the energy-momentum tensor
+  `energyMomentum` of the Klein–Gordon field, the spacetime divergence
+  `spacetimeDiv`, the energy current `energyCurrent` (normalized with `½`) and
+  the energy identity `∂_α P^α = -⟪□u - m² u, ∂_t u⟫`.
+* **Hyperboloidal energy** (`Minkowski/HyperboloidalEnergy.lean`,
+  `Minkowski/HyperboloidalEnergyIdentity.lean`;
+  [statements](statements/hyperboloidal-energy.md)): the semi-hyperboloidal
+  derivatives, the hyperboloidal energy `hyperboloidalEnergy` (LeFloch–Ma's
+  normalization, without `½`), and the energy identity between two
+  hyperboloids, proved with the divergence theorem of
+  `ForMathlib/MeasureTheory/Integral/DivergenceTheoremHyperboloid.lean`
+  ([statements](statements/divergence.md)).
+* **Hyperboloidal energy estimate** (`Minkowski/HyperboloidalEnergyEstimate.lean`,
+  with the square-root Grönwall inequality of `Analysis/SqrtGronwall.lean`;
+  [statements](statements/hyperboloidal-energy-estimate.md)): the energy
+  estimate `E_m(s, u)^{1/2} ≤ E_m(s₀, u)^{1/2} + ∫_{s₀}^{s} ‖KG_m u‖_{L²_f(H_{s'})} ds'`.
+* **Klainerman–Sobolev inequality on hyperboloids**
+  (`Minkowski/KlainermanSobolev.lean`; [statements](statements/klainerman-sobolev.md)):
+  restriction to a hyperboloid, the relation between the boosts `L_a` and the
+  weighted derivatives of `Analysis/HyperboloidalSobolev.lean`
+  ([statements](statements/euclidean-sobolev.md)), and the inequality
+  `sup_{H_s} t^{3/2} |u| ≤ C ∑_{|J| ≤ 2} ‖L^J u‖_{L²_f(H_s)}`.
