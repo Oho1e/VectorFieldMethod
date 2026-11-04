@@ -12,8 +12,9 @@ public import VectorFieldMethod.ForMathlib.MeasureTheory.Integral.DivergenceTheo
 # The hyperboloidal energy identity for the Klein–Gordon field
 
 Let `0 < s₁ < s₂`, let `D = {(t, x) | √(s₁ ^ 2 + ‖x‖ ^ 2) ≤ t ≤ √(s₂ ^ 2 + ‖x‖ ^ 2)}` be the
-closed region of `Spacetime` between the hyperboloids `H_{s₁}` and `H_{s₂}`, and
-`K = {(t, x) | ‖x‖ ≤ t - 1}` the closed solid cone. For a field `u` which is `C²` on an open set
+closed region of `Spacetime` between the hyperboloids `H_{s₁}` and `H_{s₂}`
+(`regionBetweenHyperboloids s₁ s₂`), and `K = {(t, x) | ‖x‖ ≤ t - 1}` the closed solid cone
+(`cone`). For a field `u` which is `C²` on an open set
 `U ⊇ D ∩ K` and whose closed support meets `D` only inside `K`, we prove the energy identity of
 LeFloch–Ma's hyperboloidal foliation method,
 `E_m(s₂, u) - E_m(s₁, u) = -2 ∫_D ⟪□u - m² u, ∂_t u⟫`,
@@ -25,6 +26,12 @@ and its flux density through `H_s` is `e_m[u] / 2` (`hyperboloidalEnergyDensity_
 
 The divergence theorems use the coordinates `(x, t)` of `E × ℝ` (time second), while
 `Spacetime = ℝ × ℝ³` has time first; the first section of this file translates between the two.
+
+## Main definitions
+
+* `regionBetweenHyperboloids s₁ s₂`: the closed region `D` between the hyperboloids
+  `t = √(s₁ ^ 2 + ‖x‖ ^ 2)` and `t = √(s₂ ^ 2 + ‖x‖ ^ 2)`.
+* `cone`: the closed solid cone `K = {(t, x) | ‖x‖ ≤ t - 1}`.
 
 ## Main statements
 
@@ -40,11 +47,16 @@ The divergence theorems use the coordinates `(x, t)` of `E × ℝ` (time second)
 * `hyperboloidalEnergy_eq_of_kleinGordon_eq_zero`: conservation of the energy,
   `E_m(s₁, u) = E_m(s₂, u)`, if moreover `□u - m² u = 0` on `D ∩ K`.
 
-## Sign conventions
+## Sign conventions and notation
 
 `kleinGordon m u = □u - m² u` with `□ = -∂_t² + Δ`. LeFloch–Ma's Klein–Gordon operator is
-`-(□u - m² u)`, so in their notation the identity reads
-`E_m(s₂, u) - E_m(s₁, u) = 2 ∫_D ⟪□u + m² u, ∂_t u⟫`.
+`-(□u - m² u)`. They write `E_{m,c}(s, u)` for the energy of a field of mass `c` (their subscript
+`m` refers to Minkowski spacetime), which is `hyperboloidalEnergy c s u` here, and `E_m(s, u)` for
+the massless energy `E_{m,0}(s, u)`, which is `hyperboloidalEnergy 0 s u`. In their notation the
+identity reads `E_{m,c}(s₂, u) - E_{m,c}(s₁, u) = 2 ∫_D ⟪□u + c² u, ∂_t u⟫`. They state it in
+differential form, for `d/ds E_{m,c}(s, u)`, and in integrated form ((2.3.8) of arXiv:1411.4910);
+the volume integral over `D` used here is equivalent to these forms by the change of variables
+`t = √(s ^ 2 + ‖x‖ ^ 2)`, `dt = (s / t) ds`, at fixed `x`.
 -/
 
 @[expose] public noncomputable section
@@ -112,6 +124,33 @@ theorem setIntegral_spacetime_eq_setIntegral_swap {G : Type*} [NormedAddCommGrou
   (measurePreserving_swap_spacetime.setIntegral_preimage_emb
     MeasurableEquiv.prodComm.measurableEmbedding f s).symm
 
+/-! ### The region between two hyperboloids and the cone -/
+
+/-- The closed region `D = {(t, x) | √(s₁ ^ 2 + ‖x‖ ^ 2) ≤ t ≤ √(s₂ ^ 2 + ‖x‖ ^ 2)}` of
+`Spacetime` between the hyperboloids `t = √(s₁ ^ 2 + ‖x‖ ^ 2)` and `t = √(s₂ ^ 2 + ‖x‖ ^ 2)`. -/
+def regionBetweenHyperboloids (s₁ s₂ : ℝ) : Set Spacetime :=
+  {p | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)}
+
+/-- The closed solid cone `K = {(t, x) | ‖x‖ ≤ t - 1}`. LeFloch–Ma's cone `{r < t - 1}` has
+closure `K`. -/
+def cone : Set Spacetime :=
+  {p | ‖p.2‖ ≤ p.1 - 1}
+
+theorem mem_regionBetweenHyperboloids {s₁ s₂ : ℝ} {p : Spacetime} :
+    p ∈ regionBetweenHyperboloids s₁ s₂ ↔
+      √(s₁ ^ 2 + ‖p.2‖ ^ 2) ≤ p.1 ∧ p.1 ≤ √(s₂ ^ 2 + ‖p.2‖ ^ 2) :=
+  Iff.rfl
+
+theorem mem_cone {p : Spacetime} : p ∈ cone ↔ ‖p.2‖ ≤ p.1 - 1 :=
+  Iff.rfl
+
+theorem isClosed_regionBetweenHyperboloids (s₁ s₂ : ℝ) :
+    IsClosed (regionBetweenHyperboloids s₁ s₂) :=
+  (isClosed_le (by fun_prop) (by fun_prop)).inter (isClosed_le (by fun_prop) (by fun_prop))
+
+theorem isClosed_cone : IsClosed cone :=
+  isClosed_le (by fun_prop) (by fun_prop)
+
 /-! ### Localization near the cone -/
 
 variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]
@@ -147,11 +186,10 @@ theorem kleinGordon_of_notMem_tsupport (m : ℝ) {p : Spacetime} (hp : p ∉ tsu
     derivAlong_of_notMem_tsupport _ fun h ↦ hp (hD β h)
   simp [kleinGordon_apply, dAlembertian_apply, h2, image_eq_zero_of_notMem_tsupport hp]
 
-/-- The part of the closed region between the hyperboloids `t = √(s₁ ^ 2 + ‖x‖ ^ 2)` and
-`t = √(s₂ ^ 2 + ‖x‖ ^ 2)` of `Spacetime` which lies in the cone `‖x‖ ≤ t - 1` is compact. -/
-theorem isCompact_region_between_hyperboloids_inter_cone_spacetime (s₁ s₂ : ℝ) :
-    IsCompact ({p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      {p | ‖p.2‖ ≤ p.1 - 1}) := by
+/-- The part `D ∩ K` of the closed region between the hyperboloids `t = √(s₁ ^ 2 + ‖x‖ ^ 2)` and
+`t = √(s₂ ^ 2 + ‖x‖ ^ 2)` which lies in the cone `‖x‖ ≤ t - 1` is compact. -/
+theorem isCompact_regionBetweenHyperboloids_inter_cone (s₁ s₂ : ℝ) :
+    IsCompact (regionBetweenHyperboloids s₁ s₂ ∩ cone) := by
   have h := (isCompact_region_between_hyperboloids_inter_cone (E := EuclideanSpace ℝ (Fin 3))
     s₁ s₂).image continuous_swap
   rwa [image_swap_eq_preimage_swap] at h
@@ -179,36 +217,23 @@ theorem energyCurrent_sub_inner_div_eq (m : ℝ) (u : Spacetime → F)
 /-- Under the hypotheses of the energy identity `hyperboloidalEnergy_sub_hyperboloidalEnergy`,
 `⟪KG_m u, ∂_t u⟫` is integrable on the region `D` between the hyperboloids: it is continuous on
 `D` and vanishes on `D` outside the compact set `D ∩ K`. -/
-theorem integrableOn_inner_kleinGordon_timeDeriv {m s₁ s₂ : ℝ} {U : Set Spacetime}
-    (hU : IsOpen U)
-    (hDU : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      {p | ‖p.2‖ ≤ p.1 - 1} ⊆ U)
-    (hu : ContDiffOn ℝ 2 u U)
-    (hsupp : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      tsupport u ⊆ {p | ‖p.2‖ ≤ p.1 - 1}) :
-    IntegrableOn (fun p ↦ ⟪kleinGordon m u p, ∂ₜ u p⟫)
-      {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} := by
-  have hcont (p : Spacetime)
-      (hp : p ∈ {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)}) :
+theorem integrableOn_inner_kleinGordon_timeDeriv (m : ℝ) {s₁ s₂ : ℝ} {U : Set Spacetime}
+    (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₁ s₂ ∩ cone ⊆ U) (hu : ContDiffOn ℝ 2 u U)
+    (hsupp : regionBetweenHyperboloids s₁ s₂ ∩ tsupport u ⊆ cone) :
+    IntegrableOn (fun p ↦ ⟪kleinGordon m u p, ∂ₜ u p⟫) (regionBetweenHyperboloids s₁ s₂) := by
+  have hcont (p : Spacetime) (hp : p ∈ regionBetweenHyperboloids s₁ s₂) :
       ContinuousAt (fun p ↦ ⟪kleinGordon m u p, ∂ₜ u p⟫) p := by
     have hp' := contDiffAt_of_inter_tsupport_subset hU hDU hu hsupp hp
     have hu' : ContDiffAt ℝ (0 + 1) u p := by rw [zero_add]; exact hp'.of_le one_le_two
     exact (continuousAt_kleinGordon m hp').inner (contDiffAt_partialDeriv 0 hu').continuousAt
-  have hDm : MeasurableSet
-      {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} :=
-    ((isClosed_le (by fun_prop) (by fun_prop)).inter
-      (isClosed_le (by fun_prop) (by fun_prop))).measurableSet
-  have hKm : MeasurableSet {p : Spacetime | ‖p.2‖ ≤ p.1 - 1} :=
-    (isClosed_le (by fun_prop) (by fun_prop)).measurableSet
   have h₁ : IntegrableOn (fun p ↦ ⟪kleinGordon m u p, ∂ₜ u p⟫)
-      ({p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-        {p | ‖p.2‖ ≤ p.1 - 1}) :=
-    ContinuousOn.integrableOn_compact (isCompact_region_between_hyperboloids_inter_cone_spacetime
-      s₁ s₂) fun p hp ↦ (hcont p hp.1).continuousWithinAt
+      (regionBetweenHyperboloids s₁ s₂ ∩ cone) :=
+    ContinuousOn.integrableOn_compact (isCompact_regionBetweenHyperboloids_inter_cone s₁ s₂)
+      fun p hp ↦ (hcont p hp.1).continuousWithinAt
   have h₂ : IntegrableOn (fun p ↦ ⟪kleinGordon m u p, ∂ₜ u p⟫)
-      ({p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} \
-        {p | ‖p.2‖ ≤ p.1 - 1}) := by
-    refine integrableOn_zero.congr_fun (fun p hp ↦ ?_) (hDm.diff hKm)
+      (regionBetweenHyperboloids s₁ s₂ \ cone) := by
+    refine integrableOn_zero.congr_fun (fun p hp ↦ ?_)
+      ((isClosed_regionBetweenHyperboloids s₁ s₂).measurableSet.diff isClosed_cone.measurableSet)
     have h : p ∉ tsupport u := fun h ↦ hp.2 (hsupp ⟨hp.1, h⟩)
     have ht : ∂ₜ u p = 0 := derivAlong_of_notMem_tsupport _ h
     change (0 : ℝ) = ⟪kleinGordon m u p, ∂ₜ u p⟫
@@ -219,19 +244,17 @@ theorem integrableOn_inner_kleinGordon_timeDeriv {m s₁ s₂ : ℝ} {U : Set Sp
 /-- Under the hypotheses of the energy identity `hyperboloidalEnergy_sub_hyperboloidalEnergy`,
 the energy density on the hyperboloid `H_s` is integrable for every `s ∈ [s₁, s₂]`, in
 particular for `s = s₁` and `s = s₂`: it is continuous and vanishes for `‖x‖ > s ^ 2`. -/
-theorem integrable_hyperboloidalEnergyDensity {m s₁ s₂ s : ℝ} (hs₁ : 0 < s₁) (hs : s ∈ Icc s₁ s₂)
-    {U : Set Spacetime} (hU : IsOpen U)
-    (hDU : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      {p | ‖p.2‖ ≤ p.1 - 1} ⊆ U)
-    (hu : ContDiffOn ℝ 2 u U)
-    (hsupp : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      tsupport u ⊆ {p | ‖p.2‖ ≤ p.1 - 1}) :
+theorem integrable_hyperboloidalEnergyDensity (m : ℝ) {s₁ s₂ s : ℝ} (hs₁ : 0 < s₁)
+    (hs : s ∈ Icc s₁ s₂) {U : Set Spacetime} (hU : IsOpen U)
+    (hDU : regionBetweenHyperboloids s₁ s₂ ∩ cone ⊆ U) (hu : ContDiffOn ℝ 2 u U)
+    (hsupp : regionBetweenHyperboloids s₁ s₂ ∩ tsupport u ⊆ cone) :
     Integrable fun x : EuclideanSpace ℝ (Fin 3) ↦
       hyperboloidalEnergyDensity m u (√(s ^ 2 + ‖x‖ ^ 2), x) := by
   have hs0 : 0 < s := hs₁.trans_le hs.1
-  have hmem (x : EuclideanSpace ℝ (Fin 3)) : ((√(s ^ 2 + ‖x‖ ^ 2), x) : Spacetime) ∈
-      {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} :=
-    ⟨Real.sqrt_le_sqrt (by nlinarith [hs.1]), Real.sqrt_le_sqrt (by nlinarith [hs.2])⟩
+  have hmem (x : EuclideanSpace ℝ (Fin 3)) :
+      ((√(s ^ 2 + ‖x‖ ^ 2), x) : Spacetime) ∈ regionBetweenHyperboloids s₁ s₂ :=
+    mem_regionBetweenHyperboloids.2
+      ⟨Real.sqrt_le_sqrt (by nlinarith [hs.1]), Real.sqrt_le_sqrt (by nlinarith [hs.2])⟩
   have hcont : Continuous fun x : EuclideanSpace ℝ (Fin 3) ↦
       hyperboloidalEnergyDensity m u (√(s ^ 2 + ‖x‖ ^ 2), x) := by
     refine continuous_iff_continuousAt.2 fun x ↦ ?_
@@ -247,8 +270,7 @@ theorem integrable_hyperboloidalEnergyDensity {m s₁ s₂ s : ℝ} (hs₁ : 0 <
     intro x hx
     have hxu : ((√(s ^ 2 + ‖x‖ ^ 2), x) : Spacetime) ∈ tsupport u :=
       support_hyperboloidalEnergyDensity_subset m u (Function.mem_support.2 hx)
-    have hK' : ((√(s ^ 2 + ‖x‖ ^ 2), x) : Spacetime) ∈ {p : Spacetime | ‖p.2‖ ≤ p.1 - 1} :=
-      hsupp ⟨hmem x, hxu⟩
+    have hK' : ((√(s ^ 2 + ‖x‖ ^ 2), x) : Spacetime) ∈ cone := hsupp ⟨hmem x, hxu⟩
     have hK : ‖x‖ ≤ √(s ^ 2 + ‖x‖ ^ 2) - 1 := hK'
     have h₁ := mul_self_le_mul_self (by positivity : (0 : ℝ) ≤ ‖x‖ + 1)
       (by linarith : ‖x‖ + 1 ≤ √(s ^ 2 + ‖x‖ ^ 2))
@@ -261,8 +283,9 @@ theorem integrable_hyperboloidalEnergyDensity {m s₁ s₂ s : ℝ} (hs₁ : 0 <
 /-! ### The hyperboloidal energy identity -/
 
 /-- **The hyperboloidal energy identity** (localized version). Let `0 < s₁ < s₂`, let
-`D = {(t, x) | √(s₁² + |x|²) ≤ t ≤ √(s₂² + |x|²)}` be the closed region between the hyperboloids
-`H_{s₁}` and `H_{s₂}`, and `K = {(t, x) | |x| ≤ t - 1}` the closed solid cone. Let `U` be an open
+`D = {(t, x) | √(s₁² + |x|²) ≤ t ≤ √(s₂² + |x|²)}` (`regionBetweenHyperboloids s₁ s₂`) be the
+closed region between the hyperboloids `H_{s₁}` and `H_{s₂}`, and `K = {(t, x) | |x| ≤ t - 1}`
+(`cone`) the closed solid cone. Let `U` be an open
 set containing `D ∩ K`, let `u` be `C²` on `U`, and assume that the points of `D` in the closed
 support of `u` lie in `K`. Then
 `E_m(s₂, u) - E_m(s₁, u) = -2 ∫_D ⟪KG_m u, ∂_t u⟫`,
@@ -270,16 +293,12 @@ where `KG_m u = □u - m² u` and the integral is for Lebesgue measure on `Space
 
 Both integrands are integrable (`integrable_hyperboloidalEnergyDensity`,
 `integrableOn_inner_kleinGordon_timeDeriv`), so the identity is between genuine integrals. -/
-theorem hyperboloidalEnergy_sub_hyperboloidalEnergy {m s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
+theorem hyperboloidalEnergy_sub_hyperboloidalEnergy (m : ℝ) {s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
     (hs₁₂ : s₁ < s₂) {U : Set Spacetime} (hU : IsOpen U)
-    (hDU : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      {p | ‖p.2‖ ≤ p.1 - 1} ⊆ U)
-    (hu : ContDiffOn ℝ 2 u U)
-    (hsupp : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      tsupport u ⊆ {p | ‖p.2‖ ≤ p.1 - 1}) :
+    (hDU : regionBetweenHyperboloids s₁ s₂ ∩ cone ⊆ U) (hu : ContDiffOn ℝ 2 u U)
+    (hsupp : regionBetweenHyperboloids s₁ s₂ ∩ tsupport u ⊆ cone) :
     hyperboloidalEnergy m s₂ u - hyperboloidalEnergy m s₁ u =
-      -2 * ∫ p in {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)},
-        ⟪kleinGordon m u p, ∂ₜ u p⟫ := by
+      -2 * ∫ p in regionBetweenHyperboloids s₁ s₂, ⟪kleinGordon m u p, ∂ₜ u p⟫ := by
   -- the energy current `J`, written in the coordinates `(x, t)` as `(X₀, X)`, is `C¹` on the
   -- preimage of `U` and satisfies the support condition of the divergence theorem
   have hswap : ContDiffOn ℝ 1 (Prod.swap : EuclideanSpace ℝ (Fin 3) × ℝ → Spacetime)
@@ -305,19 +324,16 @@ theorem hyperboloidalEnergy_sub_hyperboloidalEnergy {m s₁ s₂ : ℝ} (hs₁ :
       Prod.swap ⁻¹' tsupport u :=
     closure_minimal (fun q hq ↦ by_contra fun h ↦ hq (by simp [hJs _ q h])) hcl
   have hDU' (q : EuclideanSpace ℝ (Fin 3) × ℝ)
-      (hq : q.swap ∈ {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-        {p | ‖p.2‖ ≤ p.1 - 1}) : q.swap ∈ U :=
+      (hq : q.swap ∈ regionBetweenHyperboloids s₁ s₂ ∩ cone) : q.swap ∈ U :=
     hDU hq
-  have hsupp' (q : EuclideanSpace ℝ (Fin 3) × ℝ)
-      (hq : q.swap ∈ {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)})
-      (hq' : q.swap ∈ tsupport u) : q.swap ∈ {p : Spacetime | ‖p.2‖ ≤ p.1 - 1} :=
+  have hsupp' (q : EuclideanSpace ℝ (Fin 3) × ℝ) (hq : q.swap ∈ regionBetweenHyperboloids s₁ s₂)
+      (hq' : q.swap ∈ tsupport u) : q.swap ∈ cone :=
     hsupp ⟨hq, hq'⟩
   have hdiv := integral_divergence_between_hyperboloids_of_contDiffOn (μ := volume) hs₁ hs₁₂
     (hU.preimage continuous_swap) (fun q hq ↦ hDU' q hq) (hJ 0) hX
     (fun q hq ↦ hsupp' q hq.1 (hq.2.elim (fun h ↦ hsX₀ h) (fun h ↦ hsX h)))
   -- the divergence of the energy current is `-⟪KG_m u, ∂_t u⟫`
-  have hlhs : -∫ p in {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)},
-        ⟪kleinGordon m u p, ∂ₜ u p⟫ =
+  have hlhs : -∫ p in regionBetweenHyperboloids s₁ s₂, ⟪kleinGordon m u p, ∂ₜ u p⟫ =
       ∫ q in {q : EuclideanSpace ℝ (Fin 3) × ℝ |
           q.2 ∈ Icc √(s₁ ^ 2 + ‖q.1‖ ^ 2) √(s₂ ^ 2 + ‖q.1‖ ^ 2)},
         (deriv (fun t ↦ energyCurrent m u 0 (t, q.1)) q.2 +
@@ -326,8 +342,7 @@ theorem hyperboloidalEnergy_sub_hyperboloidalEnergy {m s₁ s₂ : ℝ} (hs₁ :
         ∂(volume.prod volume) := by
     rw [← integral_neg, setIntegral_spacetime_eq_setIntegral_swap]
     refine setIntegral_congr_fun ?_ fun q hq ↦ ?_
-    · exact ((isClosed_le (by fun_prop) (by fun_prop)).inter
-        (isClosed_le (by fun_prop) (by fun_prop))).measurableSet
+    · exact ((isClosed_regionBetweenHyperboloids s₁ s₂).preimage continuous_swap).measurableSet
     · have hq' := contDiffAt_of_inter_tsupport_subset hU hDU hu hsupp (p := q.swap) hq
       exact (spacetimeDiv_energyCurrent m hq').symm.trans
         (deriv_add_spatialDivergence_eq_spacetimeDiv (energyCurrent m u) (x := q.1) (t := q.2)
@@ -348,21 +363,16 @@ theorem hyperboloidalEnergy_sub_hyperboloidalEnergy {m s₁ s₂ : ℝ} (hs₁ :
 /-- **Conservation of the hyperboloidal energy.** Under the hypotheses of
 `hyperboloidalEnergy_sub_hyperboloidalEnergy`, if moreover `u` solves the Klein–Gordon equation
 `□u - m² u = 0` on `D ∩ K`, then `E_m(s₁, u) = E_m(s₂, u)`. -/
-theorem hyperboloidalEnergy_eq_of_kleinGordon_eq_zero {m s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
+theorem hyperboloidalEnergy_eq_of_kleinGordon_eq_zero (m : ℝ) {s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
     (hs₁₂ : s₁ < s₂) {U : Set Spacetime} (hU : IsOpen U)
-    (hDU : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      {p | ‖p.2‖ ≤ p.1 - 1} ⊆ U)
-    (hu : ContDiffOn ℝ 2 u U)
-    (hsupp : {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      tsupport u ⊆ {p | ‖p.2‖ ≤ p.1 - 1})
-    (hKG : ∀ p ∈ {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)} ∩
-      {p | ‖p.2‖ ≤ p.1 - 1}, kleinGordon m u p = 0) :
+    (hDU : regionBetweenHyperboloids s₁ s₂ ∩ cone ⊆ U) (hu : ContDiffOn ℝ 2 u U)
+    (hsupp : regionBetweenHyperboloids s₁ s₂ ∩ tsupport u ⊆ cone)
+    (hKG : ∀ p ∈ regionBetweenHyperboloids s₁ s₂ ∩ cone, kleinGordon m u p = 0) :
     hyperboloidalEnergy m s₁ u = hyperboloidalEnergy m s₂ u := by
-  have h := hyperboloidalEnergy_sub_hyperboloidalEnergy (m := m) hs₁ hs₁₂ hU hDU hu hsupp
-  have h0 : ∫ p in {p : Spacetime | p.1 ∈ Icc √(s₁ ^ 2 + ‖p.2‖ ^ 2) √(s₂ ^ 2 + ‖p.2‖ ^ 2)},
-      ⟪kleinGordon m u p, ∂ₜ u p⟫ = 0 := by
+  have h := hyperboloidalEnergy_sub_hyperboloidalEnergy m hs₁ hs₁₂ hU hDU hu hsupp
+  have h0 : ∫ p in regionBetweenHyperboloids s₁ s₂, ⟪kleinGordon m u p, ∂ₜ u p⟫ = 0 := by
     refine setIntegral_eq_zero_of_forall_eq_zero fun p hp ↦ ?_
-    by_cases hK : p ∈ {p : Spacetime | ‖p.2‖ ≤ p.1 - 1}
+    by_cases hK : p ∈ cone
     · rw [hKG p ⟨hp, hK⟩, inner_zero_left]
     · have ht : ∂ₜ u p = 0 := derivAlong_of_notMem_tsupport _ fun h ↦ hK (hsupp ⟨hp, h⟩)
       rw [ht, inner_zero_right]
@@ -379,9 +389,11 @@ ball of radius `1 / 4` and vanishing outside the open ball of radius `1 / 2`, fo
 cone `‖x‖ ≤ t - 1`, since `t ≥ 7 / 2` there; it meets the upper hyperboloid `H_4` near `(4, 0)`.
 
 The examples below apply the energy identity and the two integrability statements to these data,
-prove that both sides of the energy identity are nonzero for `m ≠ 0` (the energy on `H_2` is `0`,
-the energy on `H_4` is positive), and apply the conservation law between `s₁ = 5` and `s₂ = 6`,
-where the region between the hyperboloids does not meet the support of `u`. -/
+and prove that for `m ≠ 0` both sides of the energy identity are nonzero: the energy on `H_2` is
+`0`, the energy on `H_4` is positive, and the integral `∫_D ⟪KG_m u, ∂_t u⟫` is nonzero. The last
+example applies the conservation law between `s₁ = 5` and `s₂ = 6`; the region between these
+hyperboloids does not meet the closed support of `u`, so for that theorem the example is
+equivalent to `u = 0`. -/
 
 section SanityChecks
 
@@ -415,11 +427,10 @@ private theorem sanityBump_eq_one {t : ℝ} {x : EuclideanSpace ℝ (Fin 3)} (h�
   exact ⟨⟨h₁, h₂⟩, h₃⟩
 
 /-- The closed support of the bump function lies in the cone `‖x‖ ≤ t - 1`. -/
-private theorem tsupport_sanityBump_subset :
-    tsupport (sanityBump : Spacetime → ℝ) ⊆ {p : Spacetime | ‖p.2‖ ≤ p.1 - 1} := by
+private theorem tsupport_sanityBump_subset : tsupport (sanityBump : Spacetime → ℝ) ⊆ cone := by
   intro p hp
   obtain ⟨h₁, -, h₃⟩ := mem_tsupport_sanityBump (t := p.1) (x := p.2) hp
-  change ‖p.2‖ ≤ p.1 - 1
+  rw [mem_cone]
   linarith
 
 /-- The hyperboloidal energy identity for the bump function `u = sanityBump` (`F = ℝ`, any mass
@@ -427,9 +438,9 @@ private theorem tsupport_sanityBump_subset :
 example (m : ℝ) :
     hyperboloidalEnergy m 4 (sanityBump : Spacetime → ℝ) -
         hyperboloidalEnergy m 2 (sanityBump : Spacetime → ℝ) =
-      -2 * ∫ p in {p : Spacetime | p.1 ∈ Icc √(2 ^ 2 + ‖p.2‖ ^ 2) √(4 ^ 2 + ‖p.2‖ ^ 2)},
+      -2 * ∫ p in regionBetweenHyperboloids 2 4,
         ⟪kleinGordon m (sanityBump : Spacetime → ℝ) p, ∂ₜ (sanityBump : Spacetime → ℝ) p⟫ :=
-  hyperboloidalEnergy_sub_hyperboloidalEnergy (by norm_num) (by norm_num) isOpen_univ
+  hyperboloidalEnergy_sub_hyperboloidalEnergy m (by norm_num) (by norm_num) isOpen_univ
     (subset_univ _) sanityBump.contDiff.contDiffOn
     (inter_subset_right.trans tsupport_sanityBump_subset)
 
@@ -437,31 +448,33 @@ example (m : ℝ) :
 region between `H_2` and `H_4`, and the energy densities on `H_2` and on `H_4` are integrable. -/
 example (m : ℝ) :
     IntegrableOn (fun p ↦ ⟪kleinGordon m (sanityBump : Spacetime → ℝ) p,
-        ∂ₜ (sanityBump : Spacetime → ℝ) p⟫)
-      {p : Spacetime | p.1 ∈ Icc √(2 ^ 2 + ‖p.2‖ ^ 2) √(4 ^ 2 + ‖p.2‖ ^ 2)} ∧
+        ∂ₜ (sanityBump : Spacetime → ℝ) p⟫) (regionBetweenHyperboloids 2 4) ∧
     Integrable (fun x : EuclideanSpace ℝ (Fin 3) ↦
       hyperboloidalEnergyDensity m (sanityBump : Spacetime → ℝ) (√(2 ^ 2 + ‖x‖ ^ 2), x)) ∧
     Integrable (fun x : EuclideanSpace ℝ (Fin 3) ↦
       hyperboloidalEnergyDensity m (sanityBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x)) :=
-  ⟨integrableOn_inner_kleinGordon_timeDeriv isOpen_univ (subset_univ _)
+  ⟨integrableOn_inner_kleinGordon_timeDeriv m isOpen_univ (subset_univ _)
       sanityBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_sanityBump_subset),
-    integrable_hyperboloidalEnergyDensity (s₂ := 4) (by norm_num) ⟨le_rfl, by norm_num⟩
+    integrable_hyperboloidalEnergyDensity m (s₂ := 4) (by norm_num) ⟨le_rfl, by norm_num⟩
       isOpen_univ (subset_univ _) sanityBump.contDiff.contDiffOn
       (inter_subset_right.trans tsupport_sanityBump_subset),
-    integrable_hyperboloidalEnergyDensity (s₁ := 2) (by norm_num) ⟨by norm_num, le_rfl⟩
+    integrable_hyperboloidalEnergyDensity m (s₁ := 2) (by norm_num) ⟨by norm_num, le_rfl⟩
       isOpen_univ (subset_univ _) sanityBump.contDiff.contDiffOn
       (inter_subset_right.trans tsupport_sanityBump_subset)⟩
 
-/-- Both sides of the identity of the first example are nonzero for `m ≠ 0`. The lower energy
+/-- For `m ≠ 0`, both sides of the identity of the first example are nonzero. The lower energy
 vanishes, since the closed support of `u` does not meet `H_2`. The upper energy is positive: on
 `H_4` the energy density is nonnegative (`hyperboloidalEnergyDensity_nonneg`), and it is at least
 `m² > 0` where `u = 1`, which is the case at the points of `H_4` with `‖x‖ < 1 / 4`; and it is
-integrable (`integrable_hyperboloidalEnergyDensity`). -/
-example {m : ℝ} (hm : m ≠ 0) :
+integrable (`integrable_hyperboloidalEnergyDensity`). By the energy identity, the integral
+`∫_D ⟪KG_m u, ∂_t u⟫` of the right-hand side is then nonzero as well. -/
+example (m : ℝ) (hm : m ≠ 0) :
     hyperboloidalEnergy m 2 (sanityBump : Spacetime → ℝ) = 0 ∧
-      0 < hyperboloidalEnergy m 4 (sanityBump : Spacetime → ℝ) := by
-  constructor
-  · -- the hyperboloid `H_2` does not meet the closed support of `u`
+      0 < hyperboloidalEnergy m 4 (sanityBump : Spacetime → ℝ) ∧
+      ∫ p in regionBetweenHyperboloids 2 4,
+        ⟪kleinGordon m (sanityBump : Spacetime → ℝ) p, ∂ₜ (sanityBump : Spacetime → ℝ) p⟫ ≠ 0 := by
+  -- the hyperboloid `H_2` does not meet the closed support of `u`
+  have h2 : hyperboloidalEnergy m 2 (sanityBump : Spacetime → ℝ) = 0 := by
     have h0 (x : EuclideanSpace ℝ (Fin 3)) :
         hyperboloidalEnergyDensity m (sanityBump : Spacetime → ℝ) (√(2 ^ 2 + ‖x‖ ^ 2), x) = 0 := by
       by_contra hne
@@ -474,13 +487,14 @@ example {m : ℝ} (hm : m ≠ 0) :
       nlinarith [mul_self_le_mul_self (by norm_num : (0 : ℝ) ≤ 7 / 2)
         (by linarith : (7 : ℝ) / 2 ≤ S), mul_self_le_mul_self hx0 h₃]
     simp only [hyperboloidalEnergy_apply, h0, integral_zero]
-  · -- the energy density on `H_4` is nonnegative, integrable, and positive near `x = 0`
+  -- the energy density on `H_4` is nonnegative, integrable, and positive near `x = 0`
+  have h4 : 0 < hyperboloidalEnergy m 4 (sanityBump : Spacetime → ℝ) := by
     have hnonneg : 0 ≤ fun x : EuclideanSpace ℝ (Fin 3) ↦
         hyperboloidalEnergyDensity m (sanityBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x) :=
       fun x ↦ hyperboloidalEnergyDensity_nonneg m _
         ((Real.le_sqrt_of_sq_le (le_add_of_nonneg_left (sq_nonneg 4))).trans (le_abs_self _))
         (Real.sqrt_pos.2 (by positivity)).ne'
-    have hint := integrable_hyperboloidalEnergyDensity (m := m) (s₁ := 2) (s₂ := 4) (s := 4)
+    have hint := integrable_hyperboloidalEnergyDensity m (s₁ := 2) (s₂ := 4) (s := 4)
       (by norm_num) ⟨by norm_num, le_rfl⟩ isOpen_univ (subset_univ _)
       sanityBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_sanityBump_subset)
     have hball : Metric.ball (0 : EuclideanSpace ℝ (Fin 3)) (1 / 4) ⊆ support fun x ↦
@@ -502,24 +516,32 @@ example {m : ℝ} (hm : m ≠ 0) :
       positivity
     rw [hyperboloidalEnergy_apply, integral_pos_iff_support_of_nonneg hnonneg hint]
     exact (Metric.measure_ball_pos volume 0 (by norm_num)).trans_le (measure_mono hball)
+  refine ⟨h2, h4, fun h0 ↦ ?_⟩
+  -- by the energy identity, `E_m(4, u) - E_m(2, u) = -2 ∫_D ⟪KG_m u, ∂_t u⟫`
+  have h := hyperboloidalEnergy_sub_hyperboloidalEnergy m (by norm_num : (0 : ℝ) < 2)
+    (by norm_num : (2 : ℝ) < 4) isOpen_univ (subset_univ _) sanityBump.contDiff.contDiffOn
+    (inter_subset_right.trans tsupport_sanityBump_subset)
+  rw [h0, mul_zero, h2, sub_zero] at h
+  exact h4.ne' h
 
 /-- The hypotheses of the conservation law `hyperboloidalEnergy_eq_of_kleinGordon_eq_zero` hold for
-the same bump function between the hyperboloids `s₁ = 5` and `s₂ = 6`: the region between them
-lies in `{t ≥ 5}` and does not meet the closed support of `u` (where `t ≤ 9 / 2`), so `u` and
-`□u - m² u` vanish on it. (Both energies are `0` here.) -/
+the same bump function between the hyperboloids `s₁ = 5` and `s₂ = 6`. This example is degenerate:
+the region between these hyperboloids lies in `{t ≥ 5}` and does not meet the closed support of
+`u` (where `t ≤ 9 / 2`), and for this theorem that is equivalent to `u = 0`, since its hypotheses
+and its conclusion only involve `u` near the region. Both energies are `0`; the example only shows
+that the hypotheses are consistent, not a nontrivial case of conservation. -/
 example (m : ℝ) :
     hyperboloidalEnergy m 5 (sanityBump : Spacetime → ℝ) =
       hyperboloidalEnergy m 6 (sanityBump : Spacetime → ℝ) := by
-  have hD (p : Spacetime)
-      (hp : p ∈ {p : Spacetime | p.1 ∈ Icc √(5 ^ 2 + ‖p.2‖ ^ 2) √(6 ^ 2 + ‖p.2‖ ^ 2)}) :
+  have hD (p : Spacetime) (hp : p ∈ regionBetweenHyperboloids 5 6) :
       p ∉ tsupport (sanityBump : Spacetime → ℝ) := by
     intro h
     obtain ⟨-, h₂, -⟩ := mem_tsupport_sanityBump (t := p.1) (x := p.2) h
     have h₅ : (5 : ℝ) ≤ √(5 ^ 2 + ‖p.2‖ ^ 2) :=
       Real.le_sqrt_of_sq_le (by nlinarith [norm_nonneg p.2])
-    have h₁ : √(5 ^ 2 + ‖p.2‖ ^ 2) ≤ p.1 := hp.1
+    have h₁ : √(5 ^ 2 + ‖p.2‖ ^ 2) ≤ p.1 := (mem_regionBetweenHyperboloids.1 hp).1
     linarith
-  exact hyperboloidalEnergy_eq_of_kleinGordon_eq_zero (by norm_num) (by norm_num) isOpen_univ
+  exact hyperboloidalEnergy_eq_of_kleinGordon_eq_zero m (by norm_num) (by norm_num) isOpen_univ
     (subset_univ _) sanityBump.contDiff.contDiffOn (fun p hp ↦ absurd hp.2 (hD p hp.1))
     fun p hp ↦ kleinGordon_of_notMem_tsupport m (hD p hp.1)
 

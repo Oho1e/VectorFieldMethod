@@ -35,8 +35,8 @@ energy density `e_m[u]` at the point `(√(s ^ 2 + ‖x‖ ^ 2), x)` of `H_s`.
 * `hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv`: where `t ≠ 0`,
   `e_m[u] = ∑ a, ‖∂̲_a u‖² + ((t² - r²) / t²) ‖∂_t u‖² + m² ‖u‖²`; on `H_s` the coefficient is
   `s² / t²` (`hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid`).
-* `hyperboloidalEnergyDensity_nonneg`: `e_m[u] ≥ 0` where `r ≤ |t|` and `t ≠ 0`; hence
-  `hyperboloidalEnergy_nonneg`: `E_m(s, u) ≥ 0` for `s ≠ 0`.
+* `hyperboloidalEnergyDensity_nonneg`: `e_m[u] ≥ 0` where `r ≤ |t|` and `t ≠ 0`, and
+  `hyperboloidalEnergy_nonneg`: `E_m(s, u) ≥ 0` for every `s`.
 * `hyperboloidalEnergyDensity_eq_energyCurrent`: `e_m[u] = 2 (P⁰ - ∑ a, (x_a / t) P^a)` for the
   energy current `P` of `EnergyMomentum.lean`.
 * `contDiffOn_energyCurrent`, `tsupport_energyCurrent_subset`: if `u` is `C²` on an open set `U`,
@@ -49,6 +49,14 @@ terms `2 ∑ a, (x_a / t) ⟪∂_a u, ∂_t u⟫`, the energy density is
 `‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²`, twice the energy density `P⁰` of `EnergyMomentum.lean`,
 whose energy-momentum tensor carries the factor `½`. Precisely,
 `e_m[u] = 2 (P⁰ - ∑ a, (x_a / t) P^a)` (`hyperboloidalEnergyDensity_eq_energyCurrent`).
+
+## Notation
+
+In this file the subscript of `e_m[u]` and `E_m(s, u)` is the mass `m`. LeFloch–Ma
+(*The hyperboloidal foliation method*, arXiv:1411.4910, §2.3, (2.3.2)) write the energy of a field
+of mass `c` as `E_{m,c}(s, u)`, where the subscript `m` refers to Minkowski spacetime, and write
+`E_m(s, u) := E_{m,0}(s, u)` for the massless energy. So `hyperboloidalEnergy c s u` is their
+`E_{m,c}(s, u)`, and `hyperboloidalEnergy 0 s u` is their `E_m(s, u)`.
 -/
 
 @[expose] public noncomputable section
@@ -107,7 +115,12 @@ theorem hyperboloidalEnergyDensity_apply (m : ℝ) (u : Spacetime → F) (p : Sp
 /-- The hyperboloidal energy `E_m(s, u) = ∫_{ℝ³} e_m[u](√(s ^ 2 + ‖x‖ ^ 2), x) dx` of `u` on the
 hyperboloid `H_s = {t = √(s ^ 2 + ‖x‖ ^ 2)}`, in the normalization of LeFloch–Ma (without a factor
 `½`). The integral is for Lebesgue measure on `ℝ³`; it is the junk value `0` if
-`x ↦ e_m[u](√(s ^ 2 + ‖x‖ ^ 2), x)` is not integrable. -/
+`x ↦ e_m[u](√(s ^ 2 + ‖x‖ ^ 2), x)` is not integrable.
+
+Notation: here the subscript `m` is the mass. LeFloch–Ma write `E_{m,c}(s, u)` for the energy of
+a field of mass `c` (their subscript `m` refers to Minkowski spacetime) and `E_m(s, u)` for the
+massless energy `E_{m,0}(s, u)`: `hyperboloidalEnergy c s u` is their `E_{m,c}(s, u)`, and
+`hyperboloidalEnergy 0 s u` is their `E_m(s, u)`. -/
 def hyperboloidalEnergy (m s : ℝ) (u : Spacetime → F) : ℝ :=
   ∫ x : EuclideanSpace ℝ (Fin 3), hyperboloidalEnergyDensity m u (√(s ^ 2 + ‖x‖ ^ 2), x)
 
@@ -156,14 +169,19 @@ theorem hyperboloidalEnergyDensity_nonneg (m : ℝ) (u : Spacetime → F)
   exact add_nonneg (add_nonneg (Finset.sum_nonneg fun a _ ↦ sq_nonneg _)
     (mul_nonneg h' (sq_nonneg _))) (mul_nonneg (sq_nonneg _) (sq_nonneg _))
 
-/-- The hyperboloidal energy is nonnegative, for `s ≠ 0`. -/
-theorem hyperboloidalEnergy_nonneg (m : ℝ) (u : Spacetime → F) {s : ℝ} (hs : s ≠ 0) :
+/-- The hyperboloidal energy is nonnegative, for every `s`. (At the points of the integrand where
+`t = √(s ^ 2 + ‖x‖ ^ 2)` vanishes, that is `s = 0` and `x = 0`, the coefficients `x_a / t` are the
+junk value `0` and the energy density is a sum of squares.) -/
+theorem hyperboloidalEnergy_nonneg (m s : ℝ) (u : Spacetime → F) :
     0 ≤ hyperboloidalEnergy m s u := by
-  refine MeasureTheory.integral_nonneg fun x ↦ hyperboloidalEnergyDensity_nonneg m u ?_ ?_
+  refine MeasureTheory.integral_nonneg fun x ↦ ?_
+  by_cases ht : √(s ^ 2 + ‖x‖ ^ 2) = 0
+  · simp only [hyperboloidalEnergyDensity_apply, timeCoord_apply, ht, div_zero, zero_mul,
+      Finset.sum_const_zero, mul_zero, add_zero]
+    positivity
   · have hx : ‖x‖ ≤ √(s ^ 2 + ‖x‖ ^ 2) :=
       Real.le_sqrt_of_sq_le (le_add_of_nonneg_left (sq_nonneg s))
-    exact hx.trans (le_abs_self _)
-  · exact (Real.sqrt_pos.2 (by positivity)).ne'
+    exact hyperboloidalEnergyDensity_nonneg m u (hx.trans (le_abs_self _)) ht
 
 /-! ### The energy density and the energy current -/
 
