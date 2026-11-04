@@ -10,7 +10,7 @@ to a hyperboloid and the flat $`L^2`$ norm of the Klainerman–Sobolev layer
 ([`klainerman-sobolev.md`](klainerman-sobolev.md)). The declarations of the first file are in the
 namespace `VectorFieldMethod.Minkowski`, those of the second in `VectorFieldMethod.Analysis`. The
 links below point to commit
-[`e1fba49`](https://github.com/Oho1e/VectorFieldMethod/tree/e1fba494f391b0695aaf79ddce78aa8822cc4bd3)
+[`6f2b67a`](https://github.com/Oho1e/VectorFieldMethod/tree/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e)
 of the pull request that adds this layer, the last commit that changes its Lean files (they are
 identical at the head of the branch); they are to be replaced by a `main` commit later. How to read
 the entries: [`README.md`](README.md).
@@ -34,27 +34,41 @@ the entries: [`README.md`](README.md).
   ```
   in Lean `eLpNorm (restrictHyperboloid s f) 2 volume`, where `restrictHyperboloid s f` is the
   function $`x \mapsto f(\varphi_s(x), x)`$ on $`\mathbb{R}^3`$. The measure is $`dx`$, not the
-  measure induced on $`H_s`$ by the Minkowski metric. In the real-valued statements below the norm
-  appears as `(eLpNorm (restrictHyperboloid s f) 2 volume).toReal`, which is the norm when it is
+  measure induced on $`H_s`$ by the Minkowski metric. If $`x \mapsto f(\varphi_s(x), x)`$ is not
+  (a.e. strongly) measurable, `eLpNorm` is $`\infty`$ by convention
+  (`MeasureTheory.eLpNorm_of_not_aestronglyMeasurable`, see the README); under the standing
+  hypotheses below, $`x \mapsto (\mathrm{KG}_m u)(\varphi_s(x), x)`$ is continuous for
+  $`s \in [s_0, S]`$, so this convention plays no role there. In the real-valued statements below the
+  norm appears as `(eLpNorm (restrictHyperboloid s f) 2 volume).toReal`, which is the norm when it is
   finite and the junk value $`0`$ when it is $`\infty`$; the statements that use it either assume
-  that it is finite or prove it.
-- **Klein–Gordon operator and LeFloch–Ma.** $`\mathrm{KG}_m u = \Box u - m^2 u`$
-  (`kleinGordon m u`) with $`\Box = -\partial_t^2 + \Delta`$. LeFloch–Ma, *The Hyperboloidal
-  Foliation Method* (World Scientific, 2014; arXiv:1411.4910), write the Klein–Gordon operator of
-  mass $`c`$ as $`\Box u + c^2 u`$ with their $`\Box = \partial_t^2 - \Delta`$, which is
-  $`-\mathrm{KG}_c u`$; they write $`E_{m,c}(s, u)`$ for the energy of mass $`c`$, which is
-  `hyperboloidalEnergy c s u` here (their subscript $`m`$ refers to Minkowski spacetime; see
-  [`hyperboloidal-energy.md`](hyperboloidal-energy.md)). The energy estimate only involves the
-  norm of the Klein–Gordon operator, so it reads the same with their operator:
+  that it is finite or prove it. The notation $`L^2_f`$ comes from LeFloch–Ma's later papers; in
+  their monograph (arXiv:1411.4910) this norm is written $`\lVert \cdot\rVert_{L^2(H_s)}`$, (2.4.2),
+  with the flat measure $`dx`$.
+- **Klein–Gordon operator.** $`\mathrm{KG}_m u = \Box u - m^2 u`$ (`kleinGordon m u`), where in this
+  project $`\Box = -\partial_t^2 + \Delta`$ (see [`minkowski.md`](minkowski.md)).
+- **Correspondence with LeFloch–Ma.** References are to LeFloch–Ma, *The Hyperboloidal Foliation
+  Method* (World Scientific, 2014; arXiv:1411.4910). The mass is denoted $`\sigma`$ in §2.1 and
+  $`c_i`$ in §2.3, and their wave operator has the opposite sign, $`\partial_t^2 - \Delta`$, so their
+  Klein–Gordon operator of mass $`\sigma`$ is
+  $`(\partial_t^2 - \Delta + \sigma^2) u = -\mathrm{KG}_\sigma u`$. Their energy (2.1.11) is
+  `hyperboloidalEnergy σ s u` (normalized without $`\tfrac12`$; in §2.3 the energy of mass $`c`$ is
+  written $`E_{m,c}(s, u)`$, see [`hyperboloidal-energy.md`](hyperboloidal-energy.md)), their cone
+  (2.1.2) is $`\{r \lt t - 1\}`$, whose closure is $`K`$, and their norm
+  $`\lVert \cdot\rVert_{L^2(H_s)}`$ (2.4.2) is the flat norm above. The energy estimate of this layer
+  is the counterpart of their scalar energy estimate (2.1.10), which starts from the initial
+  hyperboloid $`H_{s_0}`$ with $`s_0 = B + 1`$ (not necessarily $`2`$). Only the norm of the
+  Klein–Gordon operator enters, so with $`m = \sigma`$ and $`E_\sigma(s, u)`$ =
+  `hyperboloidalEnergy σ s u` the estimate reads
   ```math
-  E_{m,c}(s, u)^{1/2} \le E_{m,c}(s_0, u)^{1/2} + \int_{s_0}^{s} \lVert \Box u + c^2 u\rVert_{L^2_f(H_{s'})}\, ds' .
+  E_\sigma(s, u)^{1/2} \le E_\sigma(s_0, u)^{1/2} + \int_{s_0}^{s} \big\lVert (\partial_t^2 - \Delta + \sigma^2) u \big\rVert_{L^2(H_{s'})}\, ds' ,
   ```
+  with $`\lVert (\partial_t^2 - \Delta + \sigma^2) u\rVert = \lVert \mathrm{KG}_\sigma u\rVert`$.
 - **Measures.** `volume` on $`\mathbb{R}`$ and on `EuclideanSpace ℝ (Fin 3)` is Lebesgue measure,
   and on `Spacetime` it is the product measure $`dt\, dx`$. Integrals without `∂μ` use `volume`.
 
 **Notation in the Math lines below.** As in [`hyperboloidal-energy.md`](hyperboloidal-energy.md):
 $`u : \mathbb{R}^{1+3} \to F`$ with $`F`$ a real inner product space, $`m \in \mathbb{R}`$ the
-mass, $`\operatorname{supp} u`$ the closed support `tsupport u`, and the derivatives have the Lean
+mass, $`\mathrm{supp}\, u`$ the closed support `tsupport u`, and the derivatives have the Lean
 convention that the derivative at a point of non-differentiability is $`0`$ (see the README).
 "$`u`$ is $`C^2`$ on $`U`$" is `ContDiffOn ℝ 2 u U`; for open $`U`$ this is the usual notion and
 the values of $`u`$ outside $`U`$ play no role. $`[a, b]`$ is `Icc a b`, and
@@ -73,12 +87,12 @@ hyperboloid $`H_{s_0}`$ and a final hyperboloid $`H_S`$. Writing $`D = D(s_0, S)
 - $`U \subseteq \mathbb{R}^{1+3}`$ is open (`hU : IsOpen U`);
 - $`D \cap K \subseteq U`$ (`hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U`);
 - $`u`$ is $`C^2`$ on $`U`$ (`hu : ContDiffOn ℝ 2 u U`);
-- $`D \cap \operatorname{supp} u \subseteq K`$ (`hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone`).
+- $`D \cap \mathrm{supp}\, u \subseteq K`$ (`hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone`).
 
 The conclusions are for $`s \in [s_0, S]`$ (`hs : s ∈ Icc s₀ S`). No global smoothness, compact
 support, integrability or decay of $`u`$ is assumed. These hypotheses imply that the energy
 density and $`\mathrm{KG}_m u`$ are continuous on $`D`$ and vanish on $`D \setminus K`$, and that
-$`D \cap K`$ is compact; the points of $`H_s \cap K`$, $`s \le S`$, satisfy
+$`D \cap K`$ is compact; the points of $`H_s \cap K`$, $`s \in [s_0, S]`$, satisfy
 $`\lvert x\rvert \le S^2`$ (indeed $`2 \lvert x\rvert + 1 \le s^2`$).
 
 ## Context
@@ -86,7 +100,7 @@ $`\lvert x\rvert \le S^2`$ (indeed $`2 \lvert x\rvert + 1 \le s^2`$).
 The `variable` and `open` lines of the two files. Their only hypotheses are structural: $`F`$ is a
 real inner product space (no completeness or finite dimension is assumed).
 
-[`HyperboloidalEnergyEstimate.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L77):
+[`HyperboloidalEnergyEstimate.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L77):
 
 ```lean
 open Set Filter Function Topology MeasureTheory
@@ -97,10 +111,10 @@ variable {u : Spacetime → F}
 ```
 
 The two `variable` lines are at
-[L230](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L230),
+[L230](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L230),
 after the statements about the foliation, which do not involve $`F`$ or $`u`$.
 
-[`SqrtGronwall.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Analysis/SqrtGronwall.lean#L45):
+[`SqrtGronwall.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L45):
 
 ```lean
 open Set Filter Topology MeasureTheory
@@ -130,7 +144,7 @@ This layer introduces no new definitions. It uses `hyperboloidalEnergy`,
   \lvert N \cap D(s_1, s_2)\rvert = \int_{s_1}^{s_2} \int_{\mathbb{R}^3} \mathbf{1}_N\big(\varphi_s(x), x\big)\, \frac{s}{\varphi_s(x)}\, dx\, ds .
   ```
 - **Hypotheses.** $`0 \lt s_1`$ and $`s_1 \le s_2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.map_withDensity_eq_restrict_regionBetweenHyperboloids`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L112)
+- **Lean.** `VectorFieldMethod.Minkowski.map_withDensity_eq_restrict_regionBetweenHyperboloids`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L112)
 
 ```lean
 theorem map_withDensity_eq_restrict_regionBetweenHyperboloids {s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
@@ -163,8 +177,8 @@ theorem map_withDensity_eq_restrict_regionBetweenHyperboloids {s₁ s₂ : ℝ} 
   Lebesgue integrals in $`[0, \infty]`$ and no integrability hypothesis.
 - **Hypotheses.** $`0 \lt s_1`$, $`s_1 \le s_2`$; first statement: $`g`$ is integrable on $`D`$;
   second statement: $`g`$ is measurable with values in $`[0, \infty]`$.
-- **Lean.** `VectorFieldMethod.Minkowski.setIntegral_regionBetweenHyperboloids_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L184),
-  and `VectorFieldMethod.Minkowski.setLIntegral_regionBetweenHyperboloids_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L164)
+- **Lean.** `VectorFieldMethod.Minkowski.setIntegral_regionBetweenHyperboloids_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L184),
+  and `VectorFieldMethod.Minkowski.setLIntegral_regionBetweenHyperboloids_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L164)
 
 ```lean
 theorem setIntegral_regionBetweenHyperboloids_eq {s₁ s₂ : ℝ} (hs₁ : 0 < s₁) (hs₁₂ : s₁ ≤ s₂)
@@ -189,25 +203,25 @@ theorem setLIntegral_regionBetweenHyperboloids_eq {s₁ s₂ : ℝ} (hs₁ : 0 <
 
 ### The energy identity between intermediate hyperboloids
 
-- **Math.** Under the standing hypotheses on $`D(s_0, S)`$, for $`s_0 \le s_1 \lt s_2 \le S`$ the
+- **Math.** Under the standing hypotheses on $`D(s_0, S)`$, for $`s_0 \le s_1 \le s_2 \le S`$ the
   hypotheses of the energy identity hold on $`D(s_1, s_2)`$ (with the same $`U`$ and $`u`$), and
   ```math
   E_m(s_2, u) - E_m(s_1, u) = -2 \int_{D(s_1, s_2)} \big\langle (\Box u - m^2 u)(t, x),\ \partial_t u(t, x) \big\rangle\, dt\, dx .
   ```
-  In particular, for $`s_0 \lt s \le S`$,
+  In particular, for $`s \in [s_0, S]`$,
   $`E_m(s, u) - E_m(s_0, u) = -2 \int_{D(s_0, s)} \langle \mathrm{KG}_m u, \partial_t u\rangle`$.
-- **Hypotheses.** The standing hypotheses; $`s_0 \le s_1`$, $`s_1 \lt s_2`$, $`s_2 \le S`$. For
+- **Hypotheses.** The standing hypotheses; $`s_0 \le s_1`$, $`s_1 \le s_2`$, $`s_2 \le S`$. For
   the transfer of hypotheses: $`0 \le s_0 \le s_1 \le s_2 \le S`$ and the corresponding
   hypothesis on $`D(s_0, S)`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L256);
-  the transfer of the hypotheses: `VectorFieldMethod.Minkowski.regionBetweenHyperboloids_inter_cone_subset_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L235),
-  and `VectorFieldMethod.Minkowski.regionBetweenHyperboloids_inter_tsupport_subset_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L245)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L260);
+  the transfer of the hypotheses: `VectorFieldMethod.Minkowski.regionBetweenHyperboloids_inter_cone_subset_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L235),
+  and `VectorFieldMethod.Minkowski.regionBetweenHyperboloids_inter_tsupport_subset_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L245)
 
 ```lean
 theorem hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
     {U : Set Spacetime} (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U)
     (hu : ContDiffOn ℝ 2 u U) (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone)
-    {s₁ s₂ : ℝ} (h₀₁ : s₀ ≤ s₁) (h₁₂ : s₁ < s₂) (h₂S : s₂ ≤ S) :
+    {s₁ s₂ : ℝ} (h₀₁ : s₀ ≤ s₁) (h₁₂ : s₁ ≤ s₂) (h₂S : s₂ ≤ S) :
     hyperboloidalEnergy m s₂ u - hyperboloidalEnergy m s₁ u =
       -2 * ∫ p in regionBetweenHyperboloids s₁ s₂, ⟪kleinGordon m u p, ∂ₜ u p⟫
 
@@ -225,9 +239,12 @@ theorem regionBetweenHyperboloids_inter_tsupport_subset_of_le {s₀ s₁ s₂ S 
 - **Notes.** Both transfers come from $`D(s_1, s_2) \subseteq D(s_0, S)`$
   (`regionBetweenHyperboloids_subset`, which needs $`0 \le s_0`$ so that
   $`s_0^2 \le s_1^2`$); the hypotheses "$`U`$ open" and "$`u`$ is $`C^2`$ on $`U`$" do not involve
-  the region. The identity is then `hyperboloidalEnergy_sub_hyperboloidalEnergy` of
-  [`hyperboloidal-energy.md`](hyperboloidal-energy.md) on $`D(s_1, s_2)`$. The second transfer
-  lemma does not use the inner product on $`F`$ (it is stated with `omit [InnerProductSpace ℝ F]`).
+  the region. For $`s_1 \lt s_2`$ the identity is then `hyperboloidalEnergy_sub_hyperboloidalEnergy`
+  of [`hyperboloidal-energy.md`](hyperboloidal-energy.md) on $`D(s_1, s_2)`$; for $`s_1 = s_2`$ both
+  sides are $`0`$, since $`D(s_1, s_1) = H_{s_1}`$ has measure zero (by the foliation formula, the
+  integral over $`D(s_1, s_1)`$ is an integral over $`[s_1, s_1]`$). Allowing $`s_1 = s_2`$ saves a
+  case distinction in the integral inequality below. The second transfer lemma does not use the
+  inner product on $`F`$ (it is stated with `omit [InnerProductSpace ℝ F]`).
 
 ### A pointwise bound on a hyperboloid
 
@@ -237,7 +254,7 @@ theorem regionBetweenHyperboloids_inter_tsupport_subset_of_le {s₀ s₁ s₂ S 
   \Big(\frac{s}{t}\Big)^2 \lVert \partial_t u(t, x)\rVert^2 \le e_m[u](t, x) .
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`s \neq 0`$; no regularity of $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L271)
+- **Lean.** `VectorFieldMethod.Minkowski.sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L279)
 
 ```lean
 theorem sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity (m : ℝ) (u : Spacetime → F)
@@ -263,7 +280,7 @@ theorem sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity (m : ℝ) (u 
 - **Hypotheses.** $`F`$ is a real inner product space; $`s \neq 0`$; $`f\vert_{H_s}`$ is square
   integrable (`MemLp (restrictHyperboloid s f) 2 volume`); $`\partial_t u\vert_{H_s}`$ is
   (a.e. strongly) measurable; $`e_m[u]\vert_{H_s}`$ is integrable.
-- **Lean.** `VectorFieldMethod.Minkowski.abs_integral_mul_inner_timeDeriv_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L290)
+- **Lean.** `VectorFieldMethod.Minkowski.abs_integral_mul_inner_timeDeriv_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L298)
 
 ```lean
 theorem abs_integral_mul_inner_timeDeriv_le (m : ℝ) {s : ℝ} (hs : s ≠ 0) {f : Spacetime → F}
@@ -293,7 +310,7 @@ theorem abs_integral_mul_inner_timeDeriv_le (m : ℝ) {s : ℝ} (hs : s ≠ 0) {
   $`s \mapsto \int_{\mathbb{R}^3} f(\varphi_s(x), x)\, dx`$ is continuous on $`[s_1, s_2]`$.
 - **Hypotheses.** $`0 \le s_1`$; $`f`$ is continuous at every point of $`D`$; $`f = 0`$ on
   $`D \setminus K`$.
-- **Lean.** `VectorFieldMethod.Minkowski.continuousOn_integral_hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L371)
+- **Lean.** `VectorFieldMethod.Minkowski.continuousOn_integral_hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L379)
 
 ```lean
 theorem continuousOn_integral_hyperboloid {s₁ s₂ : ℝ} (hs₁ : 0 ≤ s₁) {f : Spacetime → ℝ}
@@ -317,9 +334,9 @@ theorem continuousOn_integral_hyperboloid {s₁ s₂ : ℝ} (hs₁ : 0 ≤ s₁)
   and $`s \mapsto \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_s)}`$ are continuous on $`[s_0, S]`$, and
   $`\lVert \mathrm{KG}_m u\rVert_{L^2_f(H_s)} \lt \infty`$ for $`s \in [s_0, S]`$.
 - **Hypotheses.** The standing hypotheses; for the finiteness, $`s \in [s_0, S]`$.
-- **Lean.** `VectorFieldMethod.Minkowski.continuousOn_hyperboloidalEnergy`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L391),
-  `VectorFieldMethod.Minkowski.continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L472),
-  and `VectorFieldMethod.Minkowski.memLp_restrictHyperboloid_kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L435)
+- **Lean.** `VectorFieldMethod.Minkowski.continuousOn_hyperboloidalEnergy`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L399),
+  `VectorFieldMethod.Minkowski.continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L480),
+  and `VectorFieldMethod.Minkowski.memLp_restrictHyperboloid_kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L443)
 
 ```lean
 theorem continuousOn_hyperboloidalEnergy (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
@@ -354,7 +371,7 @@ theorem memLp_restrictHyperboloid_kleinGordon (m : ℝ) {s₀ S : ℝ} (hs₀ : 
   E_m(s, u) \le E_m(s_0, u) + 2 \int_{s_0}^{s} \lVert \Box u - m^2 u\rVert_{L^2_f(H_{s'})}\, E_m(s', u)^{1/2}\, ds' .
   ```
 - **Hypotheses.** The standing hypotheses; $`s \in [s_0, S]`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_le_add_two_mul_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L500)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_le_add_two_mul_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L508)
 
 ```lean
 theorem hyperboloidalEnergy_le_add_two_mul_integral (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
@@ -373,7 +390,8 @@ theorem hyperboloidalEnergy_le_add_two_mul_integral (m : ℝ) {s₀ S : ℝ} (hs
   $`H_{s'}`$. All quantities are genuine: the norms are finite (previous entry), the energies are
   integrals of integrable functions (`integrable_hyperboloidalEnergyDensity` of
   [`hyperboloidal-energy.md`](hyperboloidal-energy.md)), and the integrand on the right is
-  continuous on $`[s_0, S]`$, hence integrable. For $`s = s_0`$ the statement is trivial.
+  continuous on $`[s_0, S]`$, hence integrable. The case $`s = s_0`$ needs no separate argument,
+  since the energy identity between intermediate hyperboloids allows $`s_1 = s_2`$.
 
 ### The square-root Grönwall inequality
 
@@ -393,8 +411,8 @@ theorem hyperboloidalEnergy_le_add_two_mul_integral (m : ℝ) {s₀ S : ℝ} (hs
 - **Hypotheses.** $`E`$ is continuous on $`[a, b]`$; $`g`$ is integrable on $`[a, b]`$ and
   $`g \ge 0`$ on $`[a, b]`$; the integral inequality holds on $`[a, b]`$. For the main step,
   moreover $`A \gt 0`$.
-- **Lean.** `VectorFieldMethod.Analysis.sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Analysis/SqrtGronwall.lean#L174),
-  and `VectorFieldMethod.Analysis.sqrt_add_two_mul_integral_le_of_pos`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Analysis/SqrtGronwall.lean#L54)
+- **Lean.** `VectorFieldMethod.Analysis.sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L174),
+  and `VectorFieldMethod.Analysis.sqrt_add_two_mul_integral_le_of_pos`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L54)
 
 ```lean
 theorem sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral (hE : ContinuousOn E (Icc a b))
@@ -413,6 +431,12 @@ theorem sqrt_add_two_mul_integral_le_of_pos (hA : 0 < A) (hE : ContinuousOn E (I
     `Real.sqrt r`, which is $`0`$ for $`r \lt 0`$; this is why the hypotheses $`E \ge 0`$,
     $`A \ge 0`$ are not needed (and an unused hypothesis would be reported by the linter, an error
     in CI). For $`a \gt b`$ the statement is empty.
+  - Dropping $`E \ge 0`$ is a genuine gain: in the sanity check $`E(s) = 2s - 1`$, $`A = 1`$,
+    $`g = 1`$ on $`[0, 1]`$, $`E(0) = -1 \lt 0`$, and the theorem gives
+    $`(2s - 1)^{1/2} \le 1 + s`$. Dropping $`A \ge 0`$ only adds a degenerate case: for $`A \lt 0`$
+    the hypothesis forces $`E \le A \lt 0`$ on $`[a, b]`$ (as long as $`E \lt 0`$ on $`[a, s]`$, the
+    integral vanishes and $`E(s) \le A`$; by continuity this persists up to $`b`$), and the conclusion
+    reduces to $`0 \le \int_a^s g`$.
   - `g` is only integrable, so $`\Phi`$ need not be differentiable everywhere, and the proof does
     not differentiate. With $`R = \Phi^{1/2}`$ and $`G(s) = \int_a^s g`$: since $`E \le \Phi`$ and
     $`\Phi`$ is nondecreasing, $`\Phi(z) - \Phi(x) \le 2 R(z) (G(z) - G(x))`$ for
@@ -432,7 +456,7 @@ theorem sqrt_add_two_mul_integral_le_of_pos (hA : 0 < A) (hE : ContinuousOn E (I
 - **Math.** Let $`F`$ be a real inner product space, $`m \in \mathbb{R}`$, $`0 \lt s_0`$,
   $`D = D(s_0, S)`$ and $`K`$ as in *Conventions*, $`U \subseteq \mathbb{R}^{1+3}`$ open with
   $`D \cap K \subseteq U`$, and $`u : \mathbb{R}^{1+3} \to F`$ of class $`C^2`$ on $`U`$ with
-  $`D \cap \operatorname{supp} u \subseteq K`$. Then for every $`s \in [s_0, S]`$,
+  $`D \cap \mathrm{supp}\, u \subseteq K`$. Then for every $`s \in [s_0, S]`$,
   ```math
   E_m(s, u)^{1/2} \le E_m(s_0, u)^{1/2} + \int_{s_0}^{s} \lVert \Box u - m^2 u\rVert_{L^2_f(H_{s'})}\, ds' ,
   ```
@@ -440,10 +464,10 @@ theorem sqrt_add_two_mul_integral_le_of_pos (hA : 0 < A) (hE : ContinuousOn E (I
   The right-hand side is finite.
 - **Hypotheses.** $`F`$ is a real inner product space; the standing hypotheses
   ($`0 \lt s_0`$; $`U`$ open; $`D \cap K \subseteq U`$; $`u`$ is $`C^2`$ on $`U`$;
-  $`D \cap \operatorname{supp} u \subseteq K`$); $`s \in [s_0, S]`$. For the finiteness, $`s \le S`$.
-- **Lean.** `VectorFieldMethod.Minkowski.ofReal_sqrt_hyperboloidalEnergy_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L603);
-  the same estimate in $`\mathbb{R}`$: `VectorFieldMethod.Minkowski.sqrt_hyperboloidalEnergy_le_add_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L561);
-  the finiteness of the right-hand side: `VectorFieldMethod.Minkowski.lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L578)
+  $`D \cap \mathrm{supp}\, u \subseteq K`$); $`s \in [s_0, S]`$. For the finiteness, $`s \le S`$.
+- **Lean.** `VectorFieldMethod.Minkowski.ofReal_sqrt_hyperboloidalEnergy_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L610);
+  the same estimate in $`\mathbb{R}`$: `VectorFieldMethod.Minkowski.sqrt_hyperboloidalEnergy_le_add_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L568);
+  the finiteness of the right-hand side: `VectorFieldMethod.Minkowski.lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L585)
 
 ```lean
 theorem ofReal_sqrt_hyperboloidalEnergy_le (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
@@ -468,9 +492,11 @@ theorem lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top (m : ℝ) {s₀
 ```
 
 - **Notes.**
-  - **Form of the statement.** The main statement is in `ENNReal` $`= [0, \infty]`$: the left side
-    is `ENNReal.ofReal` of $`E_m(s, u)^{1/2} \ge 0`$ (the energy is nonnegative,
-    `hyperboloidalEnergy_nonneg`), and the right side is a Lebesgue integral of
+  - **Form of the statement.** The main statement is in `ENNReal` $`= [0, \infty]`$. The left side
+    is `ENNReal.ofReal` of `√(hyperboloidalEnergy m s u)`; since `Real.sqrt` is always nonnegative,
+    `ENNReal.ofReal` does not truncate it, and the nonnegativity of the energy
+    (`hyperboloidalEnergy_nonneg`) only guarantees that `√` is the genuine square root
+    (`Real.sqrt` is $`0`$ on negative numbers). The right side is a Lebesgue integral of
     $`s' \mapsto \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_{s'})} \in [0, \infty]`$ over $`[s_0, s]`$,
     which makes sense without any integrability or measurability hypothesis. No integrability,
     finiteness or decay assumption is made. The integral over $`[s_0, s]`$ equals
@@ -484,14 +510,19 @@ theorem lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top (m : ℝ) {s₀
   - **Proof.** The square-root Grönwall inequality with $`E(s) = E_m(s, u)`$,
     $`g(s) = \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_s)}`$ and $`A = E_m(s_0, u)`$ on $`[s_0, S]`$:
     its hypotheses are *Continuity of the energy* and *The integral inequality*.
-  - **Correspondence with LeFloch–Ma.** This is the standard energy estimate of LeFloch–Ma's
-    hyperboloidal foliation method. With their energy $`E_{m,c}`$ of a field of mass $`c`$
-    (`hyperboloidalEnergy c s u`, normalized without $`\tfrac12`$ as here) and their operator
-    $`\Box u + c^2 u = -\mathrm{KG}_c u`$ it reads
-    $`E_{m,c}(s, u)^{1/2} \le E_{m,c}(s_0, u)^{1/2} + \int_{s_0}^{s} \lVert \Box u + c^2 u\rVert_{L^2_f(H_{s'})} ds'`$,
-    with the same flat norm $`\lVert \cdot\rVert_{L^2_f(H_{s'})}`$ (see *Conventions*); for $`c = 0`$
-    it is the estimate for the wave equation with $`E_m = E_{m,0}`$. Their cone
-    $`\{r \lt t - 1\}`$ has closure $`K`$. Here the field need only be $`C^2`$ near
+  - **Correspondence with LeFloch–Ma.** This is the counterpart of the scalar energy estimate
+    (2.1.10) of LeFloch–Ma's monograph (arXiv:1411.4910; see *Conventions*). There the mass is
+    $`\sigma`$ (in §2.3 the masses are $`c_i`$), the energy is defined in (2.1.11) and is
+    `hyperboloidalEnergy σ s u` (normalized without $`\tfrac12`$ as here), and the Klein–Gordon
+    operator is $`(\partial_t^2 - \Delta + \sigma^2) u = -\mathrm{KG}_\sigma u`$; with $`m = \sigma`$
+    the theorem reads
+    $`E_\sigma(s, u)^{1/2} \le E_\sigma(s_0, u)^{1/2} + \int_{s_0}^{s} \lVert (\partial_t^2 - \Delta + \sigma^2) u\rVert_{L^2(H_{s'})} ds'`$,
+    with $`E_\sigma(s, u)`$ = `hyperboloidalEnergy σ s u` and their norm
+    $`\lVert \cdot\rVert_{L^2(H_{s'})}`$ of (2.4.2), for the flat measure $`dx`$ (written
+    $`L^2_f(H_{s'})`$ in this file, a notation from LeFloch–Ma's later papers). For $`\sigma = 0`$
+    it is the estimate for the wave equation. The monograph starts from the initial hyperboloid
+    $`H_{s_0}`$ with $`s_0 = B + 1`$, not necessarily $`2`$; here $`s_0 \gt 0`$ is arbitrary. Their
+    cone (2.1.2), $`\{r \lt t - 1\}`$, has closure $`K`$. Here the field need only be $`C^2`$ near
     $`D \cap K`$, and $`u`$ need not solve any equation: the Klein–Gordon operator appears on the
     right-hand side.
   - **Content.** As for the energy identity, $`D \cap K`$ is nonempty only if $`S \ge 1`$. The
@@ -509,24 +540,33 @@ $`\max(\lvert t - 4\rvert, \lvert x\rvert)`$ of `Spacetime` (the function of the
 [`hyperboloidal-energy.md`](hyperboloidal-energy.md), which is private to its file and is therefore
 defined again). Its closed support $`\{\lvert t - 4\rvert \le 1/2,\ \lvert x\rvert \le 1/2\}`$ lies
 in $`K`$ (there $`t \ge 7/2`$), meets $`H_4`$ near $`(4, 0)`$, and does not meet $`H_2`$. In all
-examples $`U = \mathbb{R}^{1+3}`$.
+examples but one, $`U = \mathbb{R}^{1+3}`$; the example for the transfer of the hypotheses uses the
+smaller open set $`U = \{t \gt 1/2\}`$.
 
 | Statement | Line |
 | --- | --- |
-| The foliation formula applies to $`g = u`$ (continuous with compact support, hence integrable on $`D(2, 4)`$) | [L649](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L649) |
-| The energy identity between intermediate hyperboloids applies with the hypotheses on $`D(2, 5)`$, between $`H_3`$ and $`H_4`$ | [L678](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L678) |
-| Cauchy–Schwarz on $`H_4`$ applies with $`f = u`$: $`f\vert_{H_4}`$ is continuous with compact support, $`\partial_t u\vert_{H_4}`$ is continuous, $`e_m[u]\vert_{H_4}`$ is integrable | [L691](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L691) |
-| Continuity of integrals over the hyperboloids applies to $`f = u`$ on $`[2, 5]`$ ($`u`$ is continuous and vanishes outside $`K`$) | [L708](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L708) |
-| $`s \mapsto E_m(s, u)`$ is continuous on $`[2, 5]`$ | [L714](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L714) |
-| The integral inequality applies with $`s_0 = 2`$, $`S = 5`$, $`s = 4`$ | [L721](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L721) |
-| The energy estimate applies with $`s_0 = 2`$, $`S = 5`$, $`s = 4`$, every $`m`$ | [L733](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L733) |
-| For $`m \neq 0`$: $`E_m(2, u) = 0`$, $`0 \lt E_m(4, u)^{1/2}`$, the estimate gives $`E_m(4, u)^{1/2} \le \int_{[2, 4]} \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_{s'})} ds'`$, and this integral is finite | [L758](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L758) |
-| Square-root Grönwall inequality: $`E(s) = s^2`$, $`g = 1`$, $`A = 0`$ on $`[0, 1]`$; the hypothesis holds with equality ($`s^2 = 2 \int_0^s (\tau^2)^{1/2} d\tau`$), and the conclusion $`(s^2)^{1/2} \le 0^{1/2} + \int_0^s 1 = s`$ is an equality | [L201](https://github.com/Oho1e/VectorFieldMethod/blob/e1fba494f391b0695aaf79ddce78aa8822cc4bd3/VectorFieldMethod/Analysis/SqrtGronwall.lean#L201) |
+| The foliation formula applies to $`g = u`$ (continuous with compact support, hence integrable on $`D(2, 4)`$) | [L656](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L656) |
+| The foliation formula for nonnegative functions applies to $`g = \max(u, 0)`$ (`ENNReal.ofReal ∘ u`, measurable with values in $`[0, \infty]`$) on $`D(2, 4)`$ | [L665](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L665) |
+| The hypotheses of the energy identity pass from $`D(2, 5)`$ to $`D(3, 4)`$: for $`U = \{t \gt 1/2\}`$, an open set containing $`K`$, and for the closed support of $`u`$ | [L694](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L694) |
+| The energy identity between intermediate hyperboloids applies with the hypotheses on $`D(2, 5)`$, between $`H_3`$ and $`H_4`$ | [L708](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L708) |
+| Cauchy–Schwarz on $`H_4`$ applies with $`f = u`$: $`f\vert_{H_4}`$ is continuous with compact support, $`\partial_t u\vert_{H_4}`$ is continuous, $`e_m[u]\vert_{H_4}`$ is integrable | [L721](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L721) |
+| Continuity of integrals over the hyperboloids applies to $`f = u`$ on $`[2, 5]`$ ($`u`$ is continuous and vanishes outside $`K`$) | [L738](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L738) |
+| $`s \mapsto E_m(s, u)`$ is continuous on $`[2, 5]`$ | [L744](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L744) |
+| $`\lVert \mathrm{KG}_m u\rVert_{L^2_f(H_4)} \lt \infty`$, and $`s \mapsto \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_s)}`$ is continuous on $`[2, 5]`$ | [L751](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L751) |
+| The integral inequality applies with $`s_0 = 2`$, $`S = 5`$, $`s = 4`$ | [L764](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L764) |
+| The energy estimate applies with $`s_0 = 2`$, $`S = 5`$, $`s = 4`$, every $`m`$ | [L776](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L776) |
+| The real form of the energy estimate applies with the same data | [L787](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L787) |
+| For $`m \neq 0`$: $`E_m(2, u) = 0`$, $`0 \lt E_m(4, u)^{1/2}`$, the estimate gives $`E_m(4, u)^{1/2} \le \int_{[2, 4]} \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_{s'})} ds'`$, and this integral is finite | [L812](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L812) |
+| Square-root Grönwall inequality: $`E(s) = s^2`$, $`g = 1`$, $`A = 0`$ on $`[0, 1]`$; the hypothesis holds with equality ($`s^2 = 2 \int_0^s (\tau^2)^{1/2} d\tau`$), and the conclusion $`(s^2)^{1/2} \le 0^{1/2} + \int_0^s 1 = s`$ is an equality | [L201](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L201) |
+| Main step ($`A \gt 0`$): $`E(s) = (1 + s)^2`$, $`g = 1`$, $`A = 1`$ on $`[0, 1]`$; the hypothesis holds with equality ($`(1 + s)^2 = 1 + 2 \int_0^s ((1 + \tau)^2)^{1/2} d\tau`$) and the conclusion is an equality (both sides are $`1 + s`$); both equalities are proved, and the theorem is applied | [L216](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L216) |
+| Square-root Grönwall inequality with $`E`$ taking negative values: $`E(s) = 2s - 1`$, $`g = 1`$, $`A = 1`$ on $`[0, 1]`$; $`E(0) = -1 \lt 0`$, the hypothesis holds, and the theorem gives $`(2s - 1)^{1/2} \le 1 + s`$ | [L246](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L246) |
 
 The examples apply each main theorem whose hypotheses go beyond regularity and signs of numbers to
-concrete data satisfying all its hypotheses. The eighth example shows that for $`m \neq 0`$ the
-energy estimate is a genuine inequality between a positive left-hand side and a finite right-hand
-side (the energy on $`H_2`$ vanishes, so the right-hand side reduces to the integral of the norms
-of $`\mathrm{KG}_m u`$, which is therefore positive). The last example shows that the square-root
-Grönwall inequality is sharp. The pointwise bound and the identity of measures have only sign
-hypotheses and are not listed.
+concrete data satisfying all its hypotheses (the foliation formula for nonnegative functions, whose
+only further hypothesis is measurability, is included as well). The example for $`m \neq 0`$ shows
+that the energy estimate is then a genuine inequality between a positive left-hand side and a
+finite right-hand side (the energy on $`H_2`$ vanishes, so the right-hand side reduces to the
+integral of the norms of $`\mathrm{KG}_m u`$, which is therefore positive). The Grönwall examples
+with $`E(s) = s^2`$ and $`E(s) = (1 + s)^2`$ show that the inequality and its main step are sharp,
+and the example $`E(s) = 2s - 1`$ that $`E`$ may take negative values. The pointwise bound and the
+identity of measures have only sign hypotheses and are not listed.
