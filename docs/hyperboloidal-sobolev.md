@@ -1,11 +1,13 @@
 # The hyperboloidal Sobolev inequality on ℝ³
 
 Files: `VectorFieldMethod/Analysis/LocalSobolev.lean` and
-`VectorFieldMethod/Analysis/HyperboloidalSobolev.lean`, both imported by
-`VectorFieldMethod.lean`. Every declaration is in the namespace
-`VectorFieldMethod.EuclideanSobolev`. The statement-by-statement correspondence
-between the mathematics and the Lean code is in
-`docs/statements/euclidean-sobolev.md`.
+`VectorFieldMethod/Analysis/HyperboloidalSobolev.lean` for the inequality on
+`ℝ³` (namespace `VectorFieldMethod.EuclideanSobolev`), and
+`VectorFieldMethod/Minkowski/KlainermanSobolev.lean` for the passage to the
+hyperboloid (namespace `VectorFieldMethod.Minkowski`), all imported by
+`VectorFieldMethod.lean`. The statement-by-statement correspondence between the
+mathematics and the Lean code is in `docs/statements/euclidean-sobolev.md` and
+`docs/statements/klainerman-sobolev.md`.
 
 This is the part of the Klainerman–Sobolev inequality on hyperboloids that only
 involves `ℝ³`. The passage from `ℝ³` to the hyperboloid is described below; it
@@ -62,7 +64,8 @@ the restriction of a spacetime function `v` to `H_s` is the function on `ℝ³`
 
     v|_{H_s}(x) = v(φ_s(x), x).
 
-**Lemma.** If `v` is `C¹`, then `Λ_a (v|_{H_s}) = (L_a v)|_{H_s}` for every `a`.
+**Lemma.** Let `x ∈ ℝ³`. If `v` is differentiable at the point `(φ_s(x), x)` of
+`H_s`, then `Λ_a (v|_{H_s})(x) = (L_a v)|_{H_s}(x)` for every `a`.
 
 *Proof.* By the chain rule, `∂_a (v|_{H_s})(x) = (∂_t v)(φ_s(x), x) ∂_a φ_s(x) +
 (∂_a v)(φ_s(x), x)`, and `∂_a φ_s(x) = x_a / φ_s(x)`. Multiplying by `φ_s(x)`,
