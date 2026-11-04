@@ -26,6 +26,10 @@ Write `φ_s(x) = √(s ^ 2 + ‖x‖ ^ 2)`, so that the hyperboloid `H_s` is the
 * `setIntegral_regionBetweenHyperboloids_eq` (integrable functions) and
   `setLIntegral_regionBetweenHyperboloids_eq` (nonnegative measurable functions): the foliation
   formula `∫_D g dt dx = ∫_{s₁}^{s₂} ∫_{ℝ³} g(φ_s(x), x) (s / φ_s(x)) dx ds`.
+* `hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le`: if the hypotheses of the energy identity
+  hold on the region between `H_{s₀}` and `H_S`, they hold between any two intermediate
+  hyperboloids `H_{s₁}`, `H_{s₂}` (`regionBetweenHyperboloids_inter_cone_subset_of_le`,
+  `regionBetweenHyperboloids_inter_tsupport_subset_of_le`), and the energy identity holds there.
 
 ## Implementation notes
 
@@ -181,6 +185,53 @@ theorem setIntegral_regionBetweenHyperboloids_eq {s₁ s₂ : ℝ} (hs₁ : 0 < 
       simp only [hρdef, hΨdef, NNReal.smul_def, smul_eq_mul,
         Real.coe_toNNReal _ (div_pos (hs₁.trans_le hs.1) hφ).le]
 
+/-! ### Subregions -/
+
+/-- For `0 ≤ s₀ ≤ s₁ ≤ s₂ ≤ S`, the region between the hyperboloids `H_{s₁}` and `H_{s₂}` lies in
+the region between `H_{s₀}` and `H_S`. -/
+theorem regionBetweenHyperboloids_subset {s₀ s₁ s₂ S : ℝ} (hs₀ : 0 ≤ s₀) (h₀₁ : s₀ ≤ s₁)
+    (h₁₂ : s₁ ≤ s₂) (h₂S : s₂ ≤ S) :
+    regionBetweenHyperboloids s₁ s₂ ⊆ regionBetweenHyperboloids s₀ S := fun p hp ↦
+  mem_regionBetweenHyperboloids.2
+    ⟨(Real.sqrt_le_sqrt (by nlinarith)).trans (mem_regionBetweenHyperboloids.1 hp).1,
+      (mem_regionBetweenHyperboloids.1 hp).2.trans (Real.sqrt_le_sqrt (by nlinarith))⟩
+
+variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]
+variable {u : Spacetime → F}
+
+/-- The hypothesis `D ∩ K ⊆ U` of the energy identity passes from the region `D` between `H_{s₀}`
+and `H_S` to the region between `H_{s₁}` and `H_{s₂}`, for `0 ≤ s₀ ≤ s₁ ≤ s₂ ≤ S`. -/
+theorem regionBetweenHyperboloids_inter_cone_subset_of_le {s₀ s₁ s₂ S : ℝ} (hs₀ : 0 ≤ s₀)
+    (h₀₁ : s₀ ≤ s₁) (h₁₂ : s₁ ≤ s₂) (h₂S : s₂ ≤ S) {U : Set Spacetime}
+    (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U) :
+    regionBetweenHyperboloids s₁ s₂ ∩ cone ⊆ U :=
+  (inter_subset_inter_left _ (regionBetweenHyperboloids_subset hs₀ h₀₁ h₁₂ h₂S)).trans hDU
+
+omit [InnerProductSpace ℝ F] in
+/-- The support hypothesis `D ∩ supp u ⊆ K` of the energy identity passes from the region `D`
+between `H_{s₀}` and `H_S` to the region between `H_{s₁}` and `H_{s₂}`, for
+`0 ≤ s₀ ≤ s₁ ≤ s₂ ≤ S`. -/
+theorem regionBetweenHyperboloids_inter_tsupport_subset_of_le {s₀ s₁ s₂ S : ℝ} (hs₀ : 0 ≤ s₀)
+    (h₀₁ : s₀ ≤ s₁) (h₁₂ : s₁ ≤ s₂) (h₂S : s₂ ≤ S)
+    (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone) :
+    regionBetweenHyperboloids s₁ s₂ ∩ tsupport u ⊆ cone :=
+  (inter_subset_inter_left _ (regionBetweenHyperboloids_subset hs₀ h₀₁ h₁₂ h₂S)).trans hsupp
+
+/-- **The energy identity between two intermediate hyperboloids.** Let `0 < s₀`, let `D` be the
+region between `H_{s₀}` and `H_S`, `K` the cone, `U` an open set containing `D ∩ K`, and `u` of
+class `C²` on `U` with `D ∩ supp u ⊆ K`. Then for `s₀ ≤ s₁ < s₂ ≤ S`,
+`E_m(s₂, u) - E_m(s₁, u) = -2 ∫_{D(s₁, s₂)} ⟪KG_m u, ∂_t u⟫`, where `D(s₁, s₂)` is the region
+between `H_{s₁}` and `H_{s₂}`. For `s₁ = s₀` this is `E_m(s, u) - E_m(s₀, u)`. -/
+theorem hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
+    {U : Set Spacetime} (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U)
+    (hu : ContDiffOn ℝ 2 u U) (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone)
+    {s₁ s₂ : ℝ} (h₀₁ : s₀ ≤ s₁) (h₁₂ : s₁ < s₂) (h₂S : s₂ ≤ S) :
+    hyperboloidalEnergy m s₂ u - hyperboloidalEnergy m s₁ u =
+      -2 * ∫ p in regionBetweenHyperboloids s₁ s₂, ⟪kleinGordon m u p, ∂ₜ u p⟫ :=
+  hyperboloidalEnergy_sub_hyperboloidalEnergy m (hs₀.trans_le h₀₁) h₁₂ hU
+    (regionBetweenHyperboloids_inter_cone_subset_of_le hs₀.le h₀₁ h₁₂.le h₂S hDU) hu
+    (regionBetweenHyperboloids_inter_tsupport_subset_of_le hs₀.le h₀₁ h₁₂.le h₂S hsupp)
+
 /-! ### Sanity checks
 
 The examples below use a smooth bump function `u : Spacetime → ℝ` centered at `(t, x) = (4, 0)`,
@@ -207,6 +258,38 @@ example : ∫ p in regionBetweenHyperboloids 2 4, (estimateBump : Spacetime → 
   setIntegral_regionBetweenHyperboloids_eq (by norm_num) (by norm_num)
     (estimateBump.continuous.integrable_of_hasCompactSupport
       estimateBump.hasCompactSupport).integrableOn
+
+/-- The points `(t, x)` of the closed support of the bump function satisfy `|t - 4| ≤ 1 / 2` and
+`‖x‖ ≤ 1 / 2`. -/
+private theorem mem_tsupport_estimateBump {t : ℝ} {x : EuclideanSpace ℝ (Fin 3)}
+    (h : ((t, x) : Spacetime) ∈ tsupport (estimateBump : Spacetime → ℝ)) :
+    -(1 / 2) ≤ t - 4 ∧ t - 4 ≤ 1 / 2 ∧ ‖x‖ ≤ 1 / 2 := by
+  rw [ContDiffBump.tsupport_eq, Metric.mem_closedBall, Prod.dist_eq, max_le_iff, Real.dist_eq,
+    dist_zero_right] at h
+  have hr : estimateBump.rOut = 1 / 2 := rfl
+  rw [hr, abs_le] at h
+  exact ⟨h.1.1, h.1.2, h.2⟩
+
+/-- The closed support of the bump function lies in the cone `‖x‖ ≤ t - 1`, since `t ≥ 7 / 2`
+there. -/
+private theorem tsupport_estimateBump_subset : tsupport (estimateBump : Spacetime → ℝ) ⊆ cone := by
+  intro p hp
+  obtain ⟨h₁, -, h₃⟩ := mem_tsupport_estimateBump (t := p.1) (x := p.2) hp
+  rw [mem_cone]
+  linarith
+
+/-- The energy identity between intermediate hyperboloids applies to the bump function, with the
+hypotheses stated on the region between `H_2` and `H_5` (`U` the whole spacetime), between `H_3`
+and `H_4`. -/
+example (m : ℝ) :
+    hyperboloidalEnergy m 4 (estimateBump : Spacetime → ℝ) -
+        hyperboloidalEnergy m 3 (estimateBump : Spacetime → ℝ) =
+      -2 * ∫ p in regionBetweenHyperboloids 3 4,
+        ⟪kleinGordon m (estimateBump : Spacetime → ℝ) p, ∂ₜ (estimateBump : Spacetime → ℝ) p⟫ :=
+  hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le m (s₀ := 2) (S := 5) (by norm_num)
+    isOpen_univ (subset_univ _) estimateBump.contDiff.contDiffOn
+    (inter_subset_right.trans tsupport_estimateBump_subset) (by norm_num) (by norm_num)
+    (by norm_num)
 
 end SanityChecks
 
