@@ -250,18 +250,26 @@ theorem regionBetweenHyperboloids_inter_tsupport_subset_of_le {s₀ s₁ s₂ S 
 
 /-- **The energy identity between two intermediate hyperboloids.** Let `0 < s₀`, let `D` be the
 region between `H_{s₀}` and `H_S`, `K` the cone, `U` an open set containing `D ∩ K`, and `u` of
-class `C²` on `U` with `D ∩ supp u ⊆ K`. Then for `s₀ ≤ s₁ < s₂ ≤ S`,
+class `C²` on `U` with `D ∩ supp u ⊆ K`. Then for `s₀ ≤ s₁ ≤ s₂ ≤ S`,
 `E_m(s₂, u) - E_m(s₁, u) = -2 ∫_{D(s₁, s₂)} ⟪KG_m u, ∂_t u⟫`, where `D(s₁, s₂)` is the region
-between `H_{s₁}` and `H_{s₂}`. For `s₁ = s₀` this is `E_m(s, u) - E_m(s₀, u)`. -/
+between `H_{s₁}` and `H_{s₂}`. For `s₁ = s₀` this is `E_m(s, u) - E_m(s₀, u)`.
+
+For `s₁ < s₂` this is `hyperboloidalEnergy_sub_hyperboloidalEnergy` on `D(s₁, s₂)`; for
+`s₁ = s₂` both sides are `0`, since `D(s₁, s₁) = H_{s₁}` has measure zero (by the foliation formula,
+the integral over it is an integral over `[s₁, s₁]`). -/
 theorem hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
     {U : Set Spacetime} (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U)
     (hu : ContDiffOn ℝ 2 u U) (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone)
-    {s₁ s₂ : ℝ} (h₀₁ : s₀ ≤ s₁) (h₁₂ : s₁ < s₂) (h₂S : s₂ ≤ S) :
+    {s₁ s₂ : ℝ} (h₀₁ : s₀ ≤ s₁) (h₁₂ : s₁ ≤ s₂) (h₂S : s₂ ≤ S) :
     hyperboloidalEnergy m s₂ u - hyperboloidalEnergy m s₁ u =
-      -2 * ∫ p in regionBetweenHyperboloids s₁ s₂, ⟪kleinGordon m u p, ∂ₜ u p⟫ :=
-  hyperboloidalEnergy_sub_hyperboloidalEnergy m (hs₀.trans_le h₀₁) h₁₂ hU
-    (regionBetweenHyperboloids_inter_cone_subset_of_le hs₀.le h₀₁ h₁₂.le h₂S hDU) hu
-    (regionBetweenHyperboloids_inter_tsupport_subset_of_le hs₀.le h₀₁ h₁₂.le h₂S hsupp)
+      -2 * ∫ p in regionBetweenHyperboloids s₁ s₂, ⟪kleinGordon m u p, ∂ₜ u p⟫ := by
+  have hDU' := regionBetweenHyperboloids_inter_cone_subset_of_le hs₀.le h₀₁ h₁₂ h₂S hDU
+  have hsupp' := regionBetweenHyperboloids_inter_tsupport_subset_of_le hs₀.le h₀₁ h₁₂ h₂S hsupp
+  rcases h₁₂.eq_or_lt with rfl | h
+  · rw [sub_self, setIntegral_regionBetweenHyperboloids_eq (hs₀.trans_le h₀₁) le_rfl
+      (integrableOn_inner_kleinGordon_timeDeriv m hU hDU' hu hsupp'),
+      setIntegral_measure_zero _ (by simp), mul_zero]
+  · exact hyperboloidalEnergy_sub_hyperboloidalEnergy m (hs₀.trans_le h₀₁) h hU hDU' hu hsupp'
 
 /-! ### Cauchy–Schwarz on a hyperboloid -/
 
@@ -504,8 +512,6 @@ theorem hyperboloidalEnergy_le_add_two_mul_integral (m : ℝ) {s₀ S : ℝ} (hs
     hyperboloidalEnergy m s u ≤ hyperboloidalEnergy m s₀ u +
       2 * ∫ s' in s₀..s, (eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume).toReal *
         √(hyperboloidalEnergy m s' u) := by
-  rcases hs.1.eq_or_lt with h | h
-  · subst h; simp
   have hsub : Icc s₀ s ⊆ Icc s₀ S := Icc_subset_Icc le_rfl hs.2
   -- the right-hand side integrand is continuous, hence integrable
   have hGcont : ContinuousOn (fun s' ↦
@@ -538,12 +544,13 @@ theorem hyperboloidalEnergy_le_add_two_mul_integral (m : ℝ) {s₀ S : ℝ} (hs
       exact setIntegral_nonneg measurableSet_Icc fun s' _ ↦
         mul_nonneg ENNReal.toReal_nonneg (Real.sqrt_nonneg _)
   -- the energy identity on `[s₀, s]` and the foliation formula
-  have hid := hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le m hs₀ hU hDU hu hsupp le_rfl h hs.2
-  have hfol := setIntegral_regionBetweenHyperboloids_eq hs₀ h.le
+  have hid := hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le m hs₀ hU hDU hu hsupp le_rfl hs.1
+    hs.2
+  have hfol := setIntegral_regionBetweenHyperboloids_eq hs₀ hs.1
     (integrableOn_inner_kleinGordon_timeDeriv m hU
-      (regionBetweenHyperboloids_inter_cone_subset_of_le hs₀.le le_rfl h.le hs.2 hDU) hu
-      (regionBetweenHyperboloids_inter_tsupport_subset_of_le hs₀.le le_rfl h.le hs.2 hsupp))
-  rw [intervalIntegral.integral_of_le h.le, ← integral_Icc_eq_integral_Ioc]
+      (regionBetweenHyperboloids_inter_cone_subset_of_le hs₀.le le_rfl hs.1 hs.2 hDU) hu
+      (regionBetweenHyperboloids_inter_tsupport_subset_of_le hs₀.le le_rfl hs.1 hs.2 hsupp))
+  rw [intervalIntegral.integral_of_le hs.1, ← integral_Icc_eq_integral_Ioc]
   linarith
 
 /-! ### The energy estimate -/
@@ -653,6 +660,15 @@ example : ∫ p in regionBetweenHyperboloids 2 4, (estimateBump : Spacetime → 
     (estimateBump.continuous.integrable_of_hasCompactSupport
       estimateBump.hasCompactSupport).integrableOn
 
+/-- The foliation formula for nonnegative functions applies to `g = ENNReal.ofReal ∘ u`, a
+measurable function with values in `[0, ∞]`, between `H_2` and `H_4`. -/
+example : ∫⁻ p in regionBetweenHyperboloids 2 4, ENNReal.ofReal ((estimateBump : Spacetime → ℝ) p) =
+    ∫⁻ s in Icc (2 : ℝ) 4, ∫⁻ x : EuclideanSpace ℝ (Fin 3),
+      ENNReal.ofReal (s / √(s ^ 2 + ‖x‖ ^ 2)) *
+        ENNReal.ofReal ((estimateBump : Spacetime → ℝ) (√(s ^ 2 + ‖x‖ ^ 2), x)) :=
+  setLIntegral_regionBetweenHyperboloids_eq (by norm_num) (by norm_num)
+    estimateBump.continuous.measurable.ennreal_ofReal
+
 /-- The points `(t, x)` of the closed support of the bump function satisfy `|t - 4| ≤ 1 / 2` and
 `‖x‖ ≤ 1 / 2`. -/
 private theorem mem_tsupport_estimateBump {t : ℝ} {x : EuclideanSpace ℝ (Fin 3)}
@@ -671,6 +687,20 @@ private theorem tsupport_estimateBump_subset : tsupport (estimateBump : Spacetim
   obtain ⟨h₁, -, h₃⟩ := mem_tsupport_estimateBump (t := p.1) (x := p.2) hp
   rw [mem_cone]
   linarith
+
+/-- The hypotheses of the energy identity pass from the region between `H_2` and `H_5` to the
+region between `H_3` and `H_4`: for the open set `U = {t > 1 / 2}`, which contains the cone, and
+for the closed support of the bump function. -/
+example : regionBetweenHyperboloids 3 4 ∩ cone ⊆ {p : Spacetime | 1 / 2 < p.1} ∧
+    regionBetweenHyperboloids 3 4 ∩ tsupport (estimateBump : Spacetime → ℝ) ⊆ cone :=
+  ⟨regionBetweenHyperboloids_inter_cone_subset_of_le (s₀ := 2) (S := 5) (by norm_num)
+      (by norm_num) (by norm_num) (by norm_num) fun p hp ↦ by
+        have hK : ‖p.2‖ ≤ p.1 - 1 := mem_cone.1 hp.2
+        change 1 / 2 < p.1
+        linarith [norm_nonneg p.2],
+    regionBetweenHyperboloids_inter_tsupport_subset_of_le (s₀ := 2) (S := 5) (by norm_num)
+      (by norm_num) (by norm_num) (by norm_num)
+      (inter_subset_right.trans tsupport_estimateBump_subset)⟩
 
 /-- The energy identity between intermediate hyperboloids applies to the bump function, with the
 hypotheses stated on the region between `H_2` and `H_5` (`U` the whole spacetime), between `H_3`
@@ -716,6 +746,19 @@ example (m : ℝ) :
   continuousOn_hyperboloidalEnergy m (by norm_num) isOpen_univ (subset_univ _)
     estimateBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_estimateBump_subset)
 
+/-- For the bump function, `‖KG_m u‖_{L²_f(H_s)}` is finite at `s = 4` and continuous in `s` on
+`[2, 5]`. -/
+example (m : ℝ) :
+    MemLp (restrictHyperboloid 4 (kleinGordon m (estimateBump : Spacetime → ℝ))) 2 volume ∧
+      ContinuousOn (fun s ↦ (eLpNorm (restrictHyperboloid s
+        (kleinGordon m (estimateBump : Spacetime → ℝ))) 2 volume).toReal) (Icc 2 5) :=
+  ⟨memLp_restrictHyperboloid_kleinGordon m (s₀ := 2) (S := 5) (by norm_num) isOpen_univ
+      (subset_univ _) estimateBump.contDiff.contDiffOn
+      (inter_subset_right.trans tsupport_estimateBump_subset) ⟨by norm_num, by norm_num⟩,
+    continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon m (by norm_num) isOpen_univ
+      (subset_univ _) estimateBump.contDiff.contDiffOn
+      (inter_subset_right.trans tsupport_estimateBump_subset)⟩
+
 /-- The integral inequality for the bump function, with the hypotheses on the region between
 `H_2` and `H_5` and `s = 4`. -/
 example (m : ℝ) :
@@ -736,6 +779,17 @@ example (m : ℝ) :
         ∫⁻ s' in Icc (2 : ℝ) 4, eLpNorm (restrictHyperboloid s'
           (kleinGordon m (estimateBump : Spacetime → ℝ))) 2 volume :=
   ofReal_sqrt_hyperboloidalEnergy_le m (S := 5) (by norm_num) isOpen_univ (subset_univ _)
+    estimateBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_estimateBump_subset)
+    ⟨by norm_num, by norm_num⟩
+
+/-- The real form of the energy estimate applies to the bump function, with the hypotheses on the
+region between `H_2` and `H_5` (`U` the whole spacetime) and `s = 4`. -/
+example (m : ℝ) :
+    √(hyperboloidalEnergy m 4 (estimateBump : Spacetime → ℝ)) ≤
+      √(hyperboloidalEnergy m 2 (estimateBump : Spacetime → ℝ)) +
+        ∫ s' in (2 : ℝ)..4, (eLpNorm (restrictHyperboloid s'
+          (kleinGordon m (estimateBump : Spacetime → ℝ))) 2 volume).toReal :=
+  sqrt_hyperboloidalEnergy_le_add_integral m (S := 5) (by norm_num) isOpen_univ (subset_univ _)
     estimateBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_estimateBump_subset)
     ⟨by norm_num, by norm_num⟩
 

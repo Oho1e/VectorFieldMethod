@@ -209,4 +209,48 @@ example {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1) : √(s ^ 2) ≤ √0 + ∫ _ in 
   simp only [hcongr, integral_id]
   linarith
 
+/-- `E(s) = (1 + s)²`, `g = 1` and `A = 1` on `[0, 1]`: the hypothesis of
+`sqrt_add_two_mul_integral_le_of_pos` holds with equality,
+`(1 + s)² = 1 + 2 ∫_0^s ((1 + τ)²)^{1/2} dτ`, and its conclusion is an equality as well: both sides
+are `1 + s`. The example proves the two equalities and applies the theorem. -/
+example {s : ℝ} (hs : s ∈ Icc (0 : ℝ) 1) :
+    (1 + s) ^ 2 = 1 + 2 * ∫ τ in (0 : ℝ)..s, (1 : ℝ) * √((1 + τ) ^ 2) ∧
+      √(1 + 2 * ∫ τ in (0 : ℝ)..s, (1 : ℝ) * √((1 + τ) ^ 2)) =
+        √1 + ∫ _ in (0 : ℝ)..s, (1 : ℝ) ∧
+      √(1 + 2 * ∫ τ in (0 : ℝ)..s, (1 : ℝ) * √((1 + τ) ^ 2)) ≤
+        √1 + ∫ _ in (0 : ℝ)..s, (1 : ℝ) := by
+  -- `∫_0^t ((1 + τ)²)^{1/2} dτ = ∫_0^t (1 + τ) dτ = t + t² / 2` for `t ≥ 0`
+  have hint (t : ℝ) (ht : 0 ≤ t) :
+      ∫ τ in (0 : ℝ)..t, (1 : ℝ) * √((1 + τ) ^ 2) = t + t ^ 2 / 2 := by
+    rw [intervalIntegral.integral_congr (g := fun τ ↦ 1 + τ) fun τ hτ ↦ by
+      rw [uIcc_of_le ht] at hτ
+      simp [Real.sqrt_sq (by linarith [hτ.1] : (0 : ℝ) ≤ 1 + τ)]]
+    rw [intervalIntegral.integral_add intervalIntegrable_const
+      intervalIntegral.intervalIntegrable_id, intervalIntegral.integral_const, integral_id]
+    simp
+  have hsq (t : ℝ) (ht : 0 ≤ t) : √(1 + 2 * (t + t ^ 2 / 2)) = 1 + t := by
+    rw [show 1 + 2 * (t + t ^ 2 / 2) = (1 + t) ^ 2 by ring, Real.sqrt_sq (by linarith)]
+  refine ⟨by rw [hint s hs.1]; ring, ?_, sqrt_add_two_mul_integral_le_of_pos
+    (E := fun τ ↦ (1 + τ) ^ 2) (g := fun _ ↦ 1) one_pos (by fun_prop)
+    (integrableOn_const (by simp)) (fun _ _ ↦ zero_le_one) (fun t ht ↦ ?_) hs⟩
+  · rw [hint s hs.1, hsq s hs.1, Real.sqrt_one, integral_one]
+    ring
+  · rw [hint t ht.1]
+    nlinarith
+
+/-- `E(s) = 2 s - 1`, `g = 1` and `A = 1` on `[0, 1]`: `E` takes negative values (`E(0) = -1`), so
+the usual hypothesis `E ≥ 0` fails, but the hypothesis of
+`sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral` holds, since
+`E(s) ≤ 1 ≤ 1 + 2 ∫_0^s √(2 τ - 1) dτ`, and the theorem gives `√(2 s - 1) ≤ 1 + s`. This shows the
+gain from dropping the hypothesis `E ≥ 0`. -/
+example : (∃ s ∈ Icc (0 : ℝ) 1, 2 * s - 1 < 0) ∧
+    ∀ s ∈ Icc (0 : ℝ) 1, √(2 * s - 1) ≤ √1 + ∫ _ in (0 : ℝ)..s, (1 : ℝ) :=
+  ⟨⟨0, ⟨le_rfl, zero_le_one⟩, by norm_num⟩, fun _ hs ↦
+    sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral (E := fun τ ↦ 2 * τ - 1)
+      (g := fun _ ↦ 1) (by fun_prop) (integrableOn_const (by simp)) (fun _ _ ↦ zero_le_one)
+      (fun t ht ↦ by
+        have h0 : 0 ≤ ∫ τ in (0 : ℝ)..t, (1 : ℝ) * √(2 * τ - 1) :=
+          intervalIntegral.integral_nonneg ht.1 fun τ _ ↦ by positivity
+        linarith [ht.2]) hs⟩
+
 end VectorFieldMethod.Analysis
