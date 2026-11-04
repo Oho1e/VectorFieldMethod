@@ -38,6 +38,11 @@ Write `φ_s(x) = √(s ^ 2 + ‖x‖ ^ 2)`, so that the hyperboloid `H_s` is the
   `|∫_{ℝ³} (s / t) ⟪f, ∂_t u⟫(φ_s(x), x) dx| ≤ ‖f‖_{L²_f(H_s)} E_m(s, u)^{1/2}`, where
   `‖f‖_{L²_f(H_s)} = (∫_{ℝ³} ‖f(φ_s(x), x)‖² dx)^{1/2}` is the `L²` norm on `H_s` for the flat
   measure `dx` (`eLpNorm (restrictHyperboloid s f) 2 volume`).
+* `continuousOn_integral_hyperboloid`, `continuousOn_hyperboloidalEnergy`: under the hypotheses of
+  the energy identity on the region between `H_{s₀}` and `H_S`, `s ↦ E_m(s, u)` (and
+  `s ↦ ‖KG_m u‖_{L²_f(H_s)}`) is continuous on `[s₀, S]`.
+* `hyperboloidalEnergy_le_add_two_mul_integral`: under the same hypotheses, for `s ∈ [s₀, S]`,
+  `E_m(s, u) ≤ E_m(s₀, u) + 2 ∫_{s₀}^{s} ‖KG_m u‖_{L²_f(H_{s'})} E_m(s', u)^{1/2} ds'`.
 
 ## Implementation notes
 
@@ -317,6 +322,212 @@ theorem abs_integral_mul_inner_timeDeriv_le (m : ℝ) {s : ℝ} (hs : s ≠ 0) {
         rw [← hf']
         exact mul_le_mul_of_nonneg_left hG' ENNReal.toReal_nonneg
 
+/-! ### Continuity in `s` of integrals over the hyperboloids -/
+
+/-- For `0 ≤ s₁ ≤ s ≤ s₂`, the point `(√(s ^ 2 + ‖x‖ ^ 2), x)` of `H_s` lies in the region between
+`H_{s₁}` and `H_{s₂}`. -/
+theorem mem_regionBetweenHyperboloids_of_mem_Icc {s₁ s₂ s : ℝ} (hs₁ : 0 ≤ s₁)
+    (hs : s ∈ Icc s₁ s₂) (x : EuclideanSpace ℝ (Fin 3)) :
+    ((√(s ^ 2 + ‖x‖ ^ 2), x) : Spacetime) ∈ regionBetweenHyperboloids s₁ s₂ :=
+  mem_regionBetweenHyperboloids.2
+    ⟨Real.sqrt_le_sqrt (by nlinarith [hs.1]), Real.sqrt_le_sqrt (by nlinarith [hs.1, hs.2])⟩
+
+/-- A point `(√(s ^ 2 + ‖x‖ ^ 2), x)` of `H_s` in the cone `‖x‖ ≤ t - 1` satisfies `‖x‖ ≤ s ^ 2`
+(indeed `(‖x‖ + 1) ^ 2 ≤ s ^ 2 + ‖x‖ ^ 2`, that is `2 ‖x‖ + 1 ≤ s ^ 2`). -/
+theorem norm_le_sq_of_mem_cone {s : ℝ} {x : EuclideanSpace ℝ (Fin 3)}
+    (h : ((√(s ^ 2 + ‖x‖ ^ 2), x) : Spacetime) ∈ cone) : ‖x‖ ≤ s ^ 2 := by
+  have hK : ‖x‖ ≤ √(s ^ 2 + ‖x‖ ^ 2) - 1 := h
+  have h₁ := mul_self_le_mul_self (by positivity : (0 : ℝ) ≤ ‖x‖ + 1)
+    (by linarith : ‖x‖ + 1 ≤ √(s ^ 2 + ‖x‖ ^ 2))
+  have h₂ := Real.mul_self_sqrt (by positivity : (0 : ℝ) ≤ s ^ 2 + ‖x‖ ^ 2)
+  nlinarith [norm_nonneg x]
+
+/-- **Continuity of integrals over the hyperboloids.** Let `0 ≤ s₁`, `D` the region between
+`H_{s₁}` and `H_{s₂}`, and `f : Spacetime → ℝ` continuous at every point of `D` and vanishing at
+the points of `D` outside the cone `K`. Then `s ↦ ∫_{ℝ³} f(√(s ^ 2 + ‖x‖ ^ 2), x) dx` is continuous
+on `[s₁, s₂]`.
+
+The integrand is continuous in `(s, x)` on `[s₁, s₂] × ℝ³` and vanishes for `‖x‖ > s₂ ^ 2`
+(`norm_le_sq_of_mem_cone`), so this is continuity of a parametric integral with uniformly compact
+support (`continuousOn_integral_of_compact_support`). -/
+theorem continuousOn_integral_hyperboloid {s₁ s₂ : ℝ} (hs₁ : 0 ≤ s₁) {f : Spacetime → ℝ}
+    (hf : ∀ p ∈ regionBetweenHyperboloids s₁ s₂, ContinuousAt f p)
+    (hfK : ∀ p ∈ regionBetweenHyperboloids s₁ s₂, p ∉ cone → f p = 0) :
+    ContinuousOn (fun s ↦ ∫ x : EuclideanSpace ℝ (Fin 3), f (√(s ^ 2 + ‖x‖ ^ 2), x))
+      (Icc s₁ s₂) := by
+  have hΨ : Continuous fun q : ℝ × EuclideanSpace ℝ (Fin 3) ↦
+      ((√(q.1 ^ 2 + ‖q.2‖ ^ 2), q.2) : Spacetime) := by fun_prop
+  refine continuousOn_integral_of_compact_support
+    (isCompact_closedBall (0 : EuclideanSpace ℝ (Fin 3)) (s₂ ^ 2)) ?_ ?_
+  · rintro ⟨s, x⟩ ⟨hs, -⟩
+    exact ((hf _ (mem_regionBetweenHyperboloids_of_mem_Icc hs₁ hs x)).comp
+      (x := (s, x)) hΨ.continuousAt).continuousWithinAt
+  · intro s x hs hx
+    refine hfK _ (mem_regionBetweenHyperboloids_of_mem_Icc hs₁ hs x) fun hK ↦ hx ?_
+    rw [Metric.mem_closedBall, dist_zero_right]
+    exact (norm_le_sq_of_mem_cone hK).trans (by nlinarith [hs.1, hs.2])
+
+/-- **Continuity of the energy.** Let `0 < s₀`, `D` the region between `H_{s₀}` and `H_S`, `K` the
+cone, `U` an open set containing `D ∩ K`, and `u` of class `C²` on `U` with `D ∩ supp u ⊆ K`. Then
+`s ↦ E_m(s, u)` is continuous on `[s₀, S]`. -/
+theorem continuousOn_hyperboloidalEnergy (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
+    {U : Set Spacetime} (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U)
+    (hu : ContDiffOn ℝ 2 u U) (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone) :
+    ContinuousOn (fun s ↦ hyperboloidalEnergy m s u) (Icc s₀ S) := by
+  refine continuousOn_integral_hyperboloid (f := hyperboloidalEnergyDensity m u) hs₀.le
+    (fun p hp ↦ ?_) fun p hp hK ↦ ?_
+  · have hp' := contDiffAt_of_inter_tsupport_subset hU hDU hu hsupp hp
+    have h1 : √(s₀ ^ 2 + ‖p.2‖ ^ 2) ≤ p.1 := (mem_regionBetweenHyperboloids.1 hp).1
+    have h2 : 0 < √(s₀ ^ 2 + ‖p.2‖ ^ 2) := Real.sqrt_pos.2 (by positivity)
+    exact continuousAt_hyperboloidalEnergyDensity m (hp'.of_le one_le_two) (h2.trans_le h1).ne'
+  · by_contra hne
+    exact hK (hsupp ⟨hp, support_hyperboloidalEnergyDensity_subset m u hne⟩)
+
+omit [InnerProductSpace ℝ F] in
+/-- If `f` is continuous at every point of the region between `H_{s₀}` and `H_S` (`0 ≤ s₀`), its
+restriction to `H_s` is continuous for every `s ∈ [s₀, S]`. -/
+theorem continuous_restrictHyperboloid_of_continuousAt {s₀ S s : ℝ} (hs₀ : 0 ≤ s₀)
+    (hs : s ∈ Icc s₀ S) {f : Spacetime → F}
+    (hf : ∀ p ∈ regionBetweenHyperboloids s₀ S, ContinuousAt f p) :
+    Continuous (restrictHyperboloid s f) :=
+  continuous_iff_continuousAt.2 fun x ↦
+    ContinuousAt.comp (g := f) (f := fun y : EuclideanSpace ℝ (Fin 3) ↦
+        ((√(s ^ 2 + ‖y‖ ^ 2), y) : Spacetime))
+      (hf _ (mem_regionBetweenHyperboloids_of_mem_Icc hs₀ hs x))
+      (by fun_prop : Continuous fun y : EuclideanSpace ℝ (Fin 3) ↦
+        ((√(s ^ 2 + ‖y‖ ^ 2), y) : Spacetime)).continuousAt
+
+omit [InnerProductSpace ℝ F] in
+/-- If `f` vanishes at the points of the region between `H_{s₀}` and `H_S` (`0 ≤ s₀`) outside the
+cone, its restriction to `H_s` has compact support for every `s ∈ [s₀, S]`. -/
+theorem hasCompactSupport_restrictHyperboloid_of_eq_zero {s₀ S s : ℝ} (hs₀ : 0 ≤ s₀)
+    (hs : s ∈ Icc s₀ S) {f : Spacetime → F}
+    (hfK : ∀ p ∈ regionBetweenHyperboloids s₀ S, p ∉ cone → f p = 0) :
+    HasCompactSupport (restrictHyperboloid s f) := by
+  refine HasCompactSupport.of_support_subset_isCompact
+    (isCompact_closedBall (0 : EuclideanSpace ℝ (Fin 3)) (S ^ 2)) fun x hx ↦ ?_
+  rw [Metric.mem_closedBall, dist_zero_right]
+  by_contra hS
+  refine hx (hfK _ (mem_regionBetweenHyperboloids_of_mem_Icc hs₀ hs x) fun hK ↦ hS ?_)
+  exact (norm_le_sq_of_mem_cone hK).trans (by nlinarith [hs.1, hs.2])
+
+/-- Under the hypotheses of the energy identity on the region between `H_{s₀}` and `H_S`,
+`KG_m u|_{H_s}` is square integrable for every `s ∈ [s₀, S]`: it is continuous with compact
+support. -/
+theorem memLp_restrictHyperboloid_kleinGordon (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
+    {U : Set Spacetime} (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U)
+    (hu : ContDiffOn ℝ 2 u U) (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone)
+    {s : ℝ} (hs : s ∈ Icc s₀ S) :
+    MemLp (restrictHyperboloid s (kleinGordon m u)) 2 volume :=
+  (continuous_restrictHyperboloid_of_continuousAt hs₀.le hs fun _ hp ↦
+      continuousAt_kleinGordon m (contDiffAt_of_inter_tsupport_subset hU hDU hu hsupp hp)
+    ).memLp_of_hasCompactSupport
+    (hasCompactSupport_restrictHyperboloid_of_eq_zero hs₀.le hs fun _ hp hK ↦
+      kleinGordon_of_notMem_tsupport m fun h ↦ hK (hsupp ⟨hp, h⟩))
+
+/-- Under the hypotheses of the energy identity on the region between `H_{s₀}` and `H_S`,
+`∂_t u|_{H_s}` is continuous for every `s ∈ [s₀, S]`. -/
+theorem continuous_restrictHyperboloid_timeDeriv {s₀ S : ℝ} (hs₀ : 0 < s₀)
+    {U : Set Spacetime} (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U)
+    (hu : ContDiffOn ℝ 2 u U) (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone)
+    {s : ℝ} (hs : s ∈ Icc s₀ S) :
+    Continuous (restrictHyperboloid s (∂ₜ u)) :=
+  continuous_restrictHyperboloid_of_continuousAt hs₀.le hs fun p hp ↦ by
+    have hp' := contDiffAt_of_inter_tsupport_subset hU hDU hu hsupp hp
+    have hu' : ContDiffAt ℝ (0 + 1) u p := by rw [zero_add]; exact hp'.of_le one_le_two
+    exact (contDiffAt_partialDeriv 0 hu').continuousAt
+
+omit [InnerProductSpace ℝ F] in
+/-- For `f|_{H_s}` square integrable,
+`‖f‖_{L²_f(H_s)} = (∫_{ℝ³} ‖f(√(s ^ 2 + ‖x‖ ^ 2), x)‖² dx)^{1/2}`. -/
+theorem toReal_eLpNorm_restrictHyperboloid_eq_sqrt {s : ℝ} {f : Spacetime → F}
+    (hf : MemLp (restrictHyperboloid s f) 2 volume) :
+    (eLpNorm (restrictHyperboloid s f) 2 volume).toReal =
+      √(∫ x : EuclideanSpace ℝ (Fin 3), ‖f (√(s ^ 2 + ‖x‖ ^ 2), x)‖ ^ 2) := by
+  rw [hf.eLpNorm_eq_integral_rpow_norm two_ne_zero ENNReal.ofNat_ne_top,
+    ENNReal.toReal_ofReal (by positivity), Real.sqrt_eq_rpow]
+  norm_num
+  rfl
+
+/-- Under the hypotheses of the energy identity on the region between `H_{s₀}` and `H_S`,
+`s ↦ ‖KG_m u‖_{L²_f(H_s)}` is continuous on `[s₀, S]`. -/
+theorem continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon (m : ℝ) {s₀ S : ℝ}
+    (hs₀ : 0 < s₀) {U : Set Spacetime} (hU : IsOpen U)
+    (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U) (hu : ContDiffOn ℝ 2 u U)
+    (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone) :
+    ContinuousOn (fun s ↦ (eLpNorm (restrictHyperboloid s (kleinGordon m u)) 2 volume).toReal)
+      (Icc s₀ S) := by
+  have h := (continuousOn_integral_hyperboloid (f := fun p ↦ ‖kleinGordon m u p‖ ^ 2) hs₀.le
+    (fun p hp ↦ ((continuousAt_kleinGordon m
+      (contDiffAt_of_inter_tsupport_subset hU hDU hu hsupp hp)).norm.pow 2))
+    fun _ hp hK ↦ by
+      rw [kleinGordon_of_notMem_tsupport m fun h ↦ hK (hsupp ⟨hp, h⟩), norm_zero,
+        zero_pow two_ne_zero]).sqrt
+  exact h.congr fun s hs ↦ toReal_eLpNorm_restrictHyperboloid_eq_sqrt
+    (memLp_restrictHyperboloid_kleinGordon m hs₀ hU hDU hu hsupp hs)
+
+
+/-! ### The integral inequality -/
+
+/-- **The integral inequality for the energy.** Let `0 < s₀`, `D` the region between `H_{s₀}` and
+`H_S`, `K` the cone, `U` an open set containing `D ∩ K`, and `u` of class `C²` on `U` with
+`D ∩ supp u ⊆ K`. Then for `s ∈ [s₀, S]`,
+`E_m(s, u) ≤ E_m(s₀, u) + 2 ∫_{s₀}^{s} ‖KG_m u‖_{L²_f(H_{s'})} E_m(s', u)^{1/2} ds'`.
+
+By the energy identity and the foliation formula,
+`E_m(s, u) - E_m(s₀, u) = -2 ∫_{s₀}^{s} ∫_{ℝ³} (s' / t) ⟪KG_m u, ∂_t u⟫(t, x) dx ds'` with
+`t = √(s' ^ 2 + ‖x‖ ^ 2)`, and the inner integral is bounded by Cauchy–Schwarz
+(`abs_integral_mul_inner_timeDeriv_le`). The norms `‖KG_m u‖_{L²_f(H_{s'})}` are finite
+(`memLp_restrictHyperboloid_kleinGordon`), and the integrand on the right is continuous in `s'`. -/
+theorem hyperboloidalEnergy_le_add_two_mul_integral (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
+    {U : Set Spacetime} (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U)
+    (hu : ContDiffOn ℝ 2 u U) (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone)
+    {s : ℝ} (hs : s ∈ Icc s₀ S) :
+    hyperboloidalEnergy m s u ≤ hyperboloidalEnergy m s₀ u +
+      2 * ∫ s' in s₀..s, (eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume).toReal *
+        √(hyperboloidalEnergy m s' u) := by
+  rcases hs.1.eq_or_lt with h | h
+  · subst h; simp
+  have hsub : Icc s₀ s ⊆ Icc s₀ S := Icc_subset_Icc le_rfl hs.2
+  -- the right-hand side integrand is continuous, hence integrable
+  have hGcont : ContinuousOn (fun s' ↦
+      (eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume).toReal *
+        √(hyperboloidalEnergy m s' u)) (Icc s₀ S) :=
+    (continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon m hs₀ hU hDU hu hsupp).mul
+      (continuousOn_hyperboloidalEnergy m hs₀ hU hDU hu hsupp).sqrt
+  have hGint := (hGcont.mono hsub).integrableOn_Icc (μ := volume)
+  -- the pointwise bound on each hyperboloid
+  have hpt (s' : ℝ) (hs' : s' ∈ Icc s₀ s) :
+      -∫ x : EuclideanSpace ℝ (Fin 3), s' / √(s' ^ 2 + ‖x‖ ^ 2) *
+          ⟪kleinGordon m u (√(s' ^ 2 + ‖x‖ ^ 2), x), ∂ₜ u (√(s' ^ 2 + ‖x‖ ^ 2), x)⟫ ≤
+        (eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume).toReal *
+          √(hyperboloidalEnergy m s' u) :=
+    (neg_le_abs _).trans (abs_integral_mul_inner_timeDeriv_le m (hs₀.trans_le hs'.1).ne'
+      (memLp_restrictHyperboloid_kleinGordon m hs₀ hU hDU hu hsupp (hsub hs'))
+      (continuous_restrictHyperboloid_timeDeriv hs₀ hU hDU hu hsupp
+        (hsub hs')).aestronglyMeasurable
+      (integrable_hyperboloidalEnergyDensity m hs₀ (hsub hs') hU hDU hu hsupp))
+  have hle : -∫ s' in Icc s₀ s, ∫ x : EuclideanSpace ℝ (Fin 3), s' / √(s' ^ 2 + ‖x‖ ^ 2) *
+        ⟪kleinGordon m u (√(s' ^ 2 + ‖x‖ ^ 2), x), ∂ₜ u (√(s' ^ 2 + ‖x‖ ^ 2), x)⟫ ≤
+      ∫ s' in Icc s₀ s, (eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume).toReal *
+        √(hyperboloidalEnergy m s' u) := by
+    rw [← integral_neg]
+    by_cases hint : IntegrableOn (fun s' ↦ -∫ x : EuclideanSpace ℝ (Fin 3),
+        s' / √(s' ^ 2 + ‖x‖ ^ 2) *
+          ⟪kleinGordon m u (√(s' ^ 2 + ‖x‖ ^ 2), x), ∂ₜ u (√(s' ^ 2 + ‖x‖ ^ 2), x)⟫) (Icc s₀ s)
+    · exact setIntegral_mono_on hint hGint measurableSet_Icc hpt
+    · rw [integral_undef hint]
+      exact setIntegral_nonneg measurableSet_Icc fun s' _ ↦
+        mul_nonneg ENNReal.toReal_nonneg (Real.sqrt_nonneg _)
+  -- the energy identity on `[s₀, s]` and the foliation formula
+  have hid := hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le m hs₀ hU hDU hu hsupp le_rfl h hs.2
+  have hfol := setIntegral_regionBetweenHyperboloids_eq hs₀ h.le
+    (integrableOn_inner_kleinGordon_timeDeriv m hU
+      (regionBetweenHyperboloids_inter_cone_subset_of_le hs₀.le le_rfl h.le hs.2 hDU) hu
+      (regionBetweenHyperboloids_inter_tsupport_subset_of_le hs₀.le le_rfl h.le hs.2 hsupp))
+  rw [intervalIntegral.integral_of_le h.le, ← integral_Icc_eq_integral_Ioc]
+  linarith
+
 /-! ### Sanity checks
 
 The examples below use a smooth bump function `u : Spacetime → ℝ` centered at `(t, x) = (4, 0)`,
@@ -393,6 +604,31 @@ example (m : ℝ) :
     (integrable_hyperboloidalEnergyDensity m (s₁ := 2) (s₂ := 4) (by norm_num)
       ⟨by norm_num, le_rfl⟩ isOpen_univ (subset_univ _) estimateBump.contDiff.contDiffOn
       (inter_subset_right.trans tsupport_estimateBump_subset))
+
+/-- Continuity of integrals over the hyperboloids applies to the bump function itself on
+`[2, 5]`: it is continuous, and it vanishes outside the cone. -/
+example : ContinuousOn (fun s ↦ ∫ x : EuclideanSpace ℝ (Fin 3),
+    (estimateBump : Spacetime → ℝ) (√(s ^ 2 + ‖x‖ ^ 2), x)) (Icc 2 5) :=
+  continuousOn_integral_hyperboloid (by norm_num) (fun _ _ ↦ estimateBump.continuous.continuousAt)
+    fun _ _ hK ↦ image_eq_zero_of_notMem_tsupport fun h ↦ hK (tsupport_estimateBump_subset h)
+
+/-- The energy of the bump function is continuous in `s` on `[2, 5]`. -/
+example (m : ℝ) :
+    ContinuousOn (fun s ↦ hyperboloidalEnergy m s (estimateBump : Spacetime → ℝ)) (Icc 2 5) :=
+  continuousOn_hyperboloidalEnergy m (by norm_num) isOpen_univ (subset_univ _)
+    estimateBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_estimateBump_subset)
+
+/-- The integral inequality for the bump function, with the hypotheses on the region between
+`H_2` and `H_5` and `s = 4`. -/
+example (m : ℝ) :
+    hyperboloidalEnergy m 4 (estimateBump : Spacetime → ℝ) ≤
+      hyperboloidalEnergy m 2 (estimateBump : Spacetime → ℝ) +
+        2 * ∫ s' in (2 : ℝ)..4, (eLpNorm (restrictHyperboloid s'
+          (kleinGordon m (estimateBump : Spacetime → ℝ))) 2 volume).toReal *
+            √(hyperboloidalEnergy m s' (estimateBump : Spacetime → ℝ)) :=
+  hyperboloidalEnergy_le_add_two_mul_integral m (S := 5) (by norm_num) isOpen_univ
+    (subset_univ _) estimateBump.contDiff.contDiffOn
+    (inter_subset_right.trans tsupport_estimateBump_subset) ⟨by norm_num, by norm_num⟩
 
 end SanityChecks
 
