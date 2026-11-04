@@ -5,6 +5,7 @@ Authors: VectorFieldMethod contributors
 -/
 module
 
+public import VectorFieldMethod.Analysis.SqrtGronwall
 public import VectorFieldMethod.Minkowski.HyperboloidalEnergyIdentity
 public import VectorFieldMethod.Minkowski.KlainermanSobolev
 public import Mathlib.MeasureTheory.Function.JacobianOneDim
@@ -13,9 +14,14 @@ public import Mathlib.MeasureTheory.Function.L2Space
 /-!
 # The hyperboloidal energy estimate for the Klein–Gordon field
 
-This file works towards the energy estimate of LeFloch–Ma's hyperboloidal foliation method,
-`E_m(s, u)^{1/2} ≤ E_m(s₀, u)^{1/2} + ∫_{s₀}^{s} ‖KG_m u‖_{L²_f(H_{s'})} ds'`, on top of the energy
-identity `hyperboloidalEnergy_sub_hyperboloidalEnergy` of `HyperboloidalEnergyIdentity.lean`.
+This file proves the energy estimate of LeFloch–Ma's hyperboloidal foliation method: for a field
+`u` of class `C²` near the part `D ∩ K` of the region `D` between the hyperboloids `H_{s₀}` and
+`H_S` inside the cone `K = {‖x‖ ≤ t - 1}`, and with `D ∩ supp u ⊆ K`,
+`E_m(s, u)^{1/2} ≤ E_m(s₀, u)^{1/2} + ∫_{s₀}^{s} ‖KG_m u‖_{L²_f(H_{s'})} ds'` for `s ∈ [s₀, S]`.
+Here `E_m(s, u) = hyperboloidalEnergy m s u`, `KG_m u = □u - m² u = kleinGordon m u`, and
+`‖f‖_{L²_f(H_s)} = (∫_{ℝ³} ‖f(φ_s(x), x)‖² dx)^{1/2}` is the `L²` norm on `H_s` for the flat
+measure `dx` (`eLpNorm (restrictHyperboloid s f) 2 volume`). The estimate is deduced from the
+energy identity `hyperboloidalEnergy_sub_hyperboloidalEnergy` of `HyperboloidalEnergyIdentity.lean`.
 
 Write `φ_s(x) = √(s ^ 2 + ‖x‖ ^ 2)`, so that the hyperboloid `H_s` is the graph `t = φ_s(x)`, and
 `D = regionBetweenHyperboloids s₁ s₂` for the closed region between `H_{s₁}` and `H_{s₂}`.
@@ -35,14 +41,16 @@ Write `φ_s(x) = √(s ^ 2 + ‖x‖ ^ 2)`, so that the hyperboloid `H_s` is the
 * `sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity`: on `H_s`,
   `(s / t)² ‖∂_t u‖² ≤ e_m[u]`.
 * `abs_integral_mul_inner_timeDeriv_le`: by Cauchy–Schwarz,
-  `|∫_{ℝ³} (s / t) ⟪f, ∂_t u⟫(φ_s(x), x) dx| ≤ ‖f‖_{L²_f(H_s)} E_m(s, u)^{1/2}`, where
-  `‖f‖_{L²_f(H_s)} = (∫_{ℝ³} ‖f(φ_s(x), x)‖² dx)^{1/2}` is the `L²` norm on `H_s` for the flat
-  measure `dx` (`eLpNorm (restrictHyperboloid s f) 2 volume`).
+  `|∫_{ℝ³} (s / t) ⟪f, ∂_t u⟫(φ_s(x), x) dx| ≤ ‖f‖_{L²_f(H_s)} E_m(s, u)^{1/2}`.
 * `continuousOn_integral_hyperboloid`, `continuousOn_hyperboloidalEnergy`: under the hypotheses of
   the energy identity on the region between `H_{s₀}` and `H_S`, `s ↦ E_m(s, u)` (and
   `s ↦ ‖KG_m u‖_{L²_f(H_s)}`) is continuous on `[s₀, S]`.
 * `hyperboloidalEnergy_le_add_two_mul_integral`: under the same hypotheses, for `s ∈ [s₀, S]`,
   `E_m(s, u) ≤ E_m(s₀, u) + 2 ∫_{s₀}^{s} ‖KG_m u‖_{L²_f(H_{s'})} E_m(s', u)^{1/2} ds'`.
+* `ofReal_sqrt_hyperboloidalEnergy_le`: **the energy estimate**, in `ℝ≥0∞`;
+  `sqrt_hyperboloidalEnergy_le_add_integral` is the same estimate in `ℝ`, and
+  `lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top` states that its right-hand side is
+  finite.
 
 ## Implementation notes
 
@@ -52,6 +60,16 @@ fixed `x`, the map `s ↦ φ_s(x)` is a `C¹` increasing bijection from `[s₁, 
 change of variables (`MeasureTheory.lintegral_image_eq_lintegral_abs_deriv_mul`) is combined with
 Tonelli's theorem. This proves the identity of measures above on measurable sets; the integral
 formulas follow from it.
+
+The energy estimate follows from the integral inequality by the square-root Grönwall inequality
+`VectorFieldMethod.Analysis.sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral`.
+
+## Notation and conventions
+
+LeFloch–Ma (*The hyperboloidal foliation method*, arXiv:1411.4910) write `E_{m,c}(s, u)` for the
+energy of a field of mass `c`, which is `hyperboloidalEnergy c s u` here, and their Klein–Gordon
+operator is `-(□u - c² u)`; since only its norm enters, the estimate reads the same with their
+operator.
 -/
 
 @[expose] public noncomputable section
@@ -528,6 +546,86 @@ theorem hyperboloidalEnergy_le_add_two_mul_integral (m : ℝ) {s₀ S : ℝ} (hs
   rw [intervalIntegral.integral_of_le h.le, ← integral_Icc_eq_integral_Ioc]
   linarith
 
+/-! ### The energy estimate -/
+
+/-- **The hyperboloidal energy estimate, real form.** Under the hypotheses of the energy identity
+on the region between `H_{s₀}` and `H_S` (`0 < s₀`, `U` open, `D ∩ K ⊆ U`, `u` of class `C²` on
+`U`, `D ∩ supp u ⊆ K`), for `s ∈ [s₀, S]`,
+`E_m(s, u)^{1/2} ≤ E_m(s₀, u)^{1/2} + ∫_{s₀}^{s} ‖KG_m u‖_{L²_f(H_{s'})} ds'`.
+
+The norms `‖KG_m u‖_{L²_f(H_{s'})}` are finite (`memLp_restrictHyperboloid_kleinGordon`), so
+`toReal` loses nothing here. This is the square-root Grönwall inequality
+(`VectorFieldMethod.Analysis.sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral`) applied to the
+integral inequality `hyperboloidalEnergy_le_add_two_mul_integral`, with `s ↦ E_m(s, u)`
+continuous (`continuousOn_hyperboloidalEnergy`). -/
+theorem sqrt_hyperboloidalEnergy_le_add_integral (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
+    {U : Set Spacetime} (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U)
+    (hu : ContDiffOn ℝ 2 u U) (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone)
+    {s : ℝ} (hs : s ∈ Icc s₀ S) :
+    √(hyperboloidalEnergy m s u) ≤ √(hyperboloidalEnergy m s₀ u) +
+      ∫ s' in s₀..s, (eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume).toReal :=
+  VectorFieldMethod.Analysis.sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral
+    (E := fun s ↦ hyperboloidalEnergy m s u)
+    (continuousOn_hyperboloidalEnergy m hs₀ hU hDU hu hsupp)
+    ((continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon m hs₀ hU hDU hu
+      hsupp).integrableOn_Icc)
+    (fun _ _ ↦ ENNReal.toReal_nonneg)
+    (fun _ hs' ↦ hyperboloidalEnergy_le_add_two_mul_integral m hs₀ hU hDU hu hsupp hs') hs
+
+/-- Under the hypotheses of the energy estimate, its right-hand side is finite: for `s ≤ S`,
+`∫_{[s₀, s]} ‖KG_m u‖_{L²_f(H_{s'})} ds' < ∞`, since `s' ↦ ‖KG_m u‖_{L²_f(H_{s'})}` is finite and
+continuous on `[s₀, S]`. -/
+theorem lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top (m : ℝ) {s₀ S : ℝ}
+    (hs₀ : 0 < s₀) {U : Set Spacetime} (hU : IsOpen U)
+    (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U) (hu : ContDiffOn ℝ 2 u U)
+    (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone) {s : ℝ} (hs : s ≤ S) :
+    ∫⁻ s' in Icc s₀ s, eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume < ∞ := by
+  have hsub : Icc s₀ s ⊆ Icc s₀ S := Icc_subset_Icc le_rfl hs
+  rw [setLIntegral_congr_fun measurableSet_Icc fun s' hs' ↦ (ENNReal.ofReal_toReal
+      (memLp_restrictHyperboloid_kleinGordon m hs₀ hU hDU hu hsupp
+        (hsub hs')).eLpNorm_ne_top).symm,
+    ← ofReal_integral_eq_lintegral_ofReal
+      (((continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon m hs₀ hU hDU hu
+        hsupp).mono hsub).integrableOn_Icc)
+      (ae_of_all _ fun _ ↦ ENNReal.toReal_nonneg)]
+  exact ENNReal.ofReal_lt_top
+
+/-- **The hyperboloidal energy estimate.** Let `0 < s₀`, `D` the region between the hyperboloids
+`H_{s₀}` and `H_S`, `K = {‖x‖ ≤ t - 1}` the cone, `U` an open set containing `D ∩ K`, and `u` of
+class `C²` on `U` with `D ∩ supp u ⊆ K`. Then for `s ∈ [s₀, S]`,
+`E_m(s, u)^{1/2} ≤ E_m(s₀, u)^{1/2} + ∫_{s₀}^{s} ‖KG_m u‖_{L²_f(H_{s'})} ds'`,
+where `‖f‖_{L²_f(H_{s'})} = (∫_{ℝ³} ‖f(√(s' ^ 2 + ‖x‖ ^ 2), x)‖² dx)^{1/2}` is the `L²` norm on
+`H_{s'}` for the flat measure `dx` and `KG_m u = □u - m² u`.
+
+The inequality is stated in `ℝ≥0∞`, where the integral of the `L²` norms always makes sense; no
+integrability is assumed. Under the hypotheses its right-hand side is finite
+(`lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top`). -/
+theorem ofReal_sqrt_hyperboloidalEnergy_le (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
+    {U : Set Spacetime} (hU : IsOpen U) (hDU : regionBetweenHyperboloids s₀ S ∩ cone ⊆ U)
+    (hu : ContDiffOn ℝ 2 u U) (hsupp : regionBetweenHyperboloids s₀ S ∩ tsupport u ⊆ cone)
+    {s : ℝ} (hs : s ∈ Icc s₀ S) :
+    ENNReal.ofReal √(hyperboloidalEnergy m s u) ≤ ENNReal.ofReal √(hyperboloidalEnergy m s₀ u) +
+      ∫⁻ s' in Icc s₀ s, eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume := by
+  have h := sqrt_hyperboloidalEnergy_le_add_integral m hs₀ hU hDU hu hsupp hs
+  have hGint : IntegrableOn
+      (fun s' ↦ (eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume).toReal)
+      (Icc s₀ s) :=
+    ((continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon m hs₀ hU hDU hu hsupp).mono
+      (Icc_subset_Icc le_rfl hs.2)).integrableOn_Icc
+  rw [intervalIntegral.integral_of_le hs.1, ← integral_Icc_eq_integral_Ioc] at h
+  calc ENNReal.ofReal √(hyperboloidalEnergy m s u)
+      ≤ ENNReal.ofReal (√(hyperboloidalEnergy m s₀ u) + ∫ s' in Icc s₀ s,
+          (eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume).toReal) :=
+        ENNReal.ofReal_le_ofReal h
+    _ = ENNReal.ofReal √(hyperboloidalEnergy m s₀ u) + ∫⁻ s' in Icc s₀ s,
+          ENNReal.ofReal (eLpNorm (restrictHyperboloid s' (kleinGordon m u)) 2 volume).toReal := by
+        rw [ENNReal.ofReal_add (Real.sqrt_nonneg _)
+            (setIntegral_nonneg measurableSet_Icc fun _ _ ↦ ENNReal.toReal_nonneg),
+          ofReal_integral_eq_lintegral_ofReal hGint (ae_of_all _ fun _ ↦ ENNReal.toReal_nonneg)]
+    _ ≤ _ := by
+        gcongr with s'
+        exact ENNReal.ofReal_toReal_le
+
 /-! ### Sanity checks
 
 The examples below use a smooth bump function `u : Spacetime → ℝ` centered at `(t, x) = (4, 0)`,
@@ -629,6 +727,94 @@ example (m : ℝ) :
   hyperboloidalEnergy_le_add_two_mul_integral m (S := 5) (by norm_num) isOpen_univ
     (subset_univ _) estimateBump.contDiff.contDiffOn
     (inter_subset_right.trans tsupport_estimateBump_subset) ⟨by norm_num, by norm_num⟩
+
+/-- The energy estimate applies to the bump function, with the hypotheses on the region between
+`H_2` and `H_5` (`U` the whole spacetime) and `s = 4`. -/
+example (m : ℝ) :
+    ENNReal.ofReal √(hyperboloidalEnergy m 4 (estimateBump : Spacetime → ℝ)) ≤
+      ENNReal.ofReal √(hyperboloidalEnergy m 2 (estimateBump : Spacetime → ℝ)) +
+        ∫⁻ s' in Icc (2 : ℝ) 4, eLpNorm (restrictHyperboloid s'
+          (kleinGordon m (estimateBump : Spacetime → ℝ))) 2 volume :=
+  ofReal_sqrt_hyperboloidalEnergy_le m (S := 5) (by norm_num) isOpen_univ (subset_univ _)
+    estimateBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_estimateBump_subset)
+    ⟨by norm_num, by norm_num⟩
+
+/-- The bump function equals `1` at the points `(t, x)` with `|t - 4| ≤ 1 / 4` and
+`‖x‖ ≤ 1 / 4`. -/
+private theorem estimateBump_eq_one {t : ℝ} {x : EuclideanSpace ℝ (Fin 3)}
+    (h₁ : -(1 / 4) ≤ t - 4) (h₂ : t - 4 ≤ 1 / 4) (h₃ : ‖x‖ ≤ 1 / 4) :
+    (estimateBump : Spacetime → ℝ) (t, x) = 1 := by
+  refine estimateBump.one_of_mem_closedBall ?_
+  rw [Metric.mem_closedBall, Prod.dist_eq, max_le_iff, Real.dist_eq, dist_zero_right]
+  have hr : estimateBump.rIn = 1 / 4 := rfl
+  rw [hr, abs_le]
+  exact ⟨⟨h₁, h₂⟩, h₃⟩
+
+/-- For `m ≠ 0` the energy estimate for the bump function between `H_2` and `H_4` is a genuine
+inequality between finite, nonzero quantities. The energy on `H_2` vanishes, since the closed
+support of `u` does not meet `H_2`; the energy on `H_4` is positive, since the energy density is
+nonnegative and at least `m² > 0` where `u = 1`; and the right-hand side is finite. So the
+estimate gives `0 < E_m(4, u)^{1/2} ≤ ∫_2^4 ‖KG_m u‖_{L²_f(H_{s'})} ds' < ∞`. -/
+example (m : ℝ) (hm : m ≠ 0) :
+    hyperboloidalEnergy m 2 (estimateBump : Spacetime → ℝ) = 0 ∧
+      0 < ENNReal.ofReal √(hyperboloidalEnergy m 4 (estimateBump : Spacetime → ℝ)) ∧
+      ENNReal.ofReal √(hyperboloidalEnergy m 4 (estimateBump : Spacetime → ℝ)) ≤
+        ∫⁻ s' in Icc (2 : ℝ) 4, eLpNorm (restrictHyperboloid s'
+          (kleinGordon m (estimateBump : Spacetime → ℝ))) 2 volume ∧
+      ∫⁻ s' in Icc (2 : ℝ) 4, eLpNorm (restrictHyperboloid s'
+          (kleinGordon m (estimateBump : Spacetime → ℝ))) 2 volume < ∞ := by
+  -- the hyperboloid `H_2` does not meet the closed support of `u`
+  have h2 : hyperboloidalEnergy m 2 (estimateBump : Spacetime → ℝ) = 0 := by
+    have h0 (x : EuclideanSpace ℝ (Fin 3)) :
+        hyperboloidalEnergyDensity m (estimateBump : Spacetime → ℝ) (√(2 ^ 2 + ‖x‖ ^ 2), x) =
+          0 := by
+      by_contra hne
+      obtain ⟨h₁, -, h₃⟩ :=
+        mem_tsupport_estimateBump (support_hyperboloidalEnergyDensity_subset m _ hne)
+      have h₂ := Real.mul_self_sqrt (by positivity : (0 : ℝ) ≤ 2 ^ 2 + ‖x‖ ^ 2)
+      have hx0 : (0 : ℝ) ≤ ‖x‖ := norm_nonneg x
+      generalize √(2 ^ 2 + ‖x‖ ^ 2) = T at h₁ h₂
+      nlinarith [mul_self_le_mul_self (by norm_num : (0 : ℝ) ≤ 7 / 2)
+        (by linarith : (7 : ℝ) / 2 ≤ T), mul_self_le_mul_self hx0 h₃]
+    simp only [hyperboloidalEnergy_apply, h0, integral_zero]
+  -- the energy density on `H_4` is nonnegative, integrable, and positive near `x = 0`
+  have h4 : 0 < hyperboloidalEnergy m 4 (estimateBump : Spacetime → ℝ) := by
+    have hnonneg : 0 ≤ fun x : EuclideanSpace ℝ (Fin 3) ↦
+        hyperboloidalEnergyDensity m (estimateBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x) :=
+      fun x ↦ hyperboloidalEnergyDensity_nonneg m _
+        ((Real.le_sqrt_of_sq_le (le_add_of_nonneg_left (sq_nonneg 4))).trans (le_abs_self _))
+        (Real.sqrt_pos.2 (by positivity)).ne'
+    have hint := integrable_hyperboloidalEnergyDensity m (s₁ := 2) (s₂ := 4) (s := 4)
+      (by norm_num) ⟨by norm_num, le_rfl⟩ isOpen_univ (subset_univ _)
+      estimateBump.contDiff.contDiffOn (inter_subset_right.trans tsupport_estimateBump_subset)
+    have hball : Metric.ball (0 : EuclideanSpace ℝ (Fin 3)) (1 / 4) ⊆ support fun x ↦
+        hyperboloidalEnergyDensity m (estimateBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x) := by
+      intro x hx
+      rw [Metric.mem_ball, dist_zero_right] at hx
+      have h₄ : (4 : ℝ) ≤ √(4 ^ 2 + ‖x‖ ^ 2) :=
+        Real.le_sqrt_of_sq_le (by nlinarith [norm_nonneg x])
+      have h₄' : √(4 ^ 2 + ‖x‖ ^ 2) ≤ 4 + 1 / 4 := by
+        calc √(4 ^ 2 + ‖x‖ ^ 2) ≤ √((4 + 1 / 4) ^ 2) :=
+              Real.sqrt_le_sqrt (by nlinarith [norm_nonneg x])
+          _ = 4 + 1 / 4 := Real.sqrt_sq (by norm_num)
+      have hu1 : (estimateBump : Spacetime → ℝ) (√(4 ^ 2 + ‖x‖ ^ 2), x) = 1 := by
+        generalize √(4 ^ 2 + ‖x‖ ^ 2) = T at h₄ h₄' ⊢
+        exact estimateBump_eq_one (by linarith) (by linarith) hx.le
+      rw [Function.mem_support,
+        hyperboloidalEnergyDensity_eq_sum_semiHyperboloidalDeriv_of_hyperboloid m _
+          (by norm_num : (4 : ℝ) ≠ 0), hu1, norm_one, one_pow, mul_one]
+      positivity
+    rw [hyperboloidalEnergy_apply, integral_pos_iff_support_of_nonneg hnonneg hint]
+    exact (Metric.measure_ball_pos volume 0 (by norm_num)).trans_le (measure_mono hball)
+  -- the energy estimate between `H_2` and `H_4`, and the finiteness of its right-hand side
+  have hest := ofReal_sqrt_hyperboloidalEnergy_le m (s₀ := 2) (S := 5) (by norm_num) isOpen_univ
+    (subset_univ _) estimateBump.contDiff.contDiffOn
+    (inter_subset_right.trans tsupport_estimateBump_subset) (s := 4) ⟨by norm_num, by norm_num⟩
+  rw [h2, Real.sqrt_zero, ENNReal.ofReal_zero, zero_add] at hest
+  exact ⟨h2, ENNReal.ofReal_pos.2 (Real.sqrt_pos.2 h4), hest,
+    lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top m (s₀ := 2) (S := 5) (by norm_num)
+      isOpen_univ (subset_univ _) estimateBump.contDiff.contDiffOn
+      (inter_subset_right.trans tsupport_estimateBump_subset) (by norm_num)⟩
 
 end SanityChecks
 
