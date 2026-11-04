@@ -10,9 +10,8 @@ to a hyperboloid and the flat $`L^2`$ norm of the Klainerman–Sobolev layer
 ([`klainerman-sobolev.md`](klainerman-sobolev.md)). The declarations of the first file are in the
 namespace `VectorFieldMethod.Minkowski`, those of the second in `VectorFieldMethod.Analysis`. The
 links below point to commit
-[`6f2b67a`](https://github.com/Oho1e/VectorFieldMethod/tree/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e)
-of the pull request that adds this layer, the last commit that changes its Lean files (they are
-identical at the head of the branch); they are to be replaced by a `main` commit later. How to read
+[`65434c1`](https://github.com/Oho1e/VectorFieldMethod/tree/65434c138668e720ea41dbd287fb6c1298ad00f9)
+of `main`. How to read
 the entries: [`README.md`](README.md).
 
 ## Conventions
@@ -100,7 +99,7 @@ $`\lvert x\rvert \le S^2`$ (indeed $`2 \lvert x\rvert + 1 \le s^2`$).
 The `variable` and `open` lines of the two files. Their only hypotheses are structural: $`F`$ is a
 real inner product space (no completeness or finite dimension is assumed).
 
-[`HyperboloidalEnergyEstimate.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L77):
+[`HyperboloidalEnergyEstimate.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L77):
 
 ```lean
 open Set Filter Function Topology MeasureTheory
@@ -111,10 +110,10 @@ variable {u : Spacetime → F}
 ```
 
 The two `variable` lines are at
-[L230](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L230),
+[L230](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L230),
 after the statements about the foliation, which do not involve $`F`$ or $`u`$.
 
-[`SqrtGronwall.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L45):
+[`SqrtGronwall.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/SqrtGronwall.lean#L45):
 
 ```lean
 open Set Filter Topology MeasureTheory
@@ -144,7 +143,7 @@ This layer introduces no new definitions. It uses `hyperboloidalEnergy`,
   \lvert N \cap D(s_1, s_2)\rvert = \int_{s_1}^{s_2} \int_{\mathbb{R}^3} \mathbf{1}_N\big(\varphi_s(x), x\big)\, \frac{s}{\varphi_s(x)}\, dx\, ds .
   ```
 - **Hypotheses.** $`0 \lt s_1`$ and $`s_1 \le s_2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.map_withDensity_eq_restrict_regionBetweenHyperboloids`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L112)
+- **Lean.** `VectorFieldMethod.Minkowski.map_withDensity_eq_restrict_regionBetweenHyperboloids`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L112)
 
 ```lean
 theorem map_withDensity_eq_restrict_regionBetweenHyperboloids {s₁ s₂ : ℝ} (hs₁ : 0 < s₁)
@@ -177,8 +176,8 @@ theorem map_withDensity_eq_restrict_regionBetweenHyperboloids {s₁ s₂ : ℝ} 
   Lebesgue integrals in $`[0, \infty]`$ and no integrability hypothesis.
 - **Hypotheses.** $`0 \lt s_1`$, $`s_1 \le s_2`$; first statement: $`g`$ is integrable on $`D`$;
   second statement: $`g`$ is measurable with values in $`[0, \infty]`$.
-- **Lean.** `VectorFieldMethod.Minkowski.setIntegral_regionBetweenHyperboloids_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L184),
-  and `VectorFieldMethod.Minkowski.setLIntegral_regionBetweenHyperboloids_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L164)
+- **Lean.** `VectorFieldMethod.Minkowski.setIntegral_regionBetweenHyperboloids_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L184),
+  and `VectorFieldMethod.Minkowski.setLIntegral_regionBetweenHyperboloids_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L164)
 
 ```lean
 theorem setIntegral_regionBetweenHyperboloids_eq {s₁ s₂ : ℝ} (hs₁ : 0 < s₁) (hs₁₂ : s₁ ≤ s₂)
@@ -213,9 +212,9 @@ theorem setLIntegral_regionBetweenHyperboloids_eq {s₁ s₂ : ℝ} (hs₁ : 0 <
 - **Hypotheses.** The standing hypotheses; $`s_0 \le s_1`$, $`s_1 \le s_2`$, $`s_2 \le S`$. For
   the transfer of hypotheses: $`0 \le s_0 \le s_1 \le s_2 \le S`$ and the corresponding
   hypothesis on $`D(s_0, S)`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L260);
-  the transfer of the hypotheses: `VectorFieldMethod.Minkowski.regionBetweenHyperboloids_inter_cone_subset_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L235),
-  and `VectorFieldMethod.Minkowski.regionBetweenHyperboloids_inter_tsupport_subset_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L245)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L260);
+  the transfer of the hypotheses: `VectorFieldMethod.Minkowski.regionBetweenHyperboloids_inter_cone_subset_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L235),
+  and `VectorFieldMethod.Minkowski.regionBetweenHyperboloids_inter_tsupport_subset_of_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L245)
 
 ```lean
 theorem hyperboloidalEnergy_sub_hyperboloidalEnergy_of_le (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
@@ -254,7 +253,7 @@ theorem regionBetweenHyperboloids_inter_tsupport_subset_of_le {s₀ s₁ s₂ S 
   \Big(\frac{s}{t}\Big)^2 \lVert \partial_t u(t, x)\rVert^2 \le e_m[u](t, x) .
   ```
 - **Hypotheses.** $`F`$ is a real inner product space; $`s \neq 0`$; no regularity of $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L279)
+- **Lean.** `VectorFieldMethod.Minkowski.sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L279)
 
 ```lean
 theorem sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity (m : ℝ) (u : Spacetime → F)
@@ -280,7 +279,7 @@ theorem sq_div_mul_norm_timeDeriv_sq_le_hyperboloidalEnergyDensity (m : ℝ) (u 
 - **Hypotheses.** $`F`$ is a real inner product space; $`s \neq 0`$; $`f\vert_{H_s}`$ is square
   integrable (`MemLp (restrictHyperboloid s f) 2 volume`); $`\partial_t u\vert_{H_s}`$ is
   (a.e. strongly) measurable; $`e_m[u]\vert_{H_s}`$ is integrable.
-- **Lean.** `VectorFieldMethod.Minkowski.abs_integral_mul_inner_timeDeriv_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L298)
+- **Lean.** `VectorFieldMethod.Minkowski.abs_integral_mul_inner_timeDeriv_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L298)
 
 ```lean
 theorem abs_integral_mul_inner_timeDeriv_le (m : ℝ) {s : ℝ} (hs : s ≠ 0) {f : Spacetime → F}
@@ -310,7 +309,7 @@ theorem abs_integral_mul_inner_timeDeriv_le (m : ℝ) {s : ℝ} (hs : s ≠ 0) {
   $`s \mapsto \int_{\mathbb{R}^3} f(\varphi_s(x), x)\, dx`$ is continuous on $`[s_1, s_2]`$.
 - **Hypotheses.** $`0 \le s_1`$; $`f`$ is continuous at every point of $`D`$; $`f = 0`$ on
   $`D \setminus K`$.
-- **Lean.** `VectorFieldMethod.Minkowski.continuousOn_integral_hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L379)
+- **Lean.** `VectorFieldMethod.Minkowski.continuousOn_integral_hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L379)
 
 ```lean
 theorem continuousOn_integral_hyperboloid {s₁ s₂ : ℝ} (hs₁ : 0 ≤ s₁) {f : Spacetime → ℝ}
@@ -334,9 +333,9 @@ theorem continuousOn_integral_hyperboloid {s₁ s₂ : ℝ} (hs₁ : 0 ≤ s₁)
   and $`s \mapsto \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_s)}`$ are continuous on $`[s_0, S]`$, and
   $`\lVert \mathrm{KG}_m u\rVert_{L^2_f(H_s)} \lt \infty`$ for $`s \in [s_0, S]`$.
 - **Hypotheses.** The standing hypotheses; for the finiteness, $`s \in [s_0, S]`$.
-- **Lean.** `VectorFieldMethod.Minkowski.continuousOn_hyperboloidalEnergy`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L399),
-  `VectorFieldMethod.Minkowski.continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L480),
-  and `VectorFieldMethod.Minkowski.memLp_restrictHyperboloid_kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L443)
+- **Lean.** `VectorFieldMethod.Minkowski.continuousOn_hyperboloidalEnergy`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L399),
+  `VectorFieldMethod.Minkowski.continuousOn_toReal_eLpNorm_restrictHyperboloid_kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L480),
+  and `VectorFieldMethod.Minkowski.memLp_restrictHyperboloid_kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L443)
 
 ```lean
 theorem continuousOn_hyperboloidalEnergy (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
@@ -371,7 +370,7 @@ theorem memLp_restrictHyperboloid_kleinGordon (m : ℝ) {s₀ S : ℝ} (hs₀ : 
   E_m(s, u) \le E_m(s_0, u) + 2 \int_{s_0}^{s} \lVert \Box u - m^2 u\rVert_{L^2_f(H_{s'})}\, E_m(s', u)^{1/2}\, ds' .
   ```
 - **Hypotheses.** The standing hypotheses; $`s \in [s_0, S]`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_le_add_two_mul_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L508)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalEnergy_le_add_two_mul_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L508)
 
 ```lean
 theorem hyperboloidalEnergy_le_add_two_mul_integral (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
@@ -411,8 +410,8 @@ theorem hyperboloidalEnergy_le_add_two_mul_integral (m : ℝ) {s₀ S : ℝ} (hs
 - **Hypotheses.** $`E`$ is continuous on $`[a, b]`$; $`g`$ is integrable on $`[a, b]`$ and
   $`g \ge 0`$ on $`[a, b]`$; the integral inequality holds on $`[a, b]`$. For the main step,
   moreover $`A \gt 0`$.
-- **Lean.** `VectorFieldMethod.Analysis.sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L174),
-  and `VectorFieldMethod.Analysis.sqrt_add_two_mul_integral_le_of_pos`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L54)
+- **Lean.** `VectorFieldMethod.Analysis.sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/SqrtGronwall.lean#L174),
+  and `VectorFieldMethod.Analysis.sqrt_add_two_mul_integral_le_of_pos`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/SqrtGronwall.lean#L54)
 
 ```lean
 theorem sqrt_le_sqrt_add_integral_of_le_add_two_mul_integral (hE : ContinuousOn E (Icc a b))
@@ -465,9 +464,9 @@ theorem sqrt_add_two_mul_integral_le_of_pos (hA : 0 < A) (hE : ContinuousOn E (I
 - **Hypotheses.** $`F`$ is a real inner product space; the standing hypotheses
   ($`0 \lt s_0`$; $`U`$ open; $`D \cap K \subseteq U`$; $`u`$ is $`C^2`$ on $`U`$;
   $`D \cap \mathrm{supp}\, u \subseteq K`$); $`s \in [s_0, S]`$. For the finiteness, $`s \le S`$.
-- **Lean.** `VectorFieldMethod.Minkowski.ofReal_sqrt_hyperboloidalEnergy_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L610);
-  the same estimate in $`\mathbb{R}`$: `VectorFieldMethod.Minkowski.sqrt_hyperboloidalEnergy_le_add_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L568);
-  the finiteness of the right-hand side: `VectorFieldMethod.Minkowski.lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L585)
+- **Lean.** `VectorFieldMethod.Minkowski.ofReal_sqrt_hyperboloidalEnergy_le`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L610);
+  the same estimate in $`\mathbb{R}`$: `VectorFieldMethod.Minkowski.sqrt_hyperboloidalEnergy_le_add_integral`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L568);
+  the finiteness of the right-hand side: `VectorFieldMethod.Minkowski.lintegral_eLpNorm_restrictHyperboloid_kleinGordon_lt_top`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L585)
 
 ```lean
 theorem ofReal_sqrt_hyperboloidalEnergy_le (m : ℝ) {s₀ S : ℝ} (hs₀ : 0 < s₀)
@@ -545,21 +544,21 @@ smaller open set $`U = \{t \gt 1/2\}`$.
 
 | Statement | Line |
 | --- | --- |
-| The foliation formula applies to $`g = u`$ (continuous with compact support, hence integrable on $`D(2, 4)`$) | [L656](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L656) |
-| The foliation formula for nonnegative functions applies to $`g = \max(u, 0)`$ (`ENNReal.ofReal ∘ u`, measurable with values in $`[0, \infty]`$) on $`D(2, 4)`$ | [L665](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L665) |
-| The hypotheses of the energy identity pass from $`D(2, 5)`$ to $`D(3, 4)`$: for $`U = \{t \gt 1/2\}`$, an open set containing $`K`$, and for the closed support of $`u`$ | [L694](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L694) |
-| The energy identity between intermediate hyperboloids applies with the hypotheses on $`D(2, 5)`$, between $`H_3`$ and $`H_4`$ | [L708](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L708) |
-| Cauchy–Schwarz on $`H_4`$ applies with $`f = u`$: $`f\vert_{H_4}`$ is continuous with compact support, $`\partial_t u\vert_{H_4}`$ is continuous, $`e_m[u]\vert_{H_4}`$ is integrable | [L721](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L721) |
-| Continuity of integrals over the hyperboloids applies to $`f = u`$ on $`[2, 5]`$ ($`u`$ is continuous and vanishes outside $`K`$) | [L738](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L738) |
-| $`s \mapsto E_m(s, u)`$ is continuous on $`[2, 5]`$ | [L744](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L744) |
-| $`\lVert \mathrm{KG}_m u\rVert_{L^2_f(H_4)} \lt \infty`$, and $`s \mapsto \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_s)}`$ is continuous on $`[2, 5]`$ | [L751](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L751) |
-| The integral inequality applies with $`s_0 = 2`$, $`S = 5`$, $`s = 4`$ | [L764](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L764) |
-| The energy estimate applies with $`s_0 = 2`$, $`S = 5`$, $`s = 4`$, every $`m`$ | [L776](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L776) |
-| The real form of the energy estimate applies with the same data | [L787](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L787) |
-| For $`m \neq 0`$: $`E_m(2, u) = 0`$, $`0 \lt E_m(4, u)^{1/2}`$, the estimate gives $`E_m(4, u)^{1/2} \le \int_{[2, 4]} \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_{s'})} ds'`$, and this integral is finite | [L812](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L812) |
-| Square-root Grönwall inequality: $`E(s) = s^2`$, $`g = 1`$, $`A = 0`$ on $`[0, 1]`$; the hypothesis holds with equality ($`s^2 = 2 \int_0^s (\tau^2)^{1/2} d\tau`$), and the conclusion $`(s^2)^{1/2} \le 0^{1/2} + \int_0^s 1 = s`$ is an equality | [L201](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L201) |
-| Main step ($`A \gt 0`$): $`E(s) = (1 + s)^2`$, $`g = 1`$, $`A = 1`$ on $`[0, 1]`$; the hypothesis holds with equality ($`(1 + s)^2 = 1 + 2 \int_0^s ((1 + \tau)^2)^{1/2} d\tau`$) and the conclusion is an equality (both sides are $`1 + s`$); both equalities are proved, and the theorem is applied | [L216](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L216) |
-| Square-root Grönwall inequality with $`E`$ taking negative values: $`E(s) = 2s - 1`$, $`g = 1`$, $`A = 1`$ on $`[0, 1]`$; $`E(0) = -1 \lt 0`$, the hypothesis holds, and the theorem gives $`(2s - 1)^{1/2} \le 1 + s`$ | [L246](https://github.com/Oho1e/VectorFieldMethod/blob/6f2b67a6e3605923a6f00cb43a0ae77de1b00c5e/VectorFieldMethod/Analysis/SqrtGronwall.lean#L246) |
+| The foliation formula applies to $`g = u`$ (continuous with compact support, hence integrable on $`D(2, 4)`$) | [L656](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L656) |
+| The foliation formula for nonnegative functions applies to $`g = \max(u, 0)`$ (`ENNReal.ofReal ∘ u`, measurable with values in $`[0, \infty]`$) on $`D(2, 4)`$ | [L665](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L665) |
+| The hypotheses of the energy identity pass from $`D(2, 5)`$ to $`D(3, 4)`$: for $`U = \{t \gt 1/2\}`$, an open set containing $`K`$, and for the closed support of $`u`$ | [L694](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L694) |
+| The energy identity between intermediate hyperboloids applies with the hypotheses on $`D(2, 5)`$, between $`H_3`$ and $`H_4`$ | [L708](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L708) |
+| Cauchy–Schwarz on $`H_4`$ applies with $`f = u`$: $`f\vert_{H_4}`$ is continuous with compact support, $`\partial_t u\vert_{H_4}`$ is continuous, $`e_m[u]\vert_{H_4}`$ is integrable | [L721](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L721) |
+| Continuity of integrals over the hyperboloids applies to $`f = u`$ on $`[2, 5]`$ ($`u`$ is continuous and vanishes outside $`K`$) | [L738](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L738) |
+| $`s \mapsto E_m(s, u)`$ is continuous on $`[2, 5]`$ | [L744](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L744) |
+| $`\lVert \mathrm{KG}_m u\rVert_{L^2_f(H_4)} \lt \infty`$, and $`s \mapsto \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_s)}`$ is continuous on $`[2, 5]`$ | [L751](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L751) |
+| The integral inequality applies with $`s_0 = 2`$, $`S = 5`$, $`s = 4`$ | [L764](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L764) |
+| The energy estimate applies with $`s_0 = 2`$, $`S = 5`$, $`s = 4`$, every $`m`$ | [L776](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L776) |
+| The real form of the energy estimate applies with the same data | [L787](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L787) |
+| For $`m \neq 0`$: $`E_m(2, u) = 0`$, $`0 \lt E_m(4, u)^{1/2}`$, the estimate gives $`E_m(4, u)^{1/2} \le \int_{[2, 4]} \lVert \mathrm{KG}_m u\rVert_{L^2_f(H_{s'})} ds'`$, and this integral is finite | [L812](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/HyperboloidalEnergyEstimate.lean#L812) |
+| Square-root Grönwall inequality: $`E(s) = s^2`$, $`g = 1`$, $`A = 0`$ on $`[0, 1]`$; the hypothesis holds with equality ($`s^2 = 2 \int_0^s (\tau^2)^{1/2} d\tau`$), and the conclusion $`(s^2)^{1/2} \le 0^{1/2} + \int_0^s 1 = s`$ is an equality | [L201](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/SqrtGronwall.lean#L201) |
+| Main step ($`A \gt 0`$): $`E(s) = (1 + s)^2`$, $`g = 1`$, $`A = 1`$ on $`[0, 1]`$; the hypothesis holds with equality ($`(1 + s)^2 = 1 + 2 \int_0^s ((1 + \tau)^2)^{1/2} d\tau`$) and the conclusion is an equality (both sides are $`1 + s`$); both equalities are proved, and the theorem is applied | [L216](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/SqrtGronwall.lean#L216) |
+| Square-root Grönwall inequality with $`E`$ taking negative values: $`E(s) = 2s - 1`$, $`g = 1`$, $`A = 1`$ on $`[0, 1]`$; $`E(0) = -1 \lt 0`$, the hypothesis holds, and the theorem gives $`(2s - 1)^{1/2} \le 1 + s`$ | [L246](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Analysis/SqrtGronwall.lean#L246) |
 
 The examples apply each main theorem whose hypotheses go beyond regularity and signs of numbers to
 concrete data satisfying all its hypotheses (the foliation formula for nonnegative functions, whose

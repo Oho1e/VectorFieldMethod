@@ -3,14 +3,14 @@
 Layer: `VectorFieldMethod/Minkowski/` (files `Spacetime.lean`, `Derivative.lean`,
 `WaveOperator.lean`, `VectorFields.lean`, `Computations.lean`). All declarations are in the
 namespace `VectorFieldMethod.Minkowski`. The links below point to commit
-[`2c419b9`](https://github.com/Oho1e/VectorFieldMethod/tree/2c419b99f40c9ba200ceed9a202dc91f0d2bff12), the last commit that changes the
-Lean files of this layer; they are identical at the head of the branch. Design notes: [`docs/minkowski-layer.md`](../minkowski-layer.md). How to read the
+[`65434c1`](https://github.com/Oho1e/VectorFieldMethod/tree/65434c138668e720ea41dbd287fb6c1298ad00f9)
+of `main`. Design notes: [`docs/minkowski-layer.md`](../minkowski-layer.md). How to read the
 entries: [`README.md`](README.md).
 
 ## Conventions
 
 Quoted from the module docstring of
-[`Spacetime.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Spacetime.lean#L22):
+[`Spacetime.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Spacetime.lean#L22):
 
 > * Signature `(-, +, +, +)`.
 > * Spacetime indices `α : Fin 4`: `0` is time, `Fin.succ a` is the spatial component `a : Fin 3`.
@@ -20,14 +20,14 @@ Quoted from the module docstring of
 >   no inner product. `‖p‖` is therefore *not* a spacetime distance and is not used as one.
 
 Quoted from the docstring of `spaceCoord`
-([`Spacetime.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Spacetime.lean#L52)):
+([`Spacetime.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Spacetime.lean#L52)):
 
 > The Lean index `a = 0, 1, 2`
 > corresponds to the mathematical index `1, 2, 3`. Spatial indices are raised and lowered without
 > changing the value: `x_a = x^a`.
 
 Quoted from the module docstring of
-[`WaveOperator.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L38)
+[`WaveOperator.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L38)
 (sign conventions):
 
 > With the signature `(-, +, +, +)`, `□ = -∂_t² + Δ`. LeFloch–Ma write `□ = ∂_t² - Δ`, which is
@@ -62,7 +62,7 @@ only hypotheses are structural:
   These are the conditions of Mathlib's `fderiv_const_smul_field`; they enter only the
   homogeneity lemmas `*_const_smul_field`.
 
-[`Derivative.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L67):
+[`Derivative.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L67):
 
 ```lean
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
@@ -72,7 +72,7 @@ variable {R : Type*} [DivisionSemiring R] [Module R F] [SMulCommClass ℝ R F]
 variable {V : Spacetime → Spacetime} {u v : Spacetime → F} {p : Spacetime} {n : ℕ∞ω}
 ```
 
-[`WaveOperator.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L56):
+[`WaveOperator.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L56):
 
 ```lean
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
@@ -82,7 +82,7 @@ variable {R : Type*} [DivisionSemiring R] [Module R F] [SMulCommClass ℝ R F]
 variable {u v : Spacetime → F} {p : Spacetime} {n : ℕ∞ω}
 ```
 
-[`VectorFields.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L43):
+[`VectorFields.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L43):
 
 ```lean
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
@@ -106,7 +106,7 @@ and a function whose values are only numerals, such as `fun _ ↦ 1`, which is w
   first component is the time $`t`$, the second the spatial point $`x \in \mathbb{R}^3`$ (with its
   Euclidean structure).
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.Spacetime`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Spacetime.lean#L45)
+- **Lean.** `VectorFieldMethod.Minkowski.Spacetime`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Spacetime.lean#L45)
 
 ```lean
 abbrev Spacetime : Type := ℝ × EuclideanSpace ℝ (Fin 3)
@@ -121,7 +121,7 @@ abbrev Spacetime : Type := ℝ × EuclideanSpace ℝ (Fin 3)
 
 - **Math.** $`t(p) = t`$ for $`p = (t, x)`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.timeCoord`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Spacetime.lean#L50)
+- **Lean.** `VectorFieldMethod.Minkowski.timeCoord`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Spacetime.lean#L50)
 
 ```lean
 def timeCoord (p : Spacetime) : ℝ := p.1
@@ -131,7 +131,7 @@ def timeCoord (p : Spacetime) : ℝ := p.1
 
 - **Math.** For $`a \in \{1, 2, 3\}`$, $`x^a(p) = x^a`$ for $`p = (t, x)`$; also written $`x_a`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.spaceCoord`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Spacetime.lean#L55)
+- **Lean.** `VectorFieldMethod.Minkowski.spaceCoord`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Spacetime.lean#L55)
 
 ```lean
 def spaceCoord (a : Fin 3) (p : Spacetime) : ℝ := p.2 a
@@ -143,7 +143,7 @@ def spaceCoord (a : Fin 3) (p : Spacetime) : ℝ := p.2 a
 
 - **Math.** $`r(p) = \lvert x\rvert = \big(\sum_{a=1}^3 (x^a)^2\big)^{1/2}`$ for $`p = (t, x)`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.radius`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Spacetime.lean#L59)
+- **Lean.** `VectorFieldMethod.Minkowski.radius`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Spacetime.lean#L59)
 
 ```lean
 def radius (p : Spacetime) : ℝ := ‖p.2‖
@@ -155,10 +155,10 @@ def radius (p : Spacetime) : ℝ := ‖p.2‖
 
 ### Minkowski metric $`\eta`$
 
-- **Math.** $`\eta = (\eta_{\alpha\beta})_{\alpha, \beta = 0}^{3} = \operatorname{diag}(-1, 1, 1, 1)`$,
+- **Math.** $`\eta = (\eta_{\alpha\beta})_{\alpha, \beta = 0}^{3} = \mathrm{diag}(-1, 1, 1, 1)`$,
   signature $`(-, +, +, +)`$, with $`0`$ the time index. Notation: $`\eta`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.minkowskiMetric`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Spacetime.lean#L80)
+- **Lean.** `VectorFieldMethod.Minkowski.minkowskiMetric`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Spacetime.lean#L80)
 
 ```lean
 def minkowskiMetric : Matrix (Fin 4) (Fin 4) ℝ :=
@@ -180,7 +180,7 @@ def minkowskiMetric : Matrix (Fin 4) (Fin 4) ℝ :=
   (Vu)(p) = Du(p)\,V(p) \qquad (= V^\alpha(p)\, \partial_\alpha u(p) \text{ if } u \text{ is differentiable at } p).
   ```
 - **Hypotheses.** $`F`$ is a real normed space; $`V`$ and $`u`$ are arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L106)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L106)
 
 ```lean
 def derivAlong (V : Spacetime → Spacetime) (u : Spacetime → F) : Spacetime → F :=
@@ -195,7 +195,7 @@ def derivAlong (V : Spacetime → Spacetime) (u : Spacetime → F) : Spacetime �
 
 - **Math.** The constant map $`p \mapsto (1, 0) \in \mathbb{R} \times \mathbb{R}^3`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.timeField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L207)
+- **Lean.** `VectorFieldMethod.Minkowski.timeField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L207)
 
 ```lean
 def timeField : Spacetime → Spacetime :=
@@ -206,7 +206,7 @@ def timeField : Spacetime → Spacetime :=
 
 - **Math.** For $`a \in \{1, 2, 3\}`$, the constant map $`p \mapsto (0, e_a)`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.spaceField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L211)
+- **Lean.** `VectorFieldMethod.Minkowski.spaceField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L211)
 
 ```lean
 def spaceField (a : Fin 3) : Spacetime → Spacetime :=
@@ -221,7 +221,7 @@ def spaceField (a : Fin 3) : Spacetime → Spacetime :=
   $`E_0 = (1, 0)`$ and $`E_a = (0, e_a)`$ for $`a = 1, 2, 3`$ (the standard basis of
   $`\mathbb{R}^{1+3}`$).
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.coordField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L216)
+- **Lean.** `VectorFieldMethod.Minkowski.coordField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L216)
 
 ```lean
 def coordField (α : Fin 4) : Spacetime → Spacetime :=
@@ -237,7 +237,7 @@ def coordField (α : Fin 4) : Spacetime → Spacetime :=
 - **Math.** $`\partial_t u(p) = Du(p)\,(1, 0)`$, the partial derivative of $`u`$ in $`t`$ at $`p`$
   when $`u`$ is differentiable at $`p`$. Notation: $`\partial_t`$ (Lean `∂ₜ`).
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.timeDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L230)
+- **Lean.** `VectorFieldMethod.Minkowski.timeDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L230)
 
 ```lean
 def timeDeriv : (Spacetime → F) → Spacetime → F :=
@@ -256,7 +256,7 @@ def timeDeriv : (Spacetime → F) → Spacetime → F :=
   derivative of $`u`$ in $`x^a`$ when $`u`$ is differentiable at $`p`$. Notation: Lean
   `∂ₓ[a - 1]`.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.spaceDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L234)
+- **Lean.** `VectorFieldMethod.Minkowski.spaceDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L234)
 
 ```lean
 def spaceDeriv (a : Fin 3) : (Spacetime → F) → Spacetime → F :=
@@ -274,7 +274,7 @@ def spaceDeriv (a : Fin 3) : (Spacetime → F) → Spacetime → F :=
   $`E_\alpha`$ as in `coordField`; so $`\partial_0 = \partial_t`$ and $`\partial_a`$
   ($`a = 1, 2, 3`$) is the spatial derivative. Notation: Lean `∂[α]`.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L238)
+- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L238)
 
 ```lean
 def partialDeriv (α : Fin 4) : (Spacetime → F) → Spacetime → F :=
@@ -296,7 +296,7 @@ def partialDeriv (α : Fin 4) : (Spacetime → F) → Spacetime → F :=
   where the coefficients are the entries of $`\eta`$ (equal to those of $`\eta^{-1}`$). Notation:
   $`\Box`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L67)
+- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L67)
 
 ```lean
 def dAlembertian (u : Spacetime → F) : Spacetime → F :=
@@ -316,7 +316,7 @@ def dAlembertian (u : Spacetime → F) : Spacetime → F :=
 
 - **Math.** For $`m \in \mathbb{R}`$ and any $`u`$, $`\mathrm{KG}_m u(p) = \Box u(p) - m^2 u(p)`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L107)
+- **Lean.** `VectorFieldMethod.Minkowski.kleinGordon`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L107)
 
 ```lean
 def kleinGordon (m : ℝ) (u : Spacetime → F) : Spacetime → F :=
@@ -332,7 +332,7 @@ def kleinGordon (m : ℝ) (u : Spacetime → F) : Spacetime → F :=
 
 - **Math.** For $`a, b \in \{1, 2, 3\}`$, the map $`p = (t, x) \mapsto (0,\ x^a e_b - x^b e_a)`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L53)
+- **Lean.** `VectorFieldMethod.Minkowski.rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L53)
 
 ```lean
 def rotationField (a b : Fin 3) : Spacetime → Spacetime :=
@@ -348,7 +348,7 @@ def rotationField (a b : Fin 3) : Spacetime → Spacetime :=
   \Omega_{ab} u = x^a\, \partial_b u - x^b\, \partial_a u .
   ```
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.rotation`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L58)
+- **Lean.** `VectorFieldMethod.Minkowski.rotation`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L58)
 
 ```lean
 def rotation (a b : Fin 3) : (Spacetime → F) → Spacetime → F :=
@@ -365,7 +365,7 @@ def rotation (a b : Fin 3) : (Spacetime → F) → Spacetime → F :=
 
 - **Math.** For $`a \in \{1, 2, 3\}`$, the map $`p = (t, x) \mapsto (x^a,\ t\, e_a)`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L62)
+- **Lean.** `VectorFieldMethod.Minkowski.boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L62)
 
 ```lean
 def boostField (a : Fin 3) : Spacetime → Spacetime :=
@@ -379,7 +379,7 @@ def boostField (a : Fin 3) : Spacetime → Spacetime :=
   L_a u = t\, \partial_a u + x^a\, \partial_t u .
   ```
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.boost`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L66)
+- **Lean.** `VectorFieldMethod.Minkowski.boost`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L66)
 
 ```lean
 def boost (a : Fin 3) : (Spacetime → F) → Spacetime → F :=
@@ -393,7 +393,7 @@ def boost (a : Fin 3) : (Spacetime → F) → Spacetime → F :=
 
 - **Math.** The identity map $`p = (t, x) \mapsto (t, x)`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L71)
+- **Lean.** `VectorFieldMethod.Minkowski.scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L71)
 
 ```lean
 def scalingField : Spacetime → Spacetime :=
@@ -407,7 +407,7 @@ def scalingField : Spacetime → Spacetime :=
   S u = t\, \partial_t u + \sum_{a=1}^{3} x^a\, \partial_a u .
   ```
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is arbitrary.
-- **Lean.** `VectorFieldMethod.Minkowski.scaling`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L75)
+- **Lean.** `VectorFieldMethod.Minkowski.scaling`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L75)
 
 ```lean
 def scaling : (Spacetime → F) → Spacetime → F :=
@@ -425,7 +425,7 @@ def scaling : (Spacetime → F) → Spacetime → F :=
 
 - **Math.** $`\eta\,\eta = I_4`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.minkowskiMetric_mul_self`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Spacetime.lean#L101)
+- **Lean.** `VectorFieldMethod.Minkowski.minkowskiMetric_mul_self`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Spacetime.lean#L101)
 
 ```lean
 theorem minkowskiMetric_mul_self : η * η = 1
@@ -438,7 +438,7 @@ theorem minkowskiMetric_mul_self : η * η = 1
 - **Math.** $`\eta^{-1} = \eta`$, so $`\eta^{\alpha\beta} = \eta_{\alpha\beta}`$ for all
   $`\alpha, \beta`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.inv_minkowskiMetric`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Spacetime.lean#L108)
+- **Lean.** `VectorFieldMethod.Minkowski.inv_minkowskiMetric`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Spacetime.lean#L108)
 
 ```lean
 theorem inv_minkowskiMetric : η⁻¹ = η
@@ -454,7 +454,7 @@ theorem inv_minkowskiMetric : η⁻¹ = η
   \Box u(p) = -\partial_t \partial_t u(p) + \sum_{a=1}^{3} \partial_a \partial_a u(p).
   ```
 - **Hypotheses.** $`F`$ is a real normed space; no regularity of $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L77)
+- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_eq`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L77)
 
 ```lean
 theorem dAlembertian_eq (u : Spacetime → F) (p : Spacetime) :
@@ -471,7 +471,7 @@ theorem dAlembertian_eq (u : Spacetime → F) (p : Spacetime) :
   $`C^2`$ on a neighbourhood of $`p`$. Then
   $`\partial_\alpha \partial_\beta u(p) = \partial_\beta \partial_\alpha u(p)`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^2`$ at $`p`$ (`ContDiffAt ℝ 2 u p`).
-- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L431)
+- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L431)
 
 ```lean
 theorem partialDeriv_comm_apply (α β : Fin 4) (hu : ContDiffAt ℝ 2 u p) :
@@ -485,7 +485,7 @@ theorem partialDeriv_comm_apply (α β : Fin 4) (hu : ContDiffAt ℝ 2 u p) :
 - **Math.** Let $`\alpha, \beta \in \{0, 1, 2, 3\}`$ and $`u \in C^2(\mathbb{R}^{1+3})`$. Then
   $`\partial_\alpha \partial_\beta u = \partial_\beta \partial_\alpha u`$ on $`\mathbb{R}^{1+3}`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^2`$ (`ContDiff ℝ 2 u`).
-- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L439)
+- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L439)
 
 ```lean
 theorem partialDeriv_comm (α β : Fin 4) (hu : ContDiff ℝ 2 u) :
@@ -497,7 +497,7 @@ theorem partialDeriv_comm (α β : Fin 4) (hu : ContDiff ℝ 2 u) :
 - **Math.** Let $`p \in \mathbb{R}^{1+3}`$ and let $`u, v`$ be $`C^2`$ on a neighbourhood of
   $`p`$. Then $`\Box(u + v)(p) = \Box u(p) + \Box v(p)`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ and $`v`$ are $`C^2`$ at $`p`$.
-- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_add`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L141)
+- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_add`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L141)
 
 ```lean
 theorem dAlembertian_add (hu : ContDiffAt ℝ 2 u p) (hv : ContDiffAt ℝ 2 v p) :
@@ -514,7 +514,7 @@ theorem dAlembertian_add (hu : ContDiffAt ℝ 2 u p) (hv : ContDiffAt ℝ 2 v p)
 
 - **Math.** Let $`u, v \in C^2(\mathbb{R}^{1+3})`$. Then $`\Box(u + v) = \Box u + \Box v`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ and $`v`$ are $`C^2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_add_of_contDiff`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L175)
+- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_add_of_contDiff`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L175)
 
 ```lean
 theorem dAlembertian_add_of_contDiff (hu : ContDiff ℝ 2 u) (hv : ContDiff ℝ 2 v) :
@@ -528,7 +528,7 @@ theorem dAlembertian_add_of_contDiff (hu : ContDiff ℝ 2 u) (hv : ContDiff ℝ 
 - **Math.** For $`m \in \mathbb{R}`$ and $`c \in F`$, the Klein–Gordon operator maps the constant
   function $`c`$ to the constant function $`-m^2 c`$: $`\mathrm{KG}_m c = \Box c - m^2 c = -m^2 c`$.
 - **Hypotheses.** $`F`$ is a real normed space.
-- **Lean.** `VectorFieldMethod.Minkowski.kleinGordon_const`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L116)
+- **Lean.** `VectorFieldMethod.Minkowski.kleinGordon_const`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L116)
 
 ```lean
 theorem kleinGordon_const (m : ℝ) (c : F) : kleinGordon m (fun _ ↦ c) = fun _ ↦ -(m ^ 2 • c)
@@ -545,7 +545,7 @@ theorem kleinGordon_const (m : ℝ) (c : F) : kleinGordon m (fun _ ↦ c) = fun 
   and let $`u, v`$ be differentiable at $`p`$. Then $`V(u + v)(p) = Vu(p) + Vv(p)`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ and $`v`$ are differentiable at $`p`$; no
   hypothesis on $`V`$.
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_add`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L136)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_add`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L136)
 
 ```lean
 theorem derivAlong_add (V : Spacetime → Spacetime) (hu : DifferentiableAt ℝ u p)
@@ -578,7 +578,7 @@ theorem derivAlong_add (V : Spacetime → Spacetime) (hu : DifferentiableAt ℝ 
   function. Then $`V(c\,u) = c\,Vu`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`R`$ satisfies the conditions of *Context*; no
   hypothesis on $`u`$ or $`V`$.
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_const_smul_field`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L125)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_const_smul_field`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L125)
 
 ```lean
 theorem derivAlong_const_smul_field (V : Spacetime → Spacetime) (c : R) (u : Spacetime → F) :
@@ -593,8 +593,8 @@ theorem derivAlong_const_smul_field (V : Spacetime → Spacetime) (c : R) (u : S
 theorem dAlembertian_const_smul_field (c : R) (u : Spacetime → F) : □ (c • u) = c • □ u
 ```
 
-  ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L161)) and for the Klein–Gordon operator,
-  `kleinGordon_const_smul_field` ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L167)). For $`\Box`$ and
+  ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L161)) and for the Klein–Gordon operator,
+  `kleinGordon_const_smul_field` ([permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L167)). For $`\Box`$ and
   Klein–Gordon the condition `SMulCommClass ℝ R F` is used to move $`c`$ past the real coefficients
   $`\eta^{\alpha\beta}`$ and $`m^2`$. With $`F = \mathbb{C}`$ this gives, for instance,
   `∂ₜ (Complex.I • u) = Complex.I • ∂ₜ u` for every `u : Spacetime → ℂ`.
@@ -605,7 +605,7 @@ theorem dAlembertian_const_smul_field (c : R) (u : Spacetime → F) : □ (c •
   $`u \in C^{n+1}(\mathbb{R}^{1+3})`$. Then $`\partial_\alpha u \in C^n(\mathbb{R}^{1+3})`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^{n+1}`$ (with $`\infty + 1 = \infty`$, $`\omega + 1 = \omega`$;
   $`\omega`$ means analytic).
-- **Lean.** `VectorFieldMethod.Minkowski.contDiff_partialDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L403)
+- **Lean.** `VectorFieldMethod.Minkowski.contDiff_partialDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L403)
 
 ```lean
 theorem contDiff_partialDeriv (α : Fin 4) (hu : ContDiff ℝ (n + 1) u) :
@@ -626,7 +626,7 @@ theorem contDiff_partialDeriv (α : Fin 4) (hu : ContDiff ℝ (n + 1) u) :
 ## Commutation with continuous linear maps
 
 These lemmas reduce statements about $`F`$-valued functions to their components, for instance the
-real and imaginary parts of a complex field ($`T = \operatorname{Re}, \operatorname{Im} : \mathbb{C} \to \mathbb{R}`$)
+real and imaginary parts of a complex field ($`T = \mathrm{Re}, \mathrm{Im} : \mathbb{C} \to \mathbb{R}`$)
 or the components of a spinor field, and conversely embed real-valued computations into $`F`$
 ($`T = \mathbb{R} \hookrightarrow \mathbb{C}`$, `Complex.ofRealCLM`).
 
@@ -637,7 +637,7 @@ or the components of a spinor field, and conversely embed real-valued computatio
   $`u : \mathbb{R}^{1+3} \to F`$ be differentiable at $`p`$. Then $`V(T \circ u)(p) = T\big(Vu(p)\big)`$.
 - **Hypotheses.** $`F`$, $`G`$ are real normed spaces; $`T`$ is continuous and $`\mathbb{R}`$-linear;
   $`u`$ is differentiable at $`p`$; no hypothesis on $`V`$.
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_comp_left`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L179)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_comp_left`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L179)
 
 ```lean
 theorem derivAlong_comp_left (V : Spacetime → Spacetime) (T : F →L[ℝ] G)
@@ -661,7 +661,7 @@ theorem derivAlong_comp_left (V : Spacetime → Spacetime) (T : F →L[ℝ] G)
   $`p`$. Then $`\Box(T \circ u)(p) = T\big(\Box u(p)\big)`$.
 - **Hypotheses.** $`F`$, $`G`$ are real normed spaces; $`T`$ is continuous and $`\mathbb{R}`$-linear;
   $`u`$ is $`C^2`$ at $`p`$ (`ContDiffAt ℝ 2 u p`).
-- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_comp_left`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L200)
+- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_comp_left`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L200)
 
 ```lean
 theorem dAlembertian_comp_left (T : F →L[ℝ] G) (hu : ContDiffAt ℝ 2 u p) :
@@ -680,7 +680,7 @@ theorem dAlembertian_comp_left (T : F →L[ℝ] G) (hu : ContDiffAt ℝ 2 u p) :
   $`\mathrm{KG}_m(T \circ u)(p) = T\big(\mathrm{KG}_m u(p)\big)`$.
 - **Hypotheses.** $`F`$, $`G`$ are real normed spaces; $`T`$ is continuous and $`\mathbb{R}`$-linear;
   $`u`$ is $`C^2`$ at $`p`$.
-- **Lean.** `VectorFieldMethod.Minkowski.kleinGordon_comp_left`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L206)
+- **Lean.** `VectorFieldMethod.Minkowski.kleinGordon_comp_left`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L206)
 
 ```lean
 theorem kleinGordon_comp_left (m : ℝ) (T : F →L[ℝ] G) (hu : ContDiffAt ℝ 2 u p) :
@@ -691,7 +691,7 @@ theorem kleinGordon_comp_left (m : ℝ) (T : F →L[ℝ] G) (hu : ContDiffAt ℝ
   `Computations.lean` uses these lemmas with `T = Complex.ofRealCLM` to compute $`\Box`$ and
   $`\mathrm{KG}_m`$ of the complex-valued function $`t^2`$; with $`T(c) = c\,w`$
   (`ContinuousLinearMap.toSpanSingleton ℝ w`) to show $`\Box(t^2 w) = -2w`$ for a vector $`w`$ of
-  any real normed space; and with $`T = \operatorname{Re}, \operatorname{Im}`$ (`Complex.reCLM`,
+  any real normed space; and with $`T = \mathrm{Re}, \mathrm{Im}`$ (`Complex.reCLM`,
   `Complex.imCLM`) to show $`\Box(t^2 + i\,(x^1)^2) = -2 + 2i`$ by reduction to the real and
   imaginary parts.
 
@@ -703,7 +703,7 @@ theorem kleinGordon_comp_left (m : ℝ) (T : F →L[ℝ] G) (hu : ContDiffAt ℝ
   $`\mathbb{R}^{1+3}`$.
 - **Hypotheses.** $`F`$, $`G`$ are real normed spaces; $`e`$ is a continuous linear equivalence; no
   hypothesis on $`u`$ or $`V`$.
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_comp_left_equiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L187)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_comp_left_equiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L187)
 
 ```lean
 theorem derivAlong_comp_left_equiv (V : Spacetime → Spacetime) (e : F ≃L[ℝ] G)
@@ -724,8 +724,8 @@ theorem derivAlong_comp_left_equiv (V : Spacetime → Spacetime) (e : F ≃L[ℝ
   $`\mathrm{KG}_m(e \circ u) = e \circ \mathrm{KG}_m u`$.
 - **Hypotheses.** $`F`$, $`G`$ are real normed spaces; $`e`$ is a continuous linear equivalence; no
   hypothesis on $`u`$.
-- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_comp_left_equiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L213),
-  and `VectorFieldMethod.Minkowski.kleinGordon_comp_left_equiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/WaveOperator.lean#L221)
+- **Lean.** `VectorFieldMethod.Minkowski.dAlembertian_comp_left_equiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L213),
+  and `VectorFieldMethod.Minkowski.kleinGordon_comp_left_equiv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/WaveOperator.lean#L221)
 
 ```lean
 theorem dAlembertian_comp_left_equiv (e : F ≃L[ℝ] G) (u : Spacetime → F) :
@@ -749,14 +749,14 @@ theorem kleinGordon_comp_left_equiv (m : ℝ) (e : F ≃L[ℝ] G) (u : Spacetime
 
   | Statement | Lean name | File |
   | --- | --- | --- |
-  | $`\partial_t t = 1`$, $`\partial_t x^b = 0`$, $`\partial_a t = 0`$, $`\partial_a x^b = \delta_{ab}`$ | [`timeDeriv_timeCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L360), [`timeDeriv_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L365), [`spaceDeriv_timeCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L370), [`spaceDeriv_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Derivative.lean#L375) | `Derivative.lean` |
-  | $`\Box(t^2 - r^2) = -8`$, $`\Box(t^2) = -2`$, $`\Box\big((x^a)^2\big) = 2`$ | [`dAlembertian_timeCoord_sq_sub_radius_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Computations.lean#L92), [`dAlembertian_timeCoord_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Computations.lean#L102), [`dAlembertian_spaceCoord_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Computations.lean#L108) | `Computations.lean` |
-  | $`L_a t = x^a`$, $`L_a x^b = t\,\delta_{ab}`$ | [`boost_timeCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L241), [`boost_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L247) | `VectorFields.lean` |
-  | $`L_a(t^2 - r^2) = 0`$ | [`boost_timeCoord_sq_sub_radius_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Computations.lean#L129) | `Computations.lean` |
-  | $`\Omega_{ab} x^c = \delta_{bc}\, x^a - \delta_{ac}\, x^b`$; $`\Omega_{ba} u = -\Omega_{ab} u`$ for every $`u`$ | [`rotation_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L232), [`rotation_swap`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L133) | `VectorFields.lean` |
-  | $`\Omega_{ab}(r^2) = 0`$ | [`rotation_radius_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Computations.lean#L137) | `Computations.lean` |
-  | $`S t = t`$, $`S x^a = x^a`$ | [`scaling_timeCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L255), [`scaling_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/VectorFields.lean#L261) | `VectorFields.lean` |
-  | $`S(t^2 - r^2) = 2\,(t^2 - r^2)`$ | [`scaling_timeCoord_sq_sub_radius_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/2c419b99f40c9ba200ceed9a202dc91f0d2bff12/VectorFieldMethod/Minkowski/Computations.lean#L144) | `Computations.lean` |
+  | $`\partial_t t = 1`$, $`\partial_t x^b = 0`$, $`\partial_a t = 0`$, $`\partial_a x^b = \delta_{ab}`$ | [`timeDeriv_timeCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L360), [`timeDeriv_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L365), [`spaceDeriv_timeCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L370), [`spaceDeriv_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Derivative.lean#L375) | `Derivative.lean` |
+  | $`\Box(t^2 - r^2) = -8`$, $`\Box(t^2) = -2`$, $`\Box\big((x^a)^2\big) = 2`$ | [`dAlembertian_timeCoord_sq_sub_radius_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Computations.lean#L92), [`dAlembertian_timeCoord_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Computations.lean#L102), [`dAlembertian_spaceCoord_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Computations.lean#L108) | `Computations.lean` |
+  | $`L_a t = x^a`$, $`L_a x^b = t\,\delta_{ab}`$ | [`boost_timeCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L241), [`boost_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L247) | `VectorFields.lean` |
+  | $`L_a(t^2 - r^2) = 0`$ | [`boost_timeCoord_sq_sub_radius_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Computations.lean#L129) | `Computations.lean` |
+  | $`\Omega_{ab} x^c = \delta_{bc}\, x^a - \delta_{ac}\, x^b`$; $`\Omega_{ba} u = -\Omega_{ab} u`$ for every $`u`$ | [`rotation_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L232), [`rotation_swap`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L133) | `VectorFields.lean` |
+  | $`\Omega_{ab}(r^2) = 0`$ | [`rotation_radius_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Computations.lean#L137) | `Computations.lean` |
+  | $`S t = t`$, $`S x^a = x^a`$ | [`scaling_timeCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L255), [`scaling_spaceCoord`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/VectorFields.lean#L261) | `VectorFields.lean` |
+  | $`S(t^2 - r^2) = 2\,(t^2 - r^2)`$ | [`scaling_timeCoord_sq_sub_radius_sq`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/Computations.lean#L144) | `Computations.lean` |
 
 - **Hypotheses.** None: each identity holds for all points, and `rotation_swap` for every function
   $`u`$ (no differentiability needed).

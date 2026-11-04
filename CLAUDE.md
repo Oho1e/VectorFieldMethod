@@ -110,13 +110,18 @@ notes are in `docs/minkowski-layer.md`.
   index `a : Fin 3`. The mathematical spatial indices `1, 2, 3` are the Lean
   indices `0, 1, 2`. Spatial indices are raised and lowered without changing the
   value (`x_a = x^a`).
-- **Values.** The operators act on functions `Spacetime → F` with values in an
-  arbitrary real normed space `F` (`{F : Type*} [NormedAddCommGroup F]
-  [NormedSpace ℝ F]`, always an implicit argument, inferred from `u`); the
+- **Values.** The operators of the definition layer act on functions
+  `Spacetime → F` with values in an arbitrary real normed space `F`
+  (`{F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]`, always an implicit
+  argument, inferred from `u`); the energy layers (`EnergyMomentum.lean`,
+  `HyperboloidalEnergy.lean`, `HyperboloidalEnergyIdentity.lean`,
+  `HyperboloidalEnergyEstimate.lean`) require a real inner product space
+  instead (`{F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]`, see
+  "Values: extra structure on `F`" below); the
   coordinate functions `timeCoord`, `spaceCoord`, `radius` are real-valued. Real
-  coefficients act on values by `•` (for `F = ℝ` this is `*`). No inner product
-  or complex structure on `F` is assumed. `F` cannot be inferred in an equation
-  between operators without a function argument (write a type ascription, as in
+  coefficients act on values by `•` (for `F = ℝ` this is `*`). In the definition
+  layer no inner product or complex structure on `F` is assumed. `F` cannot be
+  inferred in an equation between operators without a function argument (write a type ascription, as in
   `partialDeriv_zero : (∂[0] : (Spacetime → F) → Spacetime → F) = ∂ₜ`) or when
   the values of `u` are only numerals (write `∂ₜ (fun _ ↦ (1 : ℝ))`).
 - **Values: commutation lemmas.** For `T : F →L[ℝ] G` the `*_comp_left` lemmas
@@ -160,11 +165,35 @@ notes are in `docs/minkowski-layer.md`.
   coordinate functions and on constants, and on `∂[0] = ∂ₜ`,
   `∂[Fin.succ a] = ∂ₓ[a]` and `∂[1] = ∂ₓ[0]`, `∂[2] = ∂ₓ[1]`, `∂[3] = ∂ₓ[2]`.
   The unfolding lemmas `*_apply` (to `fderiv`) are not `simp`.
+- **Commutators.** For first-order operators given by component fields `X`, `Y`,
+  `[X, Y]u = X(Yu) - Y(Xu) = derivAlong (lieBracket ℝ X Y) u`, where
+  `lieBracket ℝ X Y = DY · X - DX · Y` is Mathlib's `VectorField.lieBracket`
+  (`derivAlong_derivAlong_sub_derivAlong_derivAlong`, for differentiable `X`,
+  `Y` and `u` of class `C²`; `Commutators.lean`).
+- **Energy normalization.** The energy-momentum layer (`EnergyMomentum.lean`)
+  carries the factor `½`: `energyCurrent m u 0 = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²)`.
+  The hyperboloidal energy `hyperboloidalEnergy` and its density
+  `hyperboloidalEnergyDensity` carry no `½` (LeFloch–Ma's normalization), so
+  `hyperboloidalEnergyDensity m u = 2 (P⁰ - ∑ a, (x_a / t) P^a)` for the energy
+  current `P` (`hyperboloidalEnergyDensity_eq_energyCurrent`).
+- **Hyperboloidal energy and LeFloch–Ma.** `hyperboloidalEnergy c s u` is
+  LeFloch–Ma's `E_{m,c}(s, u)` (arXiv:1411.4910, (2.3.2); their subscript `m`
+  means Minkowski, `c` is the mass), and `hyperboloidalEnergy 0 s u` is their
+  `E_m(s, u) = E_{m,0}(s, u)`. In the notation `E_m(s, u)` of this project's
+  docstrings the subscript is the mass.
 
 ### Public interface (`namespace VectorFieldMethod.Minkowski`)
 
-The operators act on functions with values in an arbitrary real normed space
-`F` (implicit); the coordinate functions are real-valued.
+The operators of the definition layer act on functions with values in an
+arbitrary real normed space `F` (implicit, `[NormedSpace ℝ F]`); the coordinate
+functions are real-valued. The definitions of the energy layers
+(`energyMomentum`, `energyCurrent`, `semiHyperboloidalDeriv`,
+`hyperboloidalEnergyDensity`, `hyperboloidalEnergy`) require
+`[InnerProductSpace ℝ F]` instead. When a statement needs an inner product on
+`F`, declare `variable {F : Type*} [NormedAddCommGroup F] [InnerProductSpace ℝ F]`
+on its own; do not add `[InnerProductSpace ℝ F]` on top of an existing
+`[NormedSpace ℝ F]`, which would give two unrelated `NormedSpace ℝ F`
+instances. `restrictHyperboloid` only needs `[NormedSpace ℝ F]`.
 
 | Lean name | Type signature | Mathematical meaning |
 | --- | --- | --- |
@@ -188,6 +217,25 @@ The operators act on functions with values in an arbitrary real normed space
 | `boost` | `Fin 3 → (Spacetime → F) → Spacetime → F` | `L_a = t ∂_a + x_a ∂_t` |
 | `scalingField` | `Spacetime → Spacetime` | components of `S`: `p ↦ p`, i.e. `(t, x)` |
 | `scaling` | `(Spacetime → F) → Spacetime → F` | `S = t ∂_t + ∑ a, x_a ∂_a` |
+| `energyMomentum` | `(m : ℝ) (u : Spacetime → F) (α β : Fin 4) : Spacetime → ℝ` | `T_{αβ} = ⟪∂_α u, ∂_β u⟫ - ½ η_{αβ} (η^{γδ} ⟪∂_γ u, ∂_δ u⟫ + m² ‖u‖²)` (`EnergyMomentum.lean`) |
+| `spacetimeDiv` | `(J : Fin 4 → Spacetime → ℝ) : Spacetime → ℝ` | `∂_α J^α = ∑ α, ∂_α J^α` for real components `J α` |
+| `energyCurrent` | `(m : ℝ) (u : Spacetime → F) (α : Fin 4) : Spacetime → ℝ` | `P^α = -η^{αγ} T_{γ0}`; `P^0 = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²)` |
+| `semiHyperboloidalDeriv` | `(a : Fin 3) (u : Spacetime → F) : Spacetime → F` | `∂̲_a u = ∂_a u + (x_a / t) ∂_t u` (`HyperboloidalEnergy.lean`) |
+| `hyperboloidalEnergyDensity` | `(m : ℝ) (u : Spacetime → F) : Spacetime → ℝ` | `e_m[u] = ‖∂_t u‖² + ∑ a, ‖∂_a u‖² + 2 ∑ a, (x_a / t) ⟪∂_a u, ∂_t u⟫ + m² ‖u‖²` (no `½`) |
+| `hyperboloidalEnergy` | `(m s : ℝ) (u : Spacetime → F) : ℝ` | `E_m(s, u) = ∫_{ℝ³} e_m[u](√(s² + ‖x‖²), x) dx`; LeFloch–Ma's `E_{m,c}(s, u)` for `m = c` |
+| `regionBetweenHyperboloids` | `(s₁ s₂ : ℝ) : Set Spacetime` | `{(t, x) \| √(s₁² + ‖x‖²) ≤ t ≤ √(s₂² + ‖x‖²)}` (`HyperboloidalEnergyIdentity.lean`) |
+| `cone` | `: Set Spacetime` | the closed solid cone `K = {(t, x) \| ‖x‖ ≤ t - 1}` |
+| `hyperboloid` | `(s : ℝ) : Set Spacetime` | `H_s = {(t, x) \| t = √(s² + ‖x‖²)}` (`KlainermanSobolev.lean`) |
+| `hyperboloidPoint` | `(s : ℝ) (x : EuclideanSpace ℝ (Fin 3)) : Spacetime` | the point `(√(s² + ‖x‖²), x)` of `H_s` |
+| `restrictHyperboloid` | `(s : ℝ) (v : Spacetime → F) : EuclideanSpace ℝ (Fin 3) → F` | `v\|_{H_s}(x) = v(√(s² + ‖x‖²), x)` |
+| `EuclideanSobolev.hyperboloidalWeightedDeriv` | `(s : ℝ) (a : Fin 3) (w : EuclideanSpace ℝ (Fin 3) → ℝ) : EuclideanSpace ℝ (Fin 3) → ℝ` | `Λ_a w = √(s² + ‖x‖²) ∂_a w` on `ℝ³` (`Analysis/HyperboloidalSobolev.lean`, namespace `VectorFieldMethod.EuclideanSobolev`) |
+
+For the definitions after `scaling` (the later layers), the second column is the
+signature copied from the source: the binders and the result type, between the
+name and `:=` (for `hyperboloidalWeightedDeriv` the two source lines are joined
+with one space). `hyperboloidalWeightedDeriv` is in the namespace
+`VectorFieldMethod.EuclideanSobolev`, all other entries in
+`VectorFieldMethod.Minkowski`.
 
 Scoped notation: `η` (`minkowskiMetric`), `∂ₜ` (`timeDeriv`), `∂ₓ[a]`
 (`spaceDeriv a`), `∂[α]` (`partialDeriv α`), `□` (`dAlembertian`). With the scope open

@@ -5,9 +5,8 @@ layer (see [`minkowski.md`](minkowski.md) for the boosts $`L_a`$ and their conve
 the Sobolev inequality layer on $`\mathbb{R}^3`$ (see [`euclidean-sobolev.md`](euclidean-sobolev.md)
 for the weighted derivatives $`\Lambda_a`$ and the weighted inequality). All declarations are in
 the namespace `VectorFieldMethod.Minkowski`. The links below point to commit
-[`e5577d9`](https://github.com/Oho1e/VectorFieldMethod/tree/e5577d9a39187a7a3c979fb4ce0c99a9b587f476)
-of the pull request branch of this layer, the last commit that changes the Lean file of this
-layer; they are to be replaced by a `main` commit once the pull request is merged. How to read the
+[`65434c1`](https://github.com/Oho1e/VectorFieldMethod/tree/65434c138668e720ea41dbd287fb6c1298ad00f9)
+of `main`. How to read the
 entries: [`README.md`](README.md). Background and proofs:
 [`../hyperboloidal-sobolev.md`](../hyperboloidal-sobolev.md).
 
@@ -48,7 +47,7 @@ The `variable` line of the file declares the type of values `F`:
   integrability). The restriction formulas and the inequality are about real-valued functions
   only: their statements write `Spacetime → ℝ`.
 
-[`KlainermanSobolev.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L62):
+[`KlainermanSobolev.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L62):
 
 ```lean
 open MeasureTheory
@@ -80,7 +79,7 @@ scope `ContDiff`.
   $`H_s = \{(t, x) \in \mathbb{R}^{1+3} : t = \sqrt{s^2 + \lvert x\rvert^2}\}`$. For $`s \neq 0`$ it
   is the upper sheet $`\{t^2 - \lvert x\rvert^2 = s^2,\ t \gt 0\}`$ of the hyperboloid.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L75)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L75)
 
 ```lean
 def hyperboloid (s : ℝ) : Set Spacetime :=
@@ -96,7 +95,7 @@ def hyperboloid (s : ℝ) : Set Spacetime :=
 - **Math.** For $`s \in \mathbb{R}`$ and $`x \in \mathbb{R}^3`$, the point
   $`(\varphi_s(x), x) = (\sqrt{s^2 + \lvert x\rvert^2}, x)`$ of $`H_s`$.
 - **Hypotheses.** None.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidPoint`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L83)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidPoint`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L83)
 
 ```lean
 def hyperboloidPoint (s : ℝ) (x : EuclideanSpace ℝ (Fin 3)) : Spacetime :=
@@ -116,7 +115,7 @@ def hyperboloidPoint (s : ℝ) (x : EuclideanSpace ℝ (Fin 3)) : Spacetime :=
   ```
 - **Hypotheses.** None: this is a definition, for every real $`s`$ and every function $`v`$; no
   structure on $`F`$ is used.
-- **Lean.** `VectorFieldMethod.Minkowski.restrictHyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L93)
+- **Lean.** `VectorFieldMethod.Minkowski.restrictHyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L93)
 
 ```lean
 def restrictHyperboloid (s : ℝ) (v : Spacetime → F) : EuclideanSpace ℝ (Fin 3) → F :=
@@ -143,7 +142,7 @@ def restrictHyperboloid (s : ℝ) (v : Spacetime → F) : EuclideanSpace ℝ (Fi
   ```
 - **Hypotheses.** $`s \neq 0`$; $`v`$ is (Fréchet) differentiable at the single point
   $`(\varphi_s(x), x)`$; nothing is assumed about $`v`$ elsewhere.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_restrictHyperboloid_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L127)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_restrictHyperboloid_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L127)
 
 ```lean
 theorem hyperboloidalWeightedDeriv_restrictHyperboloid_apply {s : ℝ} (hs : s ≠ 0) (a : Fin 3)
@@ -172,8 +171,8 @@ theorem hyperboloidalWeightedDeriv_restrictHyperboloid_apply {s : ℝ} (hs : s �
 - **Hypotheses.** $`s \neq 0`$; first statement: $`v`$ is differentiable at
   $`(\varphi_s(x), x)`$ for every $`x \in \mathbb{R}^3`$; second statement: $`U`$ is open, contains
   $`H_s`$, and $`u`$ is differentiable at every point of $`U`$.
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_restrictHyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L146),
-  and `VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_restrictHyperboloid_of_differentiableOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L162)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_restrictHyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L146),
+  and `VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_restrictHyperboloid_of_differentiableOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L162)
 
 ```lean
 theorem hyperboloidalWeightedDeriv_restrictHyperboloid {s : ℝ} (hs : s ≠ 0) (a : Fin 3)
@@ -203,7 +202,7 @@ theorem hyperboloidalWeightedDeriv_restrictHyperboloid_of_differentiableOn {s : 
   ```
 - **Hypotheses.** $`s \neq 0`$; $`U`$ is open and $`H_s \subseteq U`$; $`u`$ is $`C^2`$ on $`U`$
   (`ContDiffOn ℝ 2 u U`).
-- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_hyperboloidalWeightedDeriv_restrictHyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L173)
+- **Lean.** `VectorFieldMethod.Minkowski.hyperboloidalWeightedDeriv_hyperboloidalWeightedDeriv_restrictHyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L173)
 
 ```lean
 theorem hyperboloidalWeightedDeriv_hyperboloidalWeightedDeriv_restrictHyperboloid {s : ℝ}
@@ -230,7 +229,7 @@ theorem hyperboloidalWeightedDeriv_hyperboloidalWeightedDeriv_restrictHyperboloi
   $`u|_{H_s}`$ is $`C^2`$ on $`\mathbb{R}^3`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`s \neq 0`$; $`U`$ is open and $`H_s \subseteq U`$;
   $`u`$ is $`C^n`$ on $`U`$.
-- **Lean.** `VectorFieldMethod.Minkowski.contDiff_restrictHyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L195)
+- **Lean.** `VectorFieldMethod.Minkowski.contDiff_restrictHyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L195)
 
 ```lean
 theorem contDiff_restrictHyperboloid {s : ℝ} (hs : s ≠ 0) {n : ℕ∞ω} {u : Spacetime → F}
@@ -262,7 +261,7 @@ theorem contDiff_restrictHyperboloid {s : ℝ} (hs : s ≠ 0) {n : ℕ∞ω} {u 
   where $`L^J`$ runs over the $`1 + 3 + 9 = 13`$ ordered products $`1`$, $`L_a`$, $`L_a L_b`$.
 - **Hypotheses.** $`s \gt 0`$; $`U`$ is open and contains $`H_s`$; $`u`$ is $`C^2`$ on $`U`$. There
   is no integrability, decay or support assumption.
-- **Lean.** `VectorFieldMethod.Minkowski.exists_klainermanSobolev_hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L211)
+- **Lean.** `VectorFieldMethod.Minkowski.exists_klainermanSobolev_hyperboloid`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L211)
 
 ```lean
 theorem exists_klainermanSobolev_hyperboloid :
@@ -312,7 +311,7 @@ theorem exists_klainermanSobolev_hyperboloid :
   $`(L_a L_b u)|_{H_s}`$ are continuous on $`\mathbb{R}^3`$ for all $`a, b \in \{1, 2, 3\}`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`U`$ is open and $`H_s \subseteq U`$; $`u`$ is
   $`C^2`$ on $`U`$. No hypothesis on $`s`$.
-- **Lean.** `VectorFieldMethod.Minkowski.continuous_restrictHyperboloid_boosts`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L259)
+- **Lean.** `VectorFieldMethod.Minkowski.continuous_restrictHyperboloid_boosts`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L259)
 
 ```lean
 theorem continuous_restrictHyperboloid_boosts {s : ℝ} {u : Spacetime → F} {U : Set Spacetime}
@@ -335,7 +334,7 @@ theorem continuous_restrictHyperboloid_boosts {s : ℝ} {u : Spacetime → F} {U
   ```
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^2`$ on $`\mathbb{R}^{1+3}`$ and has compact
   support. No hypothesis on $`s`$.
-- **Lean.** `VectorFieldMethod.Minkowski.eLpNorm_restrictHyperboloid_boosts_lt_top`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L297)
+- **Lean.** `VectorFieldMethod.Minkowski.eLpNorm_restrictHyperboloid_boosts_lt_top`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L297)
 
 ```lean
 theorem eLpNorm_restrictHyperboloid_boosts_lt_top (s : ℝ) {u : Spacetime → F}
@@ -357,15 +356,15 @@ The section "Sanity checks" at the end of the file contains the following `examp
 
 | Statement | Line |
 | --- | --- |
-| $`u = t`$, $`U = \mathbb{R}^{1+3}`$: the hypotheses of `exists_klainermanSobolev_hyperboloid` hold. Its right side is $`\infty`$ here, since $`t\vert_{H_s} = \varphi_s`$ is not square integrable | [L314](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L314) |
-| $`u = 1/t`$, $`U = \{t \gt 0\}`$: the hypotheses hold with an open set $`U`$ smaller than spacetime, for a function singular at $`t = 0`$. Its right side is $`\infty`$ here as well: $`(1/t)\vert_{H_s} = 1/\varphi_s`$ and $`\int \varphi_s^{-2}\, dx = 4\pi \int_0^\infty r^2/(s^2 + r^2)\, dr = \infty`$ | [L329](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L329) |
-| There is a function $`u`$ of class $`C^\infty`$ (`ContDiff ℝ ∞ u`) whose left side at the point $`(1, 0)`$ of $`H_1`$ is $`1`$ and whose right side for $`s = 1`$ is finite; the proof takes a smooth bump function. This example does not apply the theorem | [L350](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L350) |
-| The theorem applied to the same bump function at $`(1, 0) \in H_1`$, with $`U = \mathbb{R}^{1+3}`$: for a constant $`C`$ for which the conclusion of the theorem holds, $`1 \le C R`$ where $`R`$ is the right side for $`u`$ and $`R \lt \infty`$; hence $`C \gt 0`$ | [L371](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L371) |
-| $`v = t`$, computed independently of the restriction formula: $`\Lambda_a \varphi_s = x^a`$ and $`(L_a t)\vert_{H_s} = x^a`$ | [L401](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L401) |
-| $`v = t`$: the restriction formula applies ($`t`$ is differentiable) and gives $`\Lambda_a \varphi_s(x) = x^a`$ | [L411](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L411) |
-| $`v = x^b`$, testing the term $`t\, \partial_a v`$: both sides computed independently, $`\Lambda_a x^b = \varphi_s\, \delta_{ab}`$ and $`(L_a x^b)\vert_{H_s} = \varphi_s\, \delta_{ab}`$, and the restriction formula (as functions) applies | [L424](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L424) |
-| $`u = t`$, second order, computed independently: $`\Lambda_a \Lambda_b \varphi_s = \varphi_s\, \delta_{ab}`$ and $`(L_a L_b t)\vert_{H_s} = \varphi_s\, \delta_{ab}`$ | [L443](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L443) |
-| $`u = x^c`$, $`U = \mathbb{R}^{1+3}`$: the second-order formula applies and gives $`\Lambda_a \Lambda_b x^c = (L_a L_b x^c)\vert_{H_s} = \delta_{bc}\, x^a`$, which is not symmetric in $`a, b`$ | [L468](https://github.com/Oho1e/VectorFieldMethod/blob/e5577d9a39187a7a3c979fb4ce0c99a9b587f476/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L468) |
+| $`u = t`$, $`U = \mathbb{R}^{1+3}`$: the hypotheses of `exists_klainermanSobolev_hyperboloid` hold. Its right side is $`\infty`$ here, since $`t\vert_{H_s} = \varphi_s`$ is not square integrable | [L314](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L314) |
+| $`u = 1/t`$, $`U = \{t \gt 0\}`$: the hypotheses hold with an open set $`U`$ smaller than spacetime, for a function singular at $`t = 0`$. Its right side is $`\infty`$ here as well: $`(1/t)\vert_{H_s} = 1/\varphi_s`$ and $`\int \varphi_s^{-2}\, dx = 4\pi \int_0^\infty r^2/(s^2 + r^2)\, dr = \infty`$ | [L329](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L329) |
+| There is a function $`u`$ of class $`C^\infty`$ (`ContDiff ℝ ∞ u`) whose left side at the point $`(1, 0)`$ of $`H_1`$ is $`1`$ and whose right side for $`s = 1`$ is finite; the proof takes a smooth bump function. This example does not apply the theorem | [L350](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L350) |
+| The theorem applied to the same bump function at $`(1, 0) \in H_1`$, with $`U = \mathbb{R}^{1+3}`$: for a constant $`C`$ for which the conclusion of the theorem holds, $`1 \le C R`$ where $`R`$ is the right side for $`u`$ and $`R \lt \infty`$; hence $`C \gt 0`$ | [L371](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L371) |
+| $`v = t`$, computed independently of the restriction formula: $`\Lambda_a \varphi_s = x^a`$ and $`(L_a t)\vert_{H_s} = x^a`$ | [L401](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L401) |
+| $`v = t`$: the restriction formula applies ($`t`$ is differentiable) and gives $`\Lambda_a \varphi_s(x) = x^a`$ | [L411](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L411) |
+| $`v = x^b`$, testing the term $`t\, \partial_a v`$: both sides computed independently, $`\Lambda_a x^b = \varphi_s\, \delta_{ab}`$ and $`(L_a x^b)\vert_{H_s} = \varphi_s\, \delta_{ab}`$, and the restriction formula (as functions) applies | [L424](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L424) |
+| $`u = t`$, second order, computed independently: $`\Lambda_a \Lambda_b \varphi_s = \varphi_s\, \delta_{ab}`$ and $`(L_a L_b t)\vert_{H_s} = \varphi_s\, \delta_{ab}`$ | [L443](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L443) |
+| $`u = x^c`$, $`U = \mathbb{R}^{1+3}`$: the second-order formula applies and gives $`\Lambda_a \Lambda_b x^c = (L_a L_b x^c)\vert_{H_s} = \delta_{bc}\, x^a`$, which is not symmetric in $`a, b`$ | [L468](https://github.com/Oho1e/VectorFieldMethod/blob/65434c138668e720ea41dbd287fb6c1298ad00f9/VectorFieldMethod/Minkowski/KlainermanSobolev.lean#L468) |
 
 The first, second and fourth examples apply `exists_klainermanSobolev_hyperboloid`, so its
 hypotheses can hold simultaneously, with $`U`$ the whole spacetime or a smaller open set. In the
