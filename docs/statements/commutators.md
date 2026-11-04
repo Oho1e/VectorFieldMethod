@@ -6,9 +6,14 @@ the Minkowski coordinate layer, documented in [`minkowski.md`](minkowski.md), wh
 notation and definitions (`derivAlong`, the component fields `timeField`, `spaceField`,
 `coordField`, `rotationField`, `boostField`, `scalingField`, the operators `∂ₜ`, `∂ₓ[a]`, `∂[α]`,
 `rotation`, `boost`, `scaling`, `□`, `kleinGordon`) are used here without change. All declarations
-are in the namespace `VectorFieldMethod.Minkowski`. The links below point to commit
-[`d3ad61d`](https://github.com/Oho1e/VectorFieldMethod/tree/d3ad61dc2447af2599860c695e03b3c37b718008), the last commit that changes
-the Lean files of this layer. How to read the entries: [`README.md`](README.md).
+are in the namespace `VectorFieldMethod.Minkowski`. How to read the entries:
+[`README.md`](README.md).
+
+**Links.** The links below point to commit
+[`b22652d`](https://github.com/Oho1e/VectorFieldMethod/tree/b22652dbdabbdc9748d2b68c5c23dfe350439c37) of the pull request that last
+changed the Lean files of this layer, not to a commit of `main`; the Lean files are the same at the
+head of that pull request. After the pull request is merged, all links will be replaced by links to
+the corresponding commit of `main`.
 
 ## Notation and conventions
 
@@ -44,12 +49,14 @@ def lieBracket (V W : E → E) (x : E) : E :=
 that multiplies component fields and values in $`F`$ by `•`.
 
 **Forms of the statements.** Equalities between operators, such as
-$`[L_a, L_b] = \Omega_{ab}`$, are stated twice: at a point $`p`$ where $`u`$ is $`C^k`$ (names
+$`[L_a, L_b] = \Omega_{ab}`$, are stated three times: at a point $`p`$ where $`u`$ is $`C^k`$ (names
 ending in `_apply`, hypothesis `ContDiffAt ℝ k u p`, which means that $`u`$ is $`C^k`$ on a
-neighbourhood of $`p`$), and as equalities of functions for $`u \in C^k(\mathbb{R}^{1+3})`$ (same
-name without `_apply`, hypothesis `ContDiff ℝ k u`). Vanishing commutators $`[X, Y] = 0`$ are stated
-as commutation relations $`X(Yu) = Y(Xu)`$ (names with `_comm`). Constant functions and fields are
-written `fun _ ↦ c`.
+neighbourhood of $`p`$); as equalities of functions for $`u \in C^k(\mathbb{R}^{1+3})`$ (same name
+without `_apply`, hypothesis `ContDiff ℝ k u`); and on an open set $`U`$ on which $`u`$ is $`C^k`$
+(`_of_contDiffOn` instead of `_apply`, hypotheses `IsOpen U` and `ContDiffOn ℝ k u U`, conclusion
+`Set.EqOn f g U`, which means $`f(p) = g(p)`$ for every $`p \in U`$). Vanishing commutators
+$`[X, Y] = 0`$ are stated as commutation relations $`X(Yu) = Y(Xu)`$ (names with `_comm`). Constant
+functions and fields are written `fun _ ↦ c`.
 
 **Second derivatives.** $`D^2u(p)(v, w)`$ is `fderiv ℝ (fderiv ℝ u) p v w`, the derivative at $`p`$
 in the direction $`v`$ of $`q \mapsto Du(q)\,w`$. For $`u`$ of class $`C^2`$ near $`p`$ it is
@@ -60,18 +67,18 @@ symmetric, and $`\partial_\alpha \partial_\beta u(p) = D^2u(p)(E_\alpha, E_\beta
 
 The `variable` lines of the two files; their only hypotheses are that $`F`$ is a real normed space.
 
-[`Commutators.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L57):
+[`Commutators.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L62):
 
 ```lean
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
-variable {V W : Spacetime → Spacetime} {u : Spacetime → F} {p : Spacetime}
+variable {V W : Spacetime → Spacetime} {u : Spacetime → F} {p : Spacetime} {U : Set Spacetime}
 ```
 
-[`WaveCommutators.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L57):
+[`WaveCommutators.lean`](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L60):
 
 ```lean
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
-variable {V : Spacetime → Spacetime} {u : Spacetime → F} {p : Spacetime}
+variable {V : Spacetime → Spacetime} {u : Spacetime → F} {p : Spacetime} {U : Set Spacetime}
 ```
 
 ## Definitions
@@ -91,7 +98,7 @@ The layer introduces no new definitions; it uses Mathlib's Lie bracket `VectorFi
   ```
 - **Hypotheses.** $`F`$ is a real normed space; $`V`$ and $`W`$ are differentiable at $`p`$; $`u`$
   is $`C^2`$ at $`p`$ (`ContDiffAt ℝ 2 u p`).
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_derivAlong_sub_derivAlong_derivAlong_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L64)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_derivAlong_sub_derivAlong_derivAlong_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L69)
 
 ```lean
 theorem derivAlong_derivAlong_sub_derivAlong_derivAlong_apply (hV : DifferentiableAt ℝ V p)
@@ -111,7 +118,7 @@ theorem derivAlong_derivAlong_sub_derivAlong_derivAlong_apply (hV : Differentiab
   $`u \in C^2(\mathbb{R}^{1+3}, F)`$. Then $`V(Wu) - W(Vu) = [V, W]u`$ on $`\mathbb{R}^{1+3}`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`V`$ and $`W`$ are differentiable everywhere;
   $`u`$ is $`C^2`$ (`ContDiff ℝ 2 u`).
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_derivAlong_sub_derivAlong_derivAlong`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L73)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_derivAlong_sub_derivAlong_derivAlong`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L78)
 
 ```lean
 theorem derivAlong_derivAlong_sub_derivAlong_derivAlong (hV : Differentiable ℝ V)
@@ -120,12 +127,30 @@ theorem derivAlong_derivAlong_sub_derivAlong_derivAlong (hV : Differentiable ℝ
       derivAlong (lieBracket ℝ V W) u
 ```
 
+### The commutator of two vector fields is the Lie bracket (on an open set)
+
+- **Math.** Let $`U \subset \mathbb{R}^{1+3}`$ be open, let
+  $`V, W : \mathbb{R}^{1+3} \to \mathbb{R}^{1+3}`$ be differentiable on $`U`$ and let $`u`$ be
+  $`C^2`$ on $`U`$. Then $`V(Wu) - W(Vu) = [V, W]u`$ at every point of $`U`$.
+- **Hypotheses.** $`F`$ is a real normed space; $`U`$ is open (`IsOpen U`); $`V`$ and $`W`$ are
+  differentiable on $`U`$ (`DifferentiableOn ℝ V U`, `DifferentiableOn ℝ W U`); $`u`$ is $`C^2`$ on
+  $`U`$ (`ContDiffOn ℝ 2 u U`).
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_derivAlong_sub_derivAlong_derivAlong_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L551)
+
+```lean
+theorem derivAlong_derivAlong_sub_derivAlong_derivAlong_of_contDiffOn (hU : IsOpen U)
+    (hV : DifferentiableOn ℝ V U) (hW : DifferentiableOn ℝ W U) (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (derivAlong V (derivAlong W u) - derivAlong W (derivAlong V u))
+      (derivAlong (lieBracket ℝ V W) u) U
+```
+
 ## Main theorems: commutation relations of the Minkowski vector fields
 
 Each entry gives the Lie bracket of the component fields (an equality of maps
 $`\mathbb{R}^{1+3} \to \mathbb{R}^{1+3}`$, no hypotheses) and the resulting relation between the
-operators, at a point and as an equality of functions. The operator relations follow from the
-entry above, since all component fields are smooth.
+operators, at a point, as an equality of functions, and on an open set $`U`$ on which $`u`$ is
+$`C^2`$. The operator relations follow from the first entries, since all component fields are
+smooth.
 
 ### $`[\partial_t, L_a] = \partial_a`$
 
@@ -137,10 +162,12 @@ entry above, since all component fields are smooth.
   and $`\partial_t L_a u - L_a \partial_t u = \partial_a u`$ on $`\mathbb{R}^{1+3}`$ for
   $`u \in C^2`$.
 - **Hypotheses.** Field identity: none. Operator identities: $`F`$ is a real normed space; $`u`$
-  is $`C^2`$ at $`p`$ (`ContDiffAt ℝ 2 u p`), resp. $`u`$ is $`C^2`$ (`ContDiff ℝ 2 u`).
-- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_timeField_boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L192);
-  `VectorFieldMethod.Minkowski.timeDeriv_boost_sub_boost_timeDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L315);
-  `VectorFieldMethod.Minkowski.timeDeriv_boost_sub_boost_timeDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L323)
+  is $`C^2`$ at $`p`$ (`ContDiffAt ℝ 2 u p`), resp. $`u`$ is $`C^2`$ (`ContDiff ℝ 2 u`), resp.
+  $`U`$ is open and $`u`$ is $`C^2`$ on $`U`$ (`IsOpen U`, `ContDiffOn ℝ 2 u U`).
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_timeField_boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L197);
+  `VectorFieldMethod.Minkowski.timeDeriv_boost_sub_boost_timeDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L380);
+  `VectorFieldMethod.Minkowski.timeDeriv_boost_sub_boost_timeDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L388);
+  `VectorFieldMethod.Minkowski.timeDeriv_boost_sub_boost_timeDeriv_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L559)
 
 ```lean
 theorem lieBracket_timeField_boostField (a : Fin 3) :
@@ -151,6 +178,9 @@ theorem timeDeriv_boost_sub_boost_timeDeriv_apply (a : Fin 3) (hu : ContDiffAt �
 
 theorem timeDeriv_boost_sub_boost_timeDeriv (a : Fin 3) (hu : ContDiff ℝ 2 u) :
     ∂ₜ (boost a u) - boost a (∂ₜ u) = ∂ₓ[a] u
+
+theorem timeDeriv_boost_sub_boost_timeDeriv_of_contDiffOn (a : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) : Set.EqOn (∂ₜ (boost a u) - boost a (∂ₜ u)) (∂ₓ[a] u) U
 ```
 
 ### $`[\partial_b, L_a] = \delta_{ab}\, \partial_t`$
@@ -162,10 +192,12 @@ theorem timeDeriv_boost_sub_boost_timeDeriv (a : Fin 3) (hu : ContDiff ℝ 2 u) 
   ```
   and the same identity of functions for $`u \in C^2`$.
 - **Hypotheses.** Field identity: none. Operator identities: $`F`$ is a real normed space; $`u`$
-  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_spaceField_boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L199);
-  `VectorFieldMethod.Minkowski.spaceDeriv_boost_sub_boost_spaceDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L328);
-  `VectorFieldMethod.Minkowski.spaceDeriv_boost_sub_boost_spaceDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L336)
+  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$, resp. $`U`$ is open and $`u`$ is $`C^2`$ on
+  $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_spaceField_boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L204);
+  `VectorFieldMethod.Minkowski.spaceDeriv_boost_sub_boost_spaceDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L393);
+  `VectorFieldMethod.Minkowski.spaceDeriv_boost_sub_boost_spaceDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L401);
+  `VectorFieldMethod.Minkowski.spaceDeriv_boost_sub_boost_spaceDeriv_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L564)
 
 ```lean
 theorem lieBracket_spaceField_boostField (a b : Fin 3) :
@@ -176,6 +208,11 @@ theorem spaceDeriv_boost_sub_boost_spaceDeriv_apply (a b : Fin 3) (hu : ContDiff
 
 theorem spaceDeriv_boost_sub_boost_spaceDeriv (a b : Fin 3) (hu : ContDiff ℝ 2 u) :
     ∂ₓ[b] (boost a u) - boost a (∂ₓ[b] u) = (if a = b then (1 : ℝ) else 0) • ∂ₜ u
+
+theorem spaceDeriv_boost_sub_boost_spaceDeriv_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (∂ₓ[b] (boost a u) - boost a (∂ₓ[b] u))
+      ((if a = b then (1 : ℝ) else 0) • ∂ₜ u) U
 ```
 
 - **Notes.** The Lean arguments are in the order `a b`, with `∂ₓ[b]` the translation and `boost a`
@@ -188,9 +225,11 @@ theorem spaceDeriv_boost_sub_boost_spaceDeriv (a b : Fin 3) (hu : ContDiff ℝ 2
   and $`\partial_t \Omega_{ab} u = \Omega_{ab} \partial_t u`$ on $`\mathbb{R}^{1+3}`$ for
   $`u \in C^2`$.
 - **Hypotheses.** Field identity: none. Operator identities: $`F`$ is a real normed space; $`u`$
-  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_timeField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L211);
-  `VectorFieldMethod.Minkowski.timeDeriv_rotation_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L341); `VectorFieldMethod.Minkowski.timeDeriv_rotation_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L349)
+  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$, resp. $`U`$ is open and $`u`$ is $`C^2`$ on
+  $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_timeField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L216);
+  `VectorFieldMethod.Minkowski.timeDeriv_rotation_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L406); `VectorFieldMethod.Minkowski.timeDeriv_rotation_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L414);
+  `VectorFieldMethod.Minkowski.timeDeriv_rotation_comm_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L571)
 
 ```lean
 theorem lieBracket_timeField_rotationField (a b : Fin 3) :
@@ -201,6 +240,9 @@ theorem timeDeriv_rotation_comm_apply (a b : Fin 3) (hu : ContDiffAt ℝ 2 u p) 
 
 theorem timeDeriv_rotation_comm (a b : Fin 3) (hu : ContDiff ℝ 2 u) :
     ∂ₜ (rotation a b u) = rotation a b (∂ₜ u)
+
+theorem timeDeriv_rotation_comm_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) : Set.EqOn (∂ₜ (rotation a b u)) (rotation a b (∂ₜ u)) U
 ```
 
 ### $`[\partial_c, \Omega_{ab}] = \delta_{ca}\, \partial_b - \delta_{cb}\, \partial_a`$
@@ -213,10 +255,12 @@ theorem timeDeriv_rotation_comm (a b : Fin 3) (hu : ContDiff ℝ 2 u) :
   ```
   and the same identity of functions for $`u \in C^2`$.
 - **Hypotheses.** Field identity: none. Operator identities: $`F`$ is a real normed space; $`u`$
-  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_spaceField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L218);
-  `VectorFieldMethod.Minkowski.spaceDeriv_rotation_sub_rotation_spaceDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L354);
-  `VectorFieldMethod.Minkowski.spaceDeriv_rotation_sub_rotation_spaceDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L366)
+  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$, resp. $`U`$ is open and $`u`$ is $`C^2`$ on
+  $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_spaceField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L223);
+  `VectorFieldMethod.Minkowski.spaceDeriv_rotation_sub_rotation_spaceDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L419);
+  `VectorFieldMethod.Minkowski.spaceDeriv_rotation_sub_rotation_spaceDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L431);
+  `VectorFieldMethod.Minkowski.spaceDeriv_rotation_sub_rotation_spaceDeriv_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L576)
 
 ```lean
 theorem lieBracket_spaceField_rotationField (a b c : Fin 3) :
@@ -233,6 +277,11 @@ theorem spaceDeriv_rotation_sub_rotation_spaceDeriv_apply (a b c : Fin 3)
 theorem spaceDeriv_rotation_sub_rotation_spaceDeriv (a b c : Fin 3) (hu : ContDiff ℝ 2 u) :
     ∂ₓ[c] (rotation a b u) - rotation a b (∂ₓ[c] u) =
       (if c = a then (1 : ℝ) else 0) • ∂ₓ[b] u - (if c = b then (1 : ℝ) else 0) • ∂ₓ[a] u
+
+theorem spaceDeriv_rotation_sub_rotation_spaceDeriv_of_contDiffOn (a b c : Fin 3)
+    (hU : IsOpen U) (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (∂ₓ[c] (rotation a b u) - rotation a b (∂ₓ[c] u))
+      ((if c = a then (1 : ℝ) else 0) • ∂ₓ[b] u - (if c = b then (1 : ℝ) else 0) • ∂ₓ[a] u) U
 ```
 
 ### $`[\partial_t, S] = \partial_t`$ and $`[\partial_a, S] = \partial_a`$
@@ -245,14 +294,17 @@ theorem spaceDeriv_rotation_sub_rotation_spaceDeriv (a b c : Fin 3) (hu : ContDi
   ```
   and the same identities of functions for $`u \in C^2`$.
 - **Hypotheses.** Field identities: none. Operator identities: $`F`$ is a real normed space; $`u`$
-  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_timeField_scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L232);
-  `VectorFieldMethod.Minkowski.lieBracket_spaceField_scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L239);
-  `VectorFieldMethod.Minkowski.lieBracket_coordField_scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L246);
-  `VectorFieldMethod.Minkowski.timeDeriv_scaling_sub_scaling_timeDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L372);
-  `VectorFieldMethod.Minkowski.timeDeriv_scaling_sub_scaling_timeDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L380);
-  `VectorFieldMethod.Minkowski.spaceDeriv_scaling_sub_scaling_spaceDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L385);
-  `VectorFieldMethod.Minkowski.spaceDeriv_scaling_sub_scaling_spaceDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L393)
+  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$, resp. $`U`$ is open and $`u`$ is $`C^2`$ on
+  $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_timeField_scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L237);
+  `VectorFieldMethod.Minkowski.lieBracket_spaceField_scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L244);
+  `VectorFieldMethod.Minkowski.lieBracket_coordField_scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L251);
+  `VectorFieldMethod.Minkowski.timeDeriv_scaling_sub_scaling_timeDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L437);
+  `VectorFieldMethod.Minkowski.timeDeriv_scaling_sub_scaling_timeDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L445);
+  `VectorFieldMethod.Minkowski.spaceDeriv_scaling_sub_scaling_spaceDeriv_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L450);
+  `VectorFieldMethod.Minkowski.spaceDeriv_scaling_sub_scaling_spaceDeriv`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L458);
+  `VectorFieldMethod.Minkowski.timeDeriv_scaling_sub_scaling_timeDeriv_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L584);
+  `VectorFieldMethod.Minkowski.spaceDeriv_scaling_sub_scaling_spaceDeriv_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L589)
 
 ```lean
 theorem lieBracket_timeField_scalingField :
@@ -275,6 +327,13 @@ theorem spaceDeriv_scaling_sub_scaling_spaceDeriv_apply (a : Fin 3) (hu : ContDi
 
 theorem spaceDeriv_scaling_sub_scaling_spaceDeriv (a : Fin 3) (hu : ContDiff ℝ 2 u) :
     ∂ₓ[a] (scaling u) - scaling (∂ₓ[a] u) = ∂ₓ[a] u
+
+theorem timeDeriv_scaling_sub_scaling_timeDeriv_of_contDiffOn (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) : Set.EqOn (∂ₜ (scaling u) - scaling (∂ₜ u)) (∂ₜ u) U
+
+theorem spaceDeriv_scaling_sub_scaling_spaceDeriv_of_contDiffOn (a : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (∂ₓ[a] (scaling u) - scaling (∂ₓ[a] u)) (∂ₓ[a] u) U
 ```
 
 ### $`[L_a, L_b] = \Omega_{ab}`$
@@ -286,9 +345,11 @@ theorem spaceDeriv_scaling_sub_scaling_spaceDeriv (a : Fin 3) (hu : ContDiff ℝ
   ```
   and $`L_a L_b u - L_b L_a u = \Omega_{ab} u`$ on $`\mathbb{R}^{1+3}`$ for $`u \in C^2`$.
 - **Hypotheses.** Field identity: none. Operator identities: $`F`$ is a real normed space; $`u`$
-  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_boostField_boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L253);
-  `VectorFieldMethod.Minkowski.boost_boost_sub_boost_boost_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L400); `VectorFieldMethod.Minkowski.boost_boost_sub_boost_boost`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L408)
+  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$, resp. $`U`$ is open and $`u`$ is $`C^2`$ on
+  $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_boostField_boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L258);
+  `VectorFieldMethod.Minkowski.boost_boost_sub_boost_boost_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L465); `VectorFieldMethod.Minkowski.boost_boost_sub_boost_boost`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L473);
+  `VectorFieldMethod.Minkowski.boost_boost_sub_boost_boost_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L595)
 
 ```lean
 theorem lieBracket_boostField_boostField (a b : Fin 3) :
@@ -299,6 +360,10 @@ theorem boost_boost_sub_boost_boost_apply (a b : Fin 3) (hu : ContDiffAt ℝ 2 u
 
 theorem boost_boost_sub_boost_boost (a b : Fin 3) (hu : ContDiff ℝ 2 u) :
     boost a (boost b u) - boost b (boost a u) = rotation a b u
+
+theorem boost_boost_sub_boost_boost_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (boost a (boost b u) - boost b (boost a u)) (rotation a b u) U
 ```
 
 - **Notes.** The sign is fixed by $`\Omega_{ab} = x^a \partial_b - x^b \partial_a`$ and
@@ -317,10 +382,12 @@ theorem boost_boost_sub_boost_boost (a b : Fin 3) (hu : ContDiff ℝ 2 u) :
   ```
   and the same identity of functions for $`u \in C^2`$.
 - **Hypotheses.** Field identity: none. Operator identities: $`F`$ is a real normed space; $`u`$
-  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_boostField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L263);
-  `VectorFieldMethod.Minkowski.boost_rotation_sub_rotation_boost_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L413);
-  `VectorFieldMethod.Minkowski.boost_rotation_sub_rotation_boost`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L424)
+  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$, resp. $`U`$ is open and $`u`$ is $`C^2`$ on
+  $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_boostField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L268);
+  `VectorFieldMethod.Minkowski.boost_rotation_sub_rotation_boost_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L478);
+  `VectorFieldMethod.Minkowski.boost_rotation_sub_rotation_boost`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L489);
+  `VectorFieldMethod.Minkowski.boost_rotation_sub_rotation_boost_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L601)
 
 ```lean
 theorem lieBracket_boostField_rotationField (a b c : Fin 3) :
@@ -336,6 +403,12 @@ theorem boost_rotation_sub_rotation_boost_apply (a b c : Fin 3) (hu : ContDiffAt
 theorem boost_rotation_sub_rotation_boost (a b c : Fin 3) (hu : ContDiff ℝ 2 u) :
     boost a (rotation b c u) - rotation b c (boost a u) =
       (if a = b then (1 : ℝ) else 0) • boost c u - (if a = c then (1 : ℝ) else 0) • boost b u
+
+theorem boost_rotation_sub_rotation_boost_of_contDiffOn (a b c : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (boost a (rotation b c u) - rotation b c (boost a u))
+      ((if a = b then (1 : ℝ) else 0) • boost c u -
+        (if a = c then (1 : ℝ) else 0) • boost b u) U
 ```
 
 ### $`[\Omega_{ab}, \Omega_{cd}] = \delta_{bc}\, \Omega_{ad} - \delta_{ac}\, \Omega_{bd} - \delta_{bd}\, \Omega_{ac} + \delta_{ad}\, \Omega_{bc}`$
@@ -348,10 +421,12 @@ theorem boost_rotation_sub_rotation_boost (a b c : Fin 3) (hu : ContDiff ℝ 2 u
   ```
   and the same identity of functions for $`u \in C^2`$.
 - **Hypotheses.** Field identity: none. Operator identities: $`F`$ is a real normed space; $`u`$
-  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_rotationField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L280);
-  `VectorFieldMethod.Minkowski.rotation_rotation_sub_rotation_rotation_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L431);
-  `VectorFieldMethod.Minkowski.rotation_rotation_sub_rotation_rotation`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L445)
+  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$, resp. $`U`$ is open and $`u`$ is $`C^2`$ on
+  $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_rotationField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L285);
+  `VectorFieldMethod.Minkowski.rotation_rotation_sub_rotation_rotation_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L496);
+  `VectorFieldMethod.Minkowski.rotation_rotation_sub_rotation_rotation`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L510);
+  `VectorFieldMethod.Minkowski.rotation_rotation_sub_rotation_rotation_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L610)
 
 ```lean
 theorem lieBracket_rotationField_rotationField (a b c d : Fin 3) :
@@ -375,6 +450,14 @@ theorem rotation_rotation_sub_rotation_rotation (a b c d : Fin 3) (hu : ContDiff
         (if a = c then (1 : ℝ) else 0) • rotation b d u -
         (if b = d then (1 : ℝ) else 0) • rotation a c u +
         (if a = d then (1 : ℝ) else 0) • rotation b c u
+
+theorem rotation_rotation_sub_rotation_rotation_of_contDiffOn (a b c d : Fin 3)
+    (hU : IsOpen U) (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (rotation a b (rotation c d u) - rotation c d (rotation a b u))
+      ((if b = c then (1 : ℝ) else 0) • rotation a d u -
+        (if a = c then (1 : ℝ) else 0) • rotation b d u -
+        (if b = d then (1 : ℝ) else 0) • rotation a c u +
+        (if a = d then (1 : ℝ) else 0) • rotation b c u) U
 ```
 
 - **Notes.** In Lean, `a - b - c + d` is `((a - b) - c) + d`.
@@ -386,11 +469,14 @@ theorem rotation_rotation_sub_rotation_rotation (a b c d : Fin 3) (hu : ContDiff
   $`S(L_a u)(p) = L_a(S u)(p)`$ and $`S(\Omega_{ab} u)(p) = \Omega_{ab}(S u)(p)`$, and the same
   identities of functions for $`u \in C^2`$.
 - **Hypotheses.** Field identities: none. Operator identities: $`F`$ is a real normed space; $`u`$
-  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$.
-- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_scalingField_boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L299);
-  `VectorFieldMethod.Minkowski.lieBracket_scalingField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L306); `VectorFieldMethod.Minkowski.scaling_boost_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L454);
-  `VectorFieldMethod.Minkowski.scaling_boost_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L462); `VectorFieldMethod.Minkowski.scaling_rotation_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L467);
-  `VectorFieldMethod.Minkowski.scaling_rotation_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/Commutators.lean#L475)
+  is $`C^2`$ at $`p`$, resp. $`u`$ is $`C^2`$, resp. $`U`$ is open and $`u`$ is $`C^2`$ on
+  $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_scalingField_boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L304);
+  `VectorFieldMethod.Minkowski.lieBracket_scalingField_rotationField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L311); `VectorFieldMethod.Minkowski.scaling_boost_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L519);
+  `VectorFieldMethod.Minkowski.scaling_boost_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L527); `VectorFieldMethod.Minkowski.scaling_rotation_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L532);
+  `VectorFieldMethod.Minkowski.scaling_rotation_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L540);
+  `VectorFieldMethod.Minkowski.scaling_boost_comm_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L621);
+  `VectorFieldMethod.Minkowski.scaling_rotation_comm_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L626)
 
 ```lean
 theorem lieBracket_scalingField_boostField (a : Fin 3) :
@@ -410,12 +496,84 @@ theorem scaling_rotation_comm_apply (a b : Fin 3) (hu : ContDiffAt ℝ 2 u p) :
 
 theorem scaling_rotation_comm (a b : Fin 3) (hu : ContDiff ℝ 2 u) :
     scaling (rotation a b u) = rotation a b (scaling u)
+
+theorem scaling_boost_comm_of_contDiffOn (a : Fin 3) (hU : IsOpen U) (hu : ContDiffOn ℝ 2 u U) :
+    Set.EqOn (scaling (boost a u)) (boost a (scaling u)) U
+
+theorem scaling_rotation_comm_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) : Set.EqOn (scaling (rotation a b u)) (rotation a b (scaling u)) U
 ```
 
 - **Notes.** $`S`$ is the identity map and $`L_a`$, $`\Omega_{ab}`$ are linear, so
   $`[S, W](p) = W(p) - W(p) = 0`$ for $`W = L_a, \Omega_{ab}`$.
 
+### Lie brackets in the reverse order
+
+- **Math.** For $`a, b, c \in \{1, 2, 3\}`$ and $`\alpha \in \{0, 1, 2, 3\}`$, as component
+  fields: $`[L_a, \partial_t] = -\partial_a`$, $`[L_a, \partial_b] = -\delta_{ab}\, \partial_t`$,
+  $`[\Omega_{ab}, \partial_t] = 0`$,
+  $`[\Omega_{ab}, \partial_c] = -(\delta_{ca}\, \partial_b - \delta_{cb}\, \partial_a)`$,
+  $`[S, \partial_t] = -\partial_t`$, $`[S, \partial_a] = -\partial_a`$,
+  $`[S, \partial_\alpha] = -\partial_\alpha`$,
+  $`[\Omega_{bc}, L_a] = -(\delta_{ab}\, L_c - \delta_{ac}\, L_b)`$, $`[L_a, S] = 0`$ and
+  $`[\Omega_{ab}, S] = 0`$.
+- **Hypotheses.** None.
+- **Lean.** `VectorFieldMethod.Minkowski.lieBracket_boostField_timeField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L325);
+  `VectorFieldMethod.Minkowski.lieBracket_boostField_spaceField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L330);
+  `VectorFieldMethod.Minkowski.lieBracket_rotationField_timeField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L335);
+  `VectorFieldMethod.Minkowski.lieBracket_rotationField_spaceField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L340);
+  `VectorFieldMethod.Minkowski.lieBracket_scalingField_timeField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L347);
+  `VectorFieldMethod.Minkowski.lieBracket_scalingField_spaceField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L351);
+  `VectorFieldMethod.Minkowski.lieBracket_scalingField_coordField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L356);
+  `VectorFieldMethod.Minkowski.lieBracket_rotationField_boostField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L361);
+  `VectorFieldMethod.Minkowski.lieBracket_boostField_scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L368);
+  `VectorFieldMethod.Minkowski.lieBracket_rotationField_scalingField`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/Commutators.lean#L373)
+
+```lean
+theorem lieBracket_boostField_timeField (a : Fin 3) :
+    lieBracket ℝ (boostField a) timeField = -spaceField a
+
+theorem lieBracket_boostField_spaceField (a b : Fin 3) :
+    lieBracket ℝ (boostField a) (spaceField b) = -((if a = b then (1 : ℝ) else 0) • timeField)
+
+theorem lieBracket_rotationField_timeField (a b : Fin 3) :
+    lieBracket ℝ (rotationField a b) timeField = fun _ ↦ 0
+
+theorem lieBracket_rotationField_spaceField (a b c : Fin 3) :
+    lieBracket ℝ (rotationField a b) (spaceField c) =
+      -((if c = a then (1 : ℝ) else 0) • spaceField b -
+        (if c = b then (1 : ℝ) else 0) • spaceField a)
+
+theorem lieBracket_scalingField_timeField : lieBracket ℝ scalingField timeField = -timeField
+
+theorem lieBracket_scalingField_spaceField (a : Fin 3) :
+    lieBracket ℝ scalingField (spaceField a) = -spaceField a
+
+theorem lieBracket_scalingField_coordField (α : Fin 4) :
+    lieBracket ℝ scalingField (coordField α) = -coordField α
+
+theorem lieBracket_rotationField_boostField (a b c : Fin 3) :
+    lieBracket ℝ (rotationField b c) (boostField a) =
+      -((if a = b then (1 : ℝ) else 0) • boostField c -
+        (if a = c then (1 : ℝ) else 0) • boostField b)
+
+theorem lieBracket_boostField_scalingField (a : Fin 3) :
+    lieBracket ℝ (boostField a) scalingField = fun _ ↦ 0
+
+theorem lieBracket_rotationField_scalingField (a b : Fin 3) :
+    lieBracket ℝ (rotationField a b) scalingField = fun _ ↦ 0
+```
+
+- **Notes.** Each identity is the corresponding entry above combined with the antisymmetry
+  $`[V, W] = -[W, V]`$ (Mathlib's `VectorField.lieBracket_swap`); `-f` is the pointwise negative
+  of the field `f`. The brackets $`[L_b, L_a]`$ and $`[\Omega_{cd}, \Omega_{ab}]`$ are the entries
+  for $`[L_a, L_b]`$ and $`[\Omega_{ab}, \Omega_{cd}]`$ with the indices exchanged.
+
 ## Main theorems: commutators with the wave and Klein–Gordon operators
+
+Except for the general formula (first entry), each entry states the relation at a point $`p`$
+where $`u`$ is $`C^3`$ (`_apply`), as an equality of functions for $`u \in C^3`$, and on an open
+set $`U`$ on which $`u`$ is $`C^3`$ (`_of_contDiffOn`).
 
 ### Commutator of $`\Box`$ with a vector field with constant derivative
 
@@ -428,7 +586,7 @@ theorem scaling_rotation_comm (a b : Fin 3) (hu : ContDiff ℝ 2 u) :
   where $`[\partial_\beta, V](p) = A E_\beta`$ is the Lie bracket of component fields.
 - **Hypotheses.** $`F`$ is a real normed space; $`V`$ has derivative $`A`$ at every point
   (`∀ q, HasFDerivAt V A q`); $`u`$ is $`C^3`$ at $`p`$ (`ContDiffAt ℝ 3 u p`).
-- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_dAlembertian_sub_dAlembertian_derivAlong_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L110)
+- **Lean.** `VectorFieldMethod.Minkowski.derivAlong_dAlembertian_sub_dAlembertian_derivAlong_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L113)
 
 ```lean
 theorem derivAlong_dAlembertian_sub_dAlembertian_derivAlong_apply
@@ -458,9 +616,11 @@ theorem derivAlong_dAlembertian_sub_dAlembertian_derivAlong_apply
   ```
   and $`\partial_\alpha \Box u = \Box \partial_\alpha u`$ on $`\mathbb{R}^{1+3}`$ for $`u \in C^3`$.
 - **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$
-  (`ContDiffAt ℝ 3 u p`), resp. $`u`$ is $`C^3`$ (`ContDiff ℝ 3 u`).
-- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv_dAlembertian_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L192);
-  `VectorFieldMethod.Minkowski.partialDeriv_dAlembertian_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L202)
+  (`ContDiffAt ℝ 3 u p`), resp. $`u`$ is $`C^3`$ (`ContDiff ℝ 3 u`), resp. $`U`$ is open and $`u`$
+  is $`C^3`$ on $`U`$ (`IsOpen U`, `ContDiffOn ℝ 3 u U`).
+- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv_dAlembertian_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L195);
+  `VectorFieldMethod.Minkowski.partialDeriv_dAlembertian_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L205);
+  `VectorFieldMethod.Minkowski.partialDeriv_dAlembertian_comm_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L319)
 
 ```lean
 theorem partialDeriv_dAlembertian_comm_apply (α : Fin 4) (hu : ContDiffAt ℝ 3 u p) :
@@ -468,6 +628,9 @@ theorem partialDeriv_dAlembertian_comm_apply (α : Fin 4) (hu : ContDiffAt ℝ 3
 
 theorem partialDeriv_dAlembertian_comm (α : Fin 4) (hu : ContDiff ℝ 3 u) :
     ∂[α] (□ u) = □ (∂[α] u)
+
+theorem partialDeriv_dAlembertian_comm_of_contDiffOn (α : Fin 4) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) : Set.EqOn (∂[α] (□ u)) (□ (∂[α] u)) U
 ```
 
 - **Notes.** For $`\alpha = 0`$ this is $`\partial_t \Box u = \Box \partial_t u`$ (`∂[0] = ∂ₜ`),
@@ -480,9 +643,11 @@ theorem partialDeriv_dAlembertian_comm (α : Fin 4) (hu : ContDiff ℝ 3 u) :
   \Omega_{ab}(\Box u)(p) = \Box(\Omega_{ab} u)(p),
   ```
   and $`\Omega_{ab} \Box u = \Box \Omega_{ab} u`$ on $`\mathbb{R}^{1+3}`$ for $`u \in C^3`$.
-- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is $`C^3`$.
-- **Lean.** `VectorFieldMethod.Minkowski.rotation_dAlembertian_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L207);
-  `VectorFieldMethod.Minkowski.rotation_dAlembertian_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L219)
+- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is
+  $`C^3`$, resp. $`U`$ is open and $`u`$ is $`C^3`$ on $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.rotation_dAlembertian_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L210);
+  `VectorFieldMethod.Minkowski.rotation_dAlembertian_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L222);
+  `VectorFieldMethod.Minkowski.rotation_dAlembertian_comm_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L324)
 
 ```lean
 theorem rotation_dAlembertian_comm_apply (a b : Fin 3) (hu : ContDiffAt ℝ 3 u p) :
@@ -490,6 +655,9 @@ theorem rotation_dAlembertian_comm_apply (a b : Fin 3) (hu : ContDiffAt ℝ 3 u 
 
 theorem rotation_dAlembertian_comm (a b : Fin 3) (hu : ContDiff ℝ 3 u) :
     rotation a b (□ u) = □ (rotation a b u)
+
+theorem rotation_dAlembertian_comm_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) : Set.EqOn (rotation a b (□ u)) (□ (rotation a b u)) U
 ```
 
 ### $`[L_a, \Box] = 0`$
@@ -499,8 +667,10 @@ theorem rotation_dAlembertian_comm (a b : Fin 3) (hu : ContDiff ℝ 3 u) :
   L_a(\Box u)(p) = \Box(L_a u)(p),
   ```
   and $`L_a \Box u = \Box L_a u`$ on $`\mathbb{R}^{1+3}`$ for $`u \in C^3`$.
-- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is $`C^3`$.
-- **Lean.** `VectorFieldMethod.Minkowski.boost_dAlembertian_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L224); `VectorFieldMethod.Minkowski.boost_dAlembertian_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L236)
+- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is
+  $`C^3`$, resp. $`U`$ is open and $`u`$ is $`C^3`$ on $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.boost_dAlembertian_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L227); `VectorFieldMethod.Minkowski.boost_dAlembertian_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L239);
+  `VectorFieldMethod.Minkowski.boost_dAlembertian_comm_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L329)
 
 ```lean
 theorem boost_dAlembertian_comm_apply (a : Fin 3) (hu : ContDiffAt ℝ 3 u p) :
@@ -508,7 +678,14 @@ theorem boost_dAlembertian_comm_apply (a : Fin 3) (hu : ContDiffAt ℝ 3 u p) :
 
 theorem boost_dAlembertian_comm (a : Fin 3) (hu : ContDiff ℝ 3 u) :
     boost a (□ u) = □ (boost a u)
+
+theorem boost_dAlembertian_comm_of_contDiffOn (a : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) : Set.EqOn (boost a (□ u)) (□ (boost a u)) U
 ```
+
+- **Notes.** The "Sanity checks" section of `WaveCommutators.lean` checks it on $`u = t^3`$, computing
+  both sides independently: $`L_a(\Box u) = L_a(-6t) = -6x^a`$ and
+  $`\Box(L_a u) = \Box(3t^2 x^a) = -6x^a`$.
 
 ### $`[S, \Box] = -2\,\Box`$
 
@@ -517,9 +694,11 @@ theorem boost_dAlembertian_comm (a : Fin 3) (hu : ContDiff ℝ 3 u) :
   S(\Box u)(p) - \Box(S u)(p) = -2\, \Box u(p),
   ```
   and $`S \Box u - \Box S u = -2\, \Box u`$ on $`\mathbb{R}^{1+3}`$ for $`u \in C^3`$.
-- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is $`C^3`$.
-- **Lean.** `VectorFieldMethod.Minkowski.scaling_dAlembertian_sub_dAlembertian_scaling_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L241);
-  `VectorFieldMethod.Minkowski.scaling_dAlembertian_sub_dAlembertian_scaling`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L257)
+- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is
+  $`C^3`$, resp. $`U`$ is open and $`u`$ is $`C^3`$ on $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.scaling_dAlembertian_sub_dAlembertian_scaling_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L244);
+  `VectorFieldMethod.Minkowski.scaling_dAlembertian_sub_dAlembertian_scaling`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L260);
+  `VectorFieldMethod.Minkowski.scaling_dAlembertian_sub_dAlembertian_scaling_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L334)
 
 ```lean
 theorem scaling_dAlembertian_sub_dAlembertian_scaling_apply (hu : ContDiffAt ℝ 3 u p) :
@@ -527,13 +706,20 @@ theorem scaling_dAlembertian_sub_dAlembertian_scaling_apply (hu : ContDiffAt ℝ
 
 theorem scaling_dAlembertian_sub_dAlembertian_scaling (hu : ContDiff ℝ 3 u) :
     scaling (□ u) - □ (scaling u) = (-2 : ℝ) • □ u
+
+theorem scaling_dAlembertian_sub_dAlembertian_scaling_of_contDiffOn (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) :
+    Set.EqOn (scaling (□ u) - □ (scaling u)) ((-2 : ℝ) • □ u) U
 ```
 
 - **Notes.** `(-2 : ℝ) • □ u` is the function $`-2\,\Box u`$. The sign does not depend on the sign
   convention for $`\Box`$: with LeFloch–Ma's $`\Box = \partial_t^2 - \Delta`$ (which is $`-\Box`$
   here) the identity reads the same. The "Sanity checks" section of `WaveCommutators.lean` checks
   it on $`u = t^2 - r^2`$: from $`\Box(t^2 - r^2) = -8`$ and $`S(t^2 - r^2) = 2(t^2 - r^2)`$, both
-  sides equal $`16`$.
+  sides equal $`16`$; and on $`u = t^3`$, for which $`\Box u = -6t`$ is not constant:
+  $`S(\Box u) = -6t`$ and $`\Box(Su) = \Box(3t^3) = -18t`$, so both sides equal $`12t`$. It also
+  applies the version on open sets to the radius $`r`$, which is smooth on the open set
+  $`\{x \neq 0\}`$ of spacetime but not differentiable on $`\{x = 0\}`$.
 
 ### $`[\partial_\alpha, \mathrm{KG}_m] = 0`$, $`[\Omega_{ab}, \mathrm{KG}_m] = 0`$, $`[L_a, \mathrm{KG}_m] = 0`$
 
@@ -544,11 +730,15 @@ theorem scaling_dAlembertian_sub_dAlembertian_scaling (hu : ContDiff ℝ 3 u) :
   Z(\mathrm{KG}_m u)(p) = \mathrm{KG}_m(Z u)(p),
   ```
   and $`Z\, \mathrm{KG}_m u = \mathrm{KG}_m Z u`$ on $`\mathbb{R}^{1+3}`$ for $`u \in C^3`$.
-- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is $`C^3`$.
-- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv_kleinGordon_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L264);
-  `VectorFieldMethod.Minkowski.partialDeriv_kleinGordon_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L271); `VectorFieldMethod.Minkowski.rotation_kleinGordon_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L276);
-  `VectorFieldMethod.Minkowski.rotation_kleinGordon_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L283); `VectorFieldMethod.Minkowski.boost_kleinGordon_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L288);
-  `VectorFieldMethod.Minkowski.boost_kleinGordon_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L295)
+- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is
+  $`C^3`$, resp. $`U`$ is open and $`u`$ is $`C^3`$ on $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.partialDeriv_kleinGordon_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L267);
+  `VectorFieldMethod.Minkowski.partialDeriv_kleinGordon_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L274); `VectorFieldMethod.Minkowski.rotation_kleinGordon_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L279);
+  `VectorFieldMethod.Minkowski.rotation_kleinGordon_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L286); `VectorFieldMethod.Minkowski.boost_kleinGordon_comm_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L291);
+  `VectorFieldMethod.Minkowski.boost_kleinGordon_comm`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L298);
+  `VectorFieldMethod.Minkowski.partialDeriv_kleinGordon_comm_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L340);
+  `VectorFieldMethod.Minkowski.rotation_kleinGordon_comm_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L345);
+  `VectorFieldMethod.Minkowski.boost_kleinGordon_comm_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L351)
 
 ```lean
 theorem partialDeriv_kleinGordon_comm_apply (α : Fin 4) (m : ℝ) (hu : ContDiffAt ℝ 3 u p) :
@@ -568,6 +758,17 @@ theorem boost_kleinGordon_comm_apply (a : Fin 3) (m : ℝ) (hu : ContDiffAt ℝ 
 
 theorem boost_kleinGordon_comm (a : Fin 3) (m : ℝ) (hu : ContDiff ℝ 3 u) :
     boost a (kleinGordon m u) = kleinGordon m (boost a u)
+
+theorem partialDeriv_kleinGordon_comm_of_contDiffOn (α : Fin 4) (m : ℝ) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) : Set.EqOn (∂[α] (kleinGordon m u)) (kleinGordon m (∂[α] u)) U
+
+theorem rotation_kleinGordon_comm_of_contDiffOn (a b : Fin 3) (m : ℝ) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) :
+    Set.EqOn (rotation a b (kleinGordon m u)) (kleinGordon m (rotation a b u)) U
+
+theorem boost_kleinGordon_comm_of_contDiffOn (a : Fin 3) (m : ℝ) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) :
+    Set.EqOn (boost a (kleinGordon m u)) (kleinGordon m (boost a u)) U
 ```
 
 - **Notes.** $`[Z, \mathrm{KG}_m]u = [Z, \Box]u - m^2 (Zu - Zu) = [Z, \Box]u`$
@@ -583,9 +784,11 @@ theorem boost_kleinGordon_comm (a : Fin 3) (m : ℝ) (hu : ContDiff ℝ 3 u) :
   ```
   and $`S\, \mathrm{KG}_m u - \mathrm{KG}_m S u = -2\, \Box u`$ on $`\mathbb{R}^{1+3}`$ for
   $`u \in C^3`$.
-- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is $`C^3`$.
-- **Lean.** `VectorFieldMethod.Minkowski.scaling_kleinGordon_sub_kleinGordon_scaling_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L300);
-  `VectorFieldMethod.Minkowski.scaling_kleinGordon_sub_kleinGordon_scaling`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/d3ad61dc2447af2599860c695e03b3c37b718008/VectorFieldMethod/Minkowski/WaveCommutators.lean#L306)
+- **Hypotheses.** $`F`$ is a real normed space; $`u`$ is $`C^3`$ at $`p`$, resp. $`u`$ is
+  $`C^3`$, resp. $`U`$ is open and $`u`$ is $`C^3`$ on $`U`$.
+- **Lean.** `VectorFieldMethod.Minkowski.scaling_kleinGordon_sub_kleinGordon_scaling_apply`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L303);
+  `VectorFieldMethod.Minkowski.scaling_kleinGordon_sub_kleinGordon_scaling`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L309);
+  `VectorFieldMethod.Minkowski.scaling_kleinGordon_sub_kleinGordon_scaling_of_contDiffOn`, [permalink](https://github.com/Oho1e/VectorFieldMethod/blob/b22652dbdabbdc9748d2b68c5c23dfe350439c37/VectorFieldMethod/Minkowski/WaveCommutators.lean#L357)
 
 ```lean
 theorem scaling_kleinGordon_sub_kleinGordon_scaling_apply (m : ℝ) (hu : ContDiffAt ℝ 3 u p) :
@@ -593,6 +796,10 @@ theorem scaling_kleinGordon_sub_kleinGordon_scaling_apply (m : ℝ) (hu : ContDi
 
 theorem scaling_kleinGordon_sub_kleinGordon_scaling (m : ℝ) (hu : ContDiff ℝ 3 u) :
     scaling (kleinGordon m u) - kleinGordon m (scaling u) = (-2 : ℝ) • □ u
+
+theorem scaling_kleinGordon_sub_kleinGordon_scaling_of_contDiffOn (m : ℝ) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) :
+    Set.EqOn (scaling (kleinGordon m u) - kleinGordon m (scaling u)) ((-2 : ℝ) • □ u) U
 ```
 
 - **Notes.** The right-hand side is $`-2\,\Box u`$, not $`-2\,\mathrm{KG}_m u`$: the mass term

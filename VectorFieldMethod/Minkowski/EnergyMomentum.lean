@@ -9,6 +9,7 @@ public import VectorFieldMethod.Minkowski.WaveOperator
 public import Mathlib.Analysis.InnerProductSpace.Calculus
 public import Mathlib.LinearAlgebra.Matrix.Symmetric
 import Mathlib.Analysis.SpecialFunctions.ExpDeriv
+import VectorFieldMethod.Minkowski.Computations
 
 /-!
 # The energy-momentum tensor of the Klein–Gordon field
@@ -36,6 +37,9 @@ For a field `u : Spacetime → F` with values in a real inner product space `F` 
 * `spacetimeDiv_energyCurrent`: the energy identity `∂_α P^α = -⟪□u - m² u, ∂_t u⟫` at a point
   where `u` is `C²`, and `spacetimeDiv_energyCurrent_eq_zero`: `∂_α P^α = 0` at `p` if moreover
   `(□u - m² u)(p) = 0`.
+* `spacetimeDiv_energyCurrent_eqOn_zero`, `spacetimeDiv_energyCurrent_eq_zero_of_contDiff`:
+  `∂_α P^α = 0` on an open set on which `u` is `C²` and solves `□u - m² u = 0`, and on all of
+  spacetime for a global `C²` solution.
 * `energyCurrent_zero`, `energyCurrent_zero_nonneg`, `energyCurrent_succ`: the energy density
   `P^0 = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²) ≥ 0` and the components
   `P^a = -⟪∂_a u, ∂_t u⟫`, without hypotheses on `u`.
@@ -43,10 +47,9 @@ For a field `u : Spacetime → F` with values in a real inner product space `F` 
 ## Normalization
 
 The tensor carries the factor `½`, so that the energy density is
-`P^0 = T_{00} = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²)`. Texts that define the energy density
-without the factor `½`, as `‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²`, use the tensor `2 T_{αβ}` and the
-current `2 P^α`, which differ from the ones of this file by the factor `2`; their versions of the
-identities below are the ones of this file multiplied by `2`.
+`P^0 = T_{00} = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²)`. LeFloch–Ma, among others, define the
+energy directly, without introducing an energy-momentum tensor; their energy density
+`‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²` corresponds to `2 P^0` in this project.
 
 ## Conventions
 
@@ -97,8 +100,8 @@ theorem partialDeriv_norm_sq (α : Fin 4) (hu : DifferentiableAt ℝ u p) :
 `T_{αβ} = ⟪∂_α u, ∂_β u⟫ - ½ η_{αβ} (η^{γδ} ⟪∂_γ u, ∂_δ u⟫ + m² ‖u‖²)`.
 
 The coefficients `η_{αβ}` and `η^{γδ}` are both entries of `minkowskiMetric` (`η⁻¹ = η`). With the
-factor `½`, the energy density is `T_{00} = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²)`; texts whose
-energy density has no factor `½` use `2 T_{αβ}`. -/
+factor `½`, the energy density is `T_{00} = ½ (‖∂_t u‖² + ∑ a, ‖∂_a u‖² + m² ‖u‖²)`. LeFloch–Ma
+define the energy directly, without a tensor; their energy density corresponds to `2 T_{00}`. -/
 def energyMomentum (m : ℝ) (u : Spacetime → F) (α β : Fin 4) : Spacetime → ℝ :=
   fun p ↦ ⟪∂[α] u p, ∂[β] u p⟫ -
     1 / 2 * η α β * (∑ γ, ∑ δ, η γ δ * ⟪∂[γ] u p, ∂[δ] u p⟫ + m ^ 2 * ‖u p‖ ^ 2)
@@ -225,10 +228,25 @@ theorem spacetimeDiv_energyCurrent (m : ℝ) (hu : ContDiffAt ℝ 2 u p) :
 
 /-- The energy current of a solution is divergence free: if `u` is `C²` at `p` and
 `(□u - m² u)(p) = 0`, then `∂_α P^α = 0` at `p`. In particular `∂_α P^α = 0` on an open set on
-which `u` is `C²` and solves the Klein–Gordon equation. -/
+which `u` is `C²` and solves the Klein–Gordon equation (`spacetimeDiv_energyCurrent_eqOn_zero`),
+and on all of spacetime for a global `C²` solution
+(`spacetimeDiv_energyCurrent_eq_zero_of_contDiff`). -/
 theorem spacetimeDiv_energyCurrent_eq_zero (m : ℝ) (hu : ContDiffAt ℝ 2 u p)
     (hKG : kleinGordon m u p = 0) : spacetimeDiv (energyCurrent m u) p = 0 := by
   rw [spacetimeDiv_energyCurrent m hu, hKG, inner_zero_left, neg_zero]
+
+/-- The energy current of a solution on an open set is divergence free there: if `U` is open,
+`u` is `C²` on `U` and `□u - m² u = 0` on `U`, then `∂_α P^α = 0` on `U`. -/
+theorem spacetimeDiv_energyCurrent_eqOn_zero (m : ℝ) {U : Set Spacetime} (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 2 u U) (hKG : Set.EqOn (kleinGordon m u) (fun _ ↦ 0) U) :
+    Set.EqOn (spacetimeDiv (energyCurrent m u)) (fun _ ↦ 0) U :=
+  fun _ hq ↦ spacetimeDiv_energyCurrent_eq_zero m (hu.contDiffAt (hU.mem_nhds hq)) (hKG hq)
+
+/-- The energy current of a global solution is divergence free: if `u` is `C²` and
+`□u - m² u = 0` on all of spacetime, then `∂_α P^α = 0`. -/
+theorem spacetimeDiv_energyCurrent_eq_zero_of_contDiff (m : ℝ) (hu : ContDiff ℝ 2 u)
+    (hKG : kleinGordon m u = fun _ ↦ 0) : spacetimeDiv (energyCurrent m u) = fun _ ↦ 0 :=
+  funext fun q ↦ spacetimeDiv_energyCurrent_eq_zero m hu.contDiffAt (congrFun hKG q)
 
 /-! ### Components of the energy current -/
 
@@ -260,7 +278,13 @@ theorem energyCurrent_succ (m : ℝ) (u : Spacetime → F) (a : Fin 3) (p : Spac
     minkowskiMetric_succ_zero, minkowskiMetric_succ_succ, partialDeriv_succ, partialDeriv_zero]
   simp
 
-/-! ### Sanity checks -/
+/-! ### Sanity checks
+
+The examples that apply `spacetimeDiv_energyCurrent_eq_zero` and its variants to `u = t` (with
+`m = 0`) and to the spatially homogeneous mode `e^{-imt}` only check that the hypotheses of these
+theorems can hold; their conclusions are obtained from the theorems. The last three examples
+(`F = ℝ`, `m = 0`, `u = t - x₁`, `t x₁`, `t²`) compute `P` and `∂_α P^α` directly, which checks
+the sign of `P^a` and the sign of the right-hand side of `spacetimeDiv_energyCurrent`. -/
 
 /-- The hypotheses of `spacetimeDiv_energyCurrent_eq_zero` hold for `u = t`, which is smooth and
 solves the massless equation `□u = 0`. -/
@@ -313,9 +337,9 @@ example (m : ℝ) (p : Spacetime) :
   · rw [energyCurrent_succ, ht, hs]
     simp
 
-/-- The plane wave `u = e^{-imt}` (`F = ℂ`) solves `□u - m² u = 0` for every mass `m`, so the
-hypotheses of `spacetimeDiv_energyCurrent_eq_zero` hold for it and its energy current is
-divergence free; its energy density is `P^0 = m²`. -/
+/-- The spatially homogeneous mode `u = e^{-imt}` (`F = ℂ`; wave vector `k = 0`) solves
+`□u - m² u = 0` for every mass `m`, so the hypotheses of `spacetimeDiv_energyCurrent_eq_zero` hold
+for it and its energy current is divergence free; its energy density is `P^0 = m²`. -/
 example (m : ℝ) (p : Spacetime) :
     spacetimeDiv (energyCurrent m fun q ↦ Complex.exp (-(m * timeCoord q) • Complex.I)) p = 0 ∧
       energyCurrent m (fun q ↦ Complex.exp (-(m * timeCoord q) • Complex.I)) 0 p = m ^ 2 := by
@@ -352,5 +376,149 @@ example (m : ℝ) (p : Spacetime) :
   rw [energyCurrent_zero, ht]
   simp [hs, hnorm]
   ring
+
+/-- The hypotheses of `spacetimeDiv_energyCurrent_eqOn_zero` (on the open half-space `t > 0`) and
+of `spacetimeDiv_energyCurrent_eq_zero_of_contDiff` hold for `u = t` and `m = 0`. -/
+example :
+    Set.EqOn (spacetimeDiv (energyCurrent 0 timeCoord)) (fun _ ↦ 0) {p | 0 < timeCoord p} ∧
+      spacetimeDiv (energyCurrent 0 timeCoord) = fun _ ↦ 0 := by
+  have hKG : kleinGordon 0 timeCoord = fun _ ↦ 0 := by
+    funext q
+    simp [kleinGordon_apply]
+  exact ⟨spacetimeDiv_energyCurrent_eqOn_zero 0
+      (isOpen_lt continuous_const differentiable_timeCoord.continuous)
+      contDiff_timeCoord.contDiffOn fun q _ ↦ congrFun hKG q,
+    spacetimeDiv_energyCurrent_eq_zero_of_contDiff 0 contDiff_timeCoord hKG⟩
+
+/-- For `u = t - x₁` (`F = ℝ`, `m = 0`), a wave moving in the direction `+x₁`, the energy current
+is `P = (1, 1, 0, 0)`: the energy flux `P^1 = 1` points in the direction of propagation. This
+fixes the sign of `P^a`. (The Lean index `0` of `spaceCoord` is the mathematical index `1`.) -/
+example :
+    energyCurrent 0 (fun p ↦ timeCoord p - spaceCoord 0 p) =
+      ![fun _ ↦ (1 : ℝ), fun _ ↦ 1, fun _ ↦ 0, fun _ ↦ 0] := by
+  set u : Spacetime → ℝ := fun p ↦ timeCoord p - spaceCoord 0 p
+  have hd (V : Spacetime → Spacetime) (q : Spacetime) :
+      derivAlong V u q = (V q).1 - (V q).2 0 := by
+    rw [derivAlong_eq_of_hasFDerivAt
+      ((hasFDerivAt_timeCoord q).fun_sub (hasFDerivAt_spaceCoord 0 q))]
+    rfl
+  have ht (q : Spacetime) : ∂ₜ u q = 1 := by
+    rw [timeDeriv, hd]
+    simp [timeField]
+  have hs (a : Fin 3) (q : Spacetime) : ∂ₓ[a] u q = if a = 0 then -1 else 0 := by
+    rw [spaceDeriv, hd]
+    by_cases ha : a = 0
+    · subst ha
+      simp [spaceField]
+    · simp [spaceField, Ne.symm ha, ha]
+  funext α q
+  cases α using Fin.cases with
+  | zero =>
+    rw [energyCurrent_zero, ht]
+    simp [hs]
+    norm_num
+  | succ a =>
+    rw [energyCurrent_succ, ht, hs]
+    fin_cases a <;> simp
+
+/-- For `u = t x₁` (`F = ℝ`, `m = 0`), a solution of the wave equation `□u = 0`, the energy current
+`P = (½ (t² + x₁²), -t x₁, 0, 0)` is not constant, and the direct computation
+`∂_α P^α = ∂_t P^0 + ∂_1 P^1 = t - t = 0` agrees with `spacetimeDiv_energyCurrent_eq_zero`. -/
+example :
+    kleinGordon 0 (fun p ↦ timeCoord p * spaceCoord 0 p) = (fun _ ↦ 0) ∧
+      energyCurrent 0 (fun p ↦ timeCoord p * spaceCoord 0 p) =
+        ![fun p ↦ 1 / 2 * (timeCoord p ^ 2 + spaceCoord 0 p ^ 2),
+          fun p ↦ -(timeCoord p * spaceCoord 0 p), fun _ ↦ 0, fun _ ↦ 0] ∧
+      spacetimeDiv (energyCurrent 0 fun p ↦ timeCoord p * spaceCoord 0 p) = fun _ ↦ 0 := by
+  set u : Spacetime → ℝ := fun p ↦ timeCoord p * spaceCoord 0 p
+  have hd (V : Spacetime → Spacetime) (q : Spacetime) :
+      derivAlong V u q = timeCoord q * (V q).2 0 + spaceCoord 0 q * (V q).1 := by
+    rw [derivAlong_eq_of_hasFDerivAt
+      ((hasFDerivAt_timeCoord q).fun_mul (hasFDerivAt_spaceCoord 0 q))]
+    rfl
+  have ht : ∂ₜ u = spaceCoord 0 := by
+    funext q
+    rw [timeDeriv, hd]
+    simp [timeField]
+  have hs (a : Fin 3) : ∂ₓ[a] u = fun q ↦ if a = 0 then timeCoord q else 0 := by
+    funext q
+    rw [spaceDeriv, hd]
+    by_cases ha : a = 0
+    · subst ha
+      simp [spaceField]
+    · simp [spaceField, Ne.symm ha, ha]
+  have hP : energyCurrent 0 u =
+      ![fun p ↦ 1 / 2 * (timeCoord p ^ 2 + spaceCoord 0 p ^ 2),
+        fun p ↦ -(timeCoord p * spaceCoord 0 p), fun _ ↦ 0, fun _ ↦ 0] := by
+    funext α q
+    cases α using Fin.cases with
+    | zero =>
+      rw [energyCurrent_zero, ht]
+      simp [hs, sq_abs]
+      ring
+    | succ a =>
+      rw [energyCurrent_succ, ht, hs]
+      fin_cases a <;> simp
+      ring
+  refine ⟨?_, hP, ?_⟩
+  · funext q
+    rw [kleinGordon_apply, dAlembertian_eq, ht]
+    simp only [hs]
+    simp [Fin.sum_univ_three]
+  · funext q
+    have h0 := (((hasFDerivAt_timeCoord q).pow 2).fun_add
+      ((hasFDerivAt_spaceCoord 0 q).pow 2)).const_mul (1 / 2 : ℝ)
+    have h1 := ((hasFDerivAt_timeCoord q).fun_mul (hasFDerivAt_spaceCoord 0 q)).fun_neg
+    rw [hP, spacetimeDiv_apply, Fin.sum_univ_four]
+    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_two,
+      Matrix.cons_val_three, Matrix.head_cons, Matrix.tail_cons, partialDeriv_const]
+    rw [partialDeriv_zero, partialDeriv_one, timeDeriv, spaceDeriv,
+      derivAlong_eq_of_hasFDerivAt h0, derivAlong_eq_of_hasFDerivAt h1]
+    simp [timeField, spaceField]
+
+/-- For `u = t²` (`F = ℝ`, `m = 0`), which does not solve the wave equation (`□u = -2`), both sides
+of `spacetimeDiv_energyCurrent` are computed directly: `P = (2t², 0, 0, 0)` gives
+`∂_α P^α = 4t`, and `-⟪□u - m² u, ∂_t u⟫ = -(-2)(2t) = 4t`. This checks the sign of the
+right-hand side of `spacetimeDiv_energyCurrent`. -/
+example :
+    energyCurrent 0 (fun p ↦ timeCoord p ^ 2) =
+        ![fun p ↦ 2 * timeCoord p ^ 2, fun _ ↦ 0, fun _ ↦ 0, fun _ ↦ 0] ∧
+      spacetimeDiv (energyCurrent 0 fun p ↦ timeCoord p ^ 2) = (fun p ↦ 4 * timeCoord p) ∧
+      (fun p ↦ -⟪kleinGordon 0 (fun q ↦ timeCoord q ^ 2) p, ∂ₜ (fun q ↦ timeCoord q ^ 2) p⟫) =
+        fun p ↦ 4 * timeCoord p := by
+  set u : Spacetime → ℝ := fun p ↦ timeCoord p ^ 2
+  have ht : ∂ₜ u = fun q ↦ 2 * timeCoord q := by
+    rw [timeDeriv, derivAlong_timeCoord_sq]
+    funext q
+    simp [timeField]
+  have hs (a : Fin 3) : ∂ₓ[a] u = fun _ ↦ 0 := by
+    rw [spaceDeriv, derivAlong_timeCoord_sq]
+    funext q
+    simp [spaceField]
+  have hP : energyCurrent 0 u =
+      ![fun q ↦ 2 * timeCoord q ^ 2, fun _ ↦ 0, fun _ ↦ 0, fun _ ↦ 0] := by
+    funext α q
+    cases α using Fin.cases with
+    | zero =>
+      rw [energyCurrent_zero, ht]
+      simp only [Real.norm_eq_abs, sq_abs]
+      simp [hs]
+      ring
+    | succ a =>
+      rw [energyCurrent_succ, ht, hs]
+      fin_cases a <;> simp
+  refine ⟨hP, ?_, ?_⟩
+  · funext q
+    rw [hP, spacetimeDiv_apply, Fin.sum_univ_four]
+    simp only [Matrix.cons_val_zero, Matrix.cons_val_one, Matrix.cons_val_two,
+      Matrix.cons_val_three, Matrix.head_cons, Matrix.tail_cons, partialDeriv_const,
+      partialDeriv_zero]
+    rw [timeDeriv, derivAlong_const_mul, derivAlong_timeCoord_sq]
+    simp [timeField]
+    ring
+  · funext q
+    rw [kleinGordon_apply, dAlembertian_timeCoord_sq, ht]
+    simp
+    ring
 
 end VectorFieldMethod.Minkowski

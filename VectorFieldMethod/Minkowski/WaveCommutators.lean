@@ -7,6 +7,7 @@ module
 
 public import VectorFieldMethod.Minkowski.Commutators
 public import VectorFieldMethod.Minkowski.Computations
+public import Mathlib.Analysis.InnerProductSpace.Calculus
 
 /-!
 # Commutators of the Minkowski vector fields with the wave and Klein–Gordon operators
@@ -27,7 +28,9 @@ At a point `p` where `u` is `C³` (`ContDiffAt ℝ 3 u p`):
   `boost_kleinGordon_comm_apply`: the same commutation relations for `KG_m`;
 * `scaling_kleinGordon_sub_kleinGordon_scaling_apply`: `S (KG_m u) - KG_m (S u) = -2 □u`.
 
-The versions without the suffix `_apply` are the identities of functions for `u` of class `C³`.
+The versions without the suffix `_apply` are the identities of functions for `u` of class `C³`, and
+the versions ending in `_of_contDiffOn` hold on an open set `U` on which `u` is `C³`, as equalities
+`Set.EqOn f g U` (for instance `boost_dAlembertian_comm_of_contDiffOn`).
 
 All of them follow from `derivAlong_dAlembertian_sub_dAlembertian_derivAlong_apply`, the
 commutator of `□` with the derivative along an affine component field `V` (one with a constant
@@ -55,7 +58,7 @@ open scoped ContDiff Topology
 namespace VectorFieldMethod.Minkowski
 
 variable {F : Type*} [NormedAddCommGroup F] [NormedSpace ℝ F]
-variable {V : Spacetime → Spacetime} {u : Spacetime → F} {p : Spacetime}
+variable {V : Spacetime → Spacetime} {u : Spacetime → F} {p : Spacetime} {U : Set Spacetime}
 
 /-! ### Preliminaries -/
 
@@ -307,13 +310,67 @@ theorem scaling_kleinGordon_sub_kleinGordon_scaling (m : ℝ) (hu : ContDiff ℝ
     scaling (kleinGordon m u) - kleinGordon m (scaling u) = (-2 : ℝ) • □ u :=
   funext fun _ ↦ scaling_kleinGordon_sub_kleinGordon_scaling_apply m hu.contDiffAt
 
+/-! ### Commutators on open sets
+
+If `u` is `C³` on an open set `U`, the commutation relations hold at every point of `U`: they are
+stated as `Set.EqOn f g U`, that is, `f p = g p` for every `p ∈ U`. -/
+
+/-- `[∂_α, □] = 0` on an open set `U` on which `u` is `C³`. -/
+theorem partialDeriv_dAlembertian_comm_of_contDiffOn (α : Fin 4) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) : Set.EqOn (∂[α] (□ u)) (□ (∂[α] u)) U :=
+  fun _ hp ↦ partialDeriv_dAlembertian_comm_apply α (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[Ω_ab, □] = 0` on an open set `U` on which `u` is `C³`. -/
+theorem rotation_dAlembertian_comm_of_contDiffOn (a b : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) : Set.EqOn (rotation a b (□ u)) (□ (rotation a b u)) U :=
+  fun _ hp ↦ rotation_dAlembertian_comm_apply a b (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[L_a, □] = 0` on an open set `U` on which `u` is `C³`. -/
+theorem boost_dAlembertian_comm_of_contDiffOn (a : Fin 3) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) : Set.EqOn (boost a (□ u)) (□ (boost a u)) U :=
+  fun _ hp ↦ boost_dAlembertian_comm_apply a (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[S, □] = -2 □` on an open set `U` on which `u` is `C³`. -/
+theorem scaling_dAlembertian_sub_dAlembertian_scaling_of_contDiffOn (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) :
+    Set.EqOn (scaling (□ u) - □ (scaling u)) ((-2 : ℝ) • □ u) U :=
+  fun _ hp ↦ scaling_dAlembertian_sub_dAlembertian_scaling_apply (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[∂_α, KG_m] = 0` on an open set `U` on which `u` is `C³`. -/
+theorem partialDeriv_kleinGordon_comm_of_contDiffOn (α : Fin 4) (m : ℝ) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) : Set.EqOn (∂[α] (kleinGordon m u)) (kleinGordon m (∂[α] u)) U :=
+  fun _ hp ↦ partialDeriv_kleinGordon_comm_apply α m (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[Ω_ab, KG_m] = 0` on an open set `U` on which `u` is `C³`. -/
+theorem rotation_kleinGordon_comm_of_contDiffOn (a b : Fin 3) (m : ℝ) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) :
+    Set.EqOn (rotation a b (kleinGordon m u)) (kleinGordon m (rotation a b u)) U :=
+  fun _ hp ↦ rotation_kleinGordon_comm_apply a b m (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[L_a, KG_m] = 0` on an open set `U` on which `u` is `C³`. -/
+theorem boost_kleinGordon_comm_of_contDiffOn (a : Fin 3) (m : ℝ) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) :
+    Set.EqOn (boost a (kleinGordon m u)) (kleinGordon m (boost a u)) U :=
+  fun _ hp ↦ boost_kleinGordon_comm_apply a m (hu.contDiffAt (hU.mem_nhds hp))
+
+/-- `[S, KG_m] u = -2 □u` on an open set `U` on which `u` is `C³`. -/
+theorem scaling_kleinGordon_sub_kleinGordon_scaling_of_contDiffOn (m : ℝ) (hU : IsOpen U)
+    (hu : ContDiffOn ℝ 3 u U) :
+    Set.EqOn (scaling (kleinGordon m u) - kleinGordon m (scaling u)) ((-2 : ℝ) • □ u) U :=
+  fun _ hp ↦
+    scaling_kleinGordon_sub_kleinGordon_scaling_apply m (hu.contDiffAt (hU.mem_nhds hp))
+
 /-! ### Sanity checks
 
 The first example checks `[S, □] = -2 □` on `u = t² - r²`, computing both sides independently from
 `□(t² - r²) = -8` (`dAlembertian_timeCoord_sq_sub_radius_sq`) and `S(t² - r²) = 2 (t² - r²)`
 (`scaling_timeCoord_sq_sub_radius_sq`): `S (□u) - □ (S u) = S(-8) - □(2u) = 0 + 16` and
 `-2 □u = 16`. The second one applies `scaling_dAlembertian_sub_dAlembertian_scaling_apply` to the
-same `u`, whose hypothesis `ContDiffAt ℝ 3 u p` holds since `u` is a polynomial. The last one
+same `u`, whose hypothesis `ContDiffAt ℝ 3 u p` holds since `u` is a polynomial. The third and
+fourth examples check `[S, □] = -2 □` and `[L_a, □] = 0` on `u = t³`, for which `□u = -6t` is not
+constant; again both sides are computed independently, from the derivatives of the monomials
+`t³`, `t²`, `t² x_a` and `t x_a`. The fifth example applies the version on open sets to the radius
+`r`, which is smooth on the open set `{x ≠ 0}` but not differentiable on `{x = 0}`. The last one
 checks that the hypothesis of the general formula
 `derivAlong_dAlembertian_sub_dAlembertian_derivAlong_apply` holds for the boost fields. -/
 
@@ -341,6 +398,110 @@ example (p : Spacetime) : □ (scaling fun q ↦ timeCoord q ^ 2 - radius q ^ 2)
   rw [dAlembertian_timeCoord_sq_sub_radius_sq, scaling_const] at h
   norm_num at h
   linarith
+
+/-- `[S, □] = -2 □` on `u = t³`, for which `□u = -6t` is not constant: `S (□u) = S(-6t) = -6t` and
+`□ (S u) = □(3t³) = -18t`, so `S (□u) - □ (S u) = 12t = -2 □u`. -/
+example (p : Spacetime) :
+    scaling (□ fun q ↦ timeCoord q ^ 3) p - □ (scaling fun q ↦ timeCoord q ^ 3) p =
+        12 * timeCoord p ∧
+      (-2 : ℝ) • □ (fun q ↦ timeCoord q ^ 3) p = 12 * timeCoord p := by
+  have hd (V : Spacetime → Spacetime) :
+      derivAlong V (fun q ↦ timeCoord q ^ 3) = fun q ↦ 3 * timeCoord q ^ 2 * (V q).1 := by
+    funext q
+    rw [derivAlong_eq_of_hasFDerivAt ((hasFDerivAt_timeCoord q).pow 3)]
+    simp [timeCoord]
+  have hbox : □ (fun q ↦ timeCoord q ^ 3) = fun q ↦ -6 * timeCoord q := by
+    funext q
+    simp [dAlembertian_eq, timeDeriv, spaceDeriv, hd, derivAlong_timeCoord_sq,
+      derivAlong_const_mul, timeField, spaceField]
+    ring
+  have hS : scaling (fun q ↦ timeCoord q ^ 3) = (3 : ℝ) • fun q ↦ timeCoord q ^ 3 := by
+    funext q
+    rw [scaling, hd]
+    simp [scalingField, timeCoord]
+    ring
+  refine ⟨?_, ?_⟩
+  · rw [hS, dAlembertian_smul, hbox, scaling, derivAlong_const_mul]
+    simp [scalingField, timeCoord]
+    ring
+  · rw [hbox]
+    simp
+    ring
+
+/-- `[L_a, □] = 0` on `u = t³`: `L_a (□u) = L_a(-6t) = -6 x_a` and
+`□ (L_a u) = □(3 t² x_a) = -6 x_a`. For `a = 0` this is `L₁ □u = -6 x₁ = □ L₁u` (the Lean index
+`0` is the mathematical index `1`). -/
+example (a : Fin 3) (p : Spacetime) :
+    boost a (□ fun q ↦ timeCoord q ^ 3) p = -6 * spaceCoord a p ∧
+      □ (boost a fun q ↦ timeCoord q ^ 3) p = -6 * spaceCoord a p := by
+  have hd (V : Spacetime → Spacetime) :
+      derivAlong V (fun q ↦ timeCoord q ^ 3) = fun q ↦ 3 * timeCoord q ^ 2 * (V q).1 := by
+    funext q
+    rw [derivAlong_eq_of_hasFDerivAt ((hasFDerivAt_timeCoord q).pow 3)]
+    simp [timeCoord]
+  have hbox : □ (fun q ↦ timeCoord q ^ 3) = fun q ↦ -6 * timeCoord q := by
+    funext q
+    simp [dAlembertian_eq, timeDeriv, spaceDeriv, hd, derivAlong_timeCoord_sq,
+      derivAlong_const_mul, timeField, spaceField]
+    ring
+  have hd21 (V : Spacetime → Spacetime) :
+      derivAlong V (fun q ↦ timeCoord q ^ 2 * spaceCoord a q) =
+        fun q ↦ 2 * (timeCoord q * spaceCoord a q * (V q).1) + (V q).2 a * timeCoord q ^ 2 := by
+    funext q
+    rw [derivAlong_eq_of_hasFDerivAt
+      (((hasFDerivAt_timeCoord q).pow 2).fun_mul (hasFDerivAt_spaceCoord a q))]
+    simp [timeCoord, spaceCoord]
+    ring
+  have hd11 (V : Spacetime → Spacetime) :
+      derivAlong V (fun q ↦ timeCoord q * spaceCoord a q) =
+        fun q ↦ (V q).1 * spaceCoord a q + timeCoord q * (V q).2 a := by
+    funext q
+    rw [derivAlong_eq_of_hasFDerivAt
+      ((hasFDerivAt_timeCoord q).fun_mul (hasFDerivAt_spaceCoord a q))]
+    simp [timeCoord, spaceCoord]
+    ring
+  have hL : boost a (fun q ↦ timeCoord q ^ 3) =
+      (3 : ℝ) • fun q ↦ timeCoord q ^ 2 * spaceCoord a q := by
+    funext q
+    rw [boost, hd]
+    simp [boostField]
+    ring
+  have ht : ∂ₜ (fun q ↦ timeCoord q ^ 2 * spaceCoord a q) =
+      fun q ↦ 2 * (timeCoord q * spaceCoord a q) := by
+    rw [timeDeriv, hd21]
+    funext q
+    simp [timeField]
+  have htt : ∂ₜ (∂ₜ fun q ↦ timeCoord q ^ 2 * spaceCoord a q) = fun q ↦ 2 * spaceCoord a q := by
+    rw [ht, timeDeriv, derivAlong_const_mul, hd11]
+    funext q
+    simp [timeField]
+  have hs (b : Fin 3) : ∂ₓ[b] (fun q ↦ timeCoord q ^ 2 * spaceCoord a q) =
+      fun q ↦ (if a = b then 1 else 0) * timeCoord q ^ 2 := by
+    rw [spaceDeriv, hd21]
+    funext q
+    simp [spaceField]
+  have hss (b : Fin 3) : ∂ₓ[b] (∂ₓ[b] fun q ↦ timeCoord q ^ 2 * spaceCoord a q) = fun _ ↦ 0 := by
+    rw [hs, spaceDeriv, derivAlong_const_mul, derivAlong_timeCoord_sq]
+    funext q
+    simp [spaceField]
+  have hbox2 : □ (fun q ↦ timeCoord q ^ 2 * spaceCoord a q) = fun q ↦ -2 * spaceCoord a q := by
+    funext q
+    rw [dAlembertian_eq, htt]
+    simp [hss]
+  refine ⟨?_, ?_⟩
+  · rw [hbox, boost, derivAlong_const_mul]
+    simp [boostField]
+  · rw [hL, dAlembertian_smul, hbox2]
+    simp
+    ring
+
+/-- The version on open sets applies to functions that are smooth only on an open set: the radius
+`r = |x|` is smooth on the open set `{x ≠ 0}` of spacetime, but not differentiable on `{x = 0}`. -/
+example :
+    Set.EqOn (scaling (□ radius) - □ (scaling radius)) ((-2 : ℝ) • □ radius) {p | p.2 ≠ 0} :=
+  scaling_dAlembertian_sub_dAlembertian_scaling_of_contDiffOn
+    (isOpen_ne_fun continuous_snd continuous_const)
+    fun p hp ↦ ((contDiffAt_norm ℝ hp).comp p contDiffAt_snd).contDiffWithinAt
 
 /-- The boost fields satisfy the hypothesis of the general formula
 `derivAlong_dAlembertian_sub_dAlembertian_derivAlong_apply`: they have a constant derivative. -/
