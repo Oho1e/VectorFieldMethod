@@ -2,6 +2,7 @@ module
 
 public import VectorFieldMethod.Analysis.HyperboloidalSobolev
 public import VectorFieldMethod.Analysis.LocalSobolev
+public import VectorFieldMethod.Analysis.SqrtGronwall
 public import VectorFieldMethod.ForMathlib.Analysis.Calculus.LineDeriv.IntegrationByParts
 public import VectorFieldMethod.ForMathlib.Analysis.Calculus.SpatialDivergence
 public import VectorFieldMethod.ForMathlib.Geometry.Manifold.PartitionOfUnity
@@ -15,6 +16,7 @@ public import VectorFieldMethod.Minkowski.Computations
 public import VectorFieldMethod.Minkowski.Derivative
 public import VectorFieldMethod.Minkowski.EnergyMomentum
 public import VectorFieldMethod.Minkowski.HyperboloidalEnergy
+public import VectorFieldMethod.Minkowski.HyperboloidalEnergyEstimate
 public import VectorFieldMethod.Minkowski.HyperboloidalEnergyIdentity
 public import VectorFieldMethod.Minkowski.KlainermanSobolev
 public import VectorFieldMethod.Minkowski.Spacetime
